@@ -1,6 +1,9 @@
 const mongoose = require("mongoose");
 
 const connectDatabase = () => {
+  if (mongoose.connection.readyState >= 1) {
+    return;
+  }
   mongoose
     .connect(process.env.DB_URL, {
       useNewUrlParser: true,
@@ -12,3 +15,4 @@ const connectDatabase = () => {
 };
 
 module.exports = connectDatabase;
+

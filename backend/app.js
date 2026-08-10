@@ -3,9 +3,33 @@ const ErrorHandler = require("./middleware/error");
 const app = express();
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
-const cors = require("cors");
+const connectDatabase = require("./db/Database");
+const cloudinary = require("cloudinary");
 
-app.use(cors());
+// config
+if (process.env.NODE_ENV !== "PRODUCTION") {
+  require("dotenv").config({
+    path: "config/.env",
+  });
+}
+
+// connect db & cloudinary initialization for serverless compatibility
+connectDatabase();
+
+if (process.env.CLOUDINARY_NAME) {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+}
+
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || true,
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 app.use(cookieParser());
@@ -14,13 +38,6 @@ app.use("/test", (req, res) => {
 });
 
 app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
-
-// config
-if (process.env.NODE_ENV !== "PRODUCTION") {
-  require("dotenv").config({
-    path: "config/.env",
-  });
-}
 
 // import routes
 const user = require("./controller/user");

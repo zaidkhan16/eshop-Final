@@ -377,8 +377,9 @@ const SellerInbox = ({
               )}
               {item.images && (
                 <img
-                  src={`${item.images?.url}`}
+                  src={typeof item.images === "string" ? item.images : item.images?.url}
                   className="w-[300px] h-[300px] object-cover rounded-[10px] ml-2 mb-2"
+                  alt=""
                 />
               )}
               {item.text !== "" && (

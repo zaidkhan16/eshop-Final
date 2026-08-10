@@ -15,7 +15,15 @@ if (process.env.NODE_ENV !== "PRODUCTION") {
 }
 
 // connect db & cloudinary initialization for serverless compatibility
-connectDatabase();
+app.use(async (req, res, next) => {
+  try {
+    await connectDatabase();
+    next();
+  } catch (err) {
+    console.error("DB Connection Error:", err);
+    next(err);
+  }
+});
 
 if (process.env.CLOUDINARY_NAME) {
   cloudinary.config({

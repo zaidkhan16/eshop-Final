@@ -105,7 +105,7 @@ const ProductDetails = ({ data }) => {
           navigate(`/inbox?${res.data.conversation._id}`);
         })
         .catch((error) => {
-          toast.error(error.response.data.message);
+          toast.error(error.response?.data?.message || error.message || "Failed to start conversation!");
         });
     } else {
       toast.error("Please login to create a conversation");

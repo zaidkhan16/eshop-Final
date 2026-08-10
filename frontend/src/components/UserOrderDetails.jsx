@@ -59,7 +59,7 @@ const UserOrderDetails = () => {
        toast.success(res.data.message);
     dispatch(getAllOrdersOfUser(user._id));
     }).catch((error) => {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || error.message || "Failed to process refund!");
     })
   };
 

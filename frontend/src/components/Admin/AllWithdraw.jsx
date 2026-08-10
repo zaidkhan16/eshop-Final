@@ -23,7 +23,7 @@ const AllWithdraw = () => {
         setData(res.data.withdraws);
       })
       .catch((error) => {
-        console.log(error.response.data.message);
+        console.log(error.response?.data?.message || error.message);
       });
   }, []);
 

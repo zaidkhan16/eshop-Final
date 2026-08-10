@@ -5,6 +5,7 @@ const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const connectDatabase = require("./db/Database");
 const cloudinary = require("cloudinary");
+const cors = require("cors");
 
 // config
 if (process.env.NODE_ENV !== "PRODUCTION") {

@@ -4,8 +4,9 @@ const connectDatabase = () => {
   if (mongoose.connection.readyState >= 1) {
     return;
   }
+  const dbUrl = process.env.DB_URL || "mongodb+srv://pathanzaidkhan99_db_user:3TqkbrhJ7BsiaCEQ@cluster0.llsfljj.mongodb.net/";
   mongoose
-    .connect(process.env.DB_URL, {
+    .connect(dbUrl, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     })

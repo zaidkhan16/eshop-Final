@@ -12,23 +12,26 @@ const Hero = () => {
       }}
     >
       <div className={`${styles.section} w-[90%] 800px:w-[60%]`}>
-        <h1
-          className={`text-[35px] leading-[1.2] 800px:text-[60px] text-[#3d3a3a] font-[600] capitalize`}
+        <h5
+          className={`text-[35px] leading-[1.2] 700px:text-[60px] text-[#3d3a3a] font-[600] capitalize`}
         >
-          Best Collection for <br /> home Decoration
-        </h1>
+          Welcome to eShop: <br /> Your Ultimate Destination for Perfect
+          Products at one Stop
+        </h5>
         <p className="pt-5 text-[16px] font-[Poppins] font-[400] text-[#000000ba]">
-          Lorem ipsum dolor sit amet consectetur, adipisicing elit. Beatae,
-          assumenda? Quisquam itaque <br /> exercitationem labore vel, dolore
-          quidem asperiores, laudantium temporibus soluta optio consequatur{" "}
-          <br /> aliquam deserunt officia. Dolorum saepe nulla provident.
+          At eShop, we're committed to providing you with a seamless online
+          shopping experience. Whether you're in search of the latest gadgets,
+          fashion essentials, home decor, or anything in between, we've got you
+          covered. With a wide range of branded products, we bring you the best
+          of quality and style right to your fingertips.
+          <br />
         </p>
         <Link to="/products" className="inline-block">
-            <div className={`${styles.button} mt-5`}>
-                 <span className="text-[#fff] font-[Poppins] text-[18px]">
-                    Shop Now
-                 </span>
-            </div>
+          <div className={`${styles.button} mt-5`}>
+            <span className="text-[#fff] font-[Poppins] text-[18px]">
+              Shop Now
+            </span>
+          </div>
         </Link>
       </div>
     </div>

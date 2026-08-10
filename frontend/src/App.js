@@ -78,6 +78,7 @@ const App = () => {
 
   return (
     <BrowserRouter>
+      {" "}
       {stripeApikey && (
         <Elements stripe={loadStripe(stripeApikey)}>
           <Routes>
@@ -88,27 +89,27 @@ const App = () => {
                   <PaymentPage />
                 </ProtectedRoute>
               }
-            />
-          </Routes>
+            />{" "}
+          </Routes>{" "}
         </Elements>
-      )}
+      )}{" "}
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/sign-up" element={<SignupPage />} />
+        <Route path="/" element={<HomePage />} />{" "}
+        <Route path="/login" element={<LoginPage />} />{" "}
+        <Route path="/sign-up" element={<SignupPage />} />{" "}
         <Route
           path="/activation/:activation_token"
           element={<ActivationPage />}
-        />
+        />{" "}
         <Route
           path="/seller/activation/:activation_token"
           element={<SellerActivationPage />}
-        />
-        <Route path="/products" element={<ProductsPage />} />
-        <Route path="/product/:id" element={<ProductDetailsPage />} />
-        <Route path="/best-selling" element={<BestSellingPage />} />
-        <Route path="/events" element={<EventsPage />} />
-        <Route path="/faq" element={<FAQPage />} />
+        />{" "}
+        <Route path="/products" element={<ProductsPage />} />{" "}
+        <Route path="/product/:id" element={<ProductDetailsPage />} />{" "}
+        <Route path="/best-selling" element={<BestSellingPage />} />{" "}
+        <Route path="/events" element={<EventsPage />} />{" "}
+        <Route path="/faq" element={<FAQPage />} />{" "}
         <Route
           path="/checkout"
           element={
@@ -116,8 +117,8 @@ const App = () => {
               <CheckoutPage />
             </ProtectedRoute>
           }
-        />
-        <Route path="/order/success" element={<OrderSuccessPage />} />
+        />{" "}
+        <Route path="/order/success" element={<OrderSuccessPage />} />{" "}
         <Route
           path="/profile"
           element={
@@ -125,7 +126,7 @@ const App = () => {
               <ProfilePage />
             </ProtectedRoute>
           }
-        />
+        />{" "}
         <Route
           path="/inbox"
           element={
@@ -133,7 +134,7 @@ const App = () => {
               <UserInbox />
             </ProtectedRoute>
           }
-        />
+        />{" "}
         <Route
           path="/user/order/:id"
           element={
@@ -141,7 +142,7 @@ const App = () => {
               <OrderDetailsPage />
             </ProtectedRoute>
           }
-        />
+        />{" "}
         <Route
           path="/user/track/order/:id"
           element={
@@ -149,11 +150,11 @@ const App = () => {
               <TrackOrderPage />
             </ProtectedRoute>
           }
-        />
-        <Route path="/shop/preview/:id" element={<ShopPreviewPage />} />
-        {/* shop Routes */}
-        <Route path="/shop-create" element={<ShopCreatePage />} />
-        <Route path="/shop-login" element={<ShopLoginPage />} />
+        />{" "}
+        <Route path="/shop/preview/:id" element={<ShopPreviewPage />} />{" "}
+        {/* shop Routes */}{" "}
+        <Route path="/shop-create" element={<ShopCreatePage />} />{" "}
+        <Route path="/shop-login" element={<ShopLoginPage />} />{" "}
         <Route
           path="/shop/:id"
           element={
@@ -161,7 +162,7 @@ const App = () => {
               <ShopHomePage />
             </SellerProtectedRoute>
           }
-        />
+        />{" "}
         <Route
           path="/settings"
           element={
@@ -169,7 +170,7 @@ const App = () => {
               <ShopSettingsPage />
             </SellerProtectedRoute>
           }
-        />
+        />{" "}
         <Route
           path="/dashboard"
           element={
@@ -177,7 +178,7 @@ const App = () => {
               <ShopDashboardPage />
             </SellerProtectedRoute>
           }
-        />
+        />{" "}
         <Route
           path="/dashboard-create-product"
           element={
@@ -185,7 +186,7 @@ const App = () => {
               <ShopCreateProduct />
             </SellerProtectedRoute>
           }
-        />
+        />{" "}
         <Route
           path="/dashboard-orders"
           element={
@@ -193,7 +194,7 @@ const App = () => {
               <ShopAllOrders />
             </SellerProtectedRoute>
           }
-        />
+        />{" "}
         <Route
           path="/dashboard-refunds"
           element={
@@ -201,8 +202,7 @@ const App = () => {
               <ShopAllRefunds />
             </SellerProtectedRoute>
           }
-        />
-
+        />{" "}
         <Route
           path="/order/:id"
           element={
@@ -210,7 +210,7 @@ const App = () => {
               <ShopOrderDetails />
             </SellerProtectedRoute>
           }
-        />
+        />{" "}
         <Route
           path="/dashboard-products"
           element={
@@ -218,7 +218,7 @@ const App = () => {
               <ShopAllProducts />
             </SellerProtectedRoute>
           }
-        />
+        />{" "}
         <Route
           path="/dashboard-create-event"
           element={
@@ -226,7 +226,7 @@ const App = () => {
               <ShopCreateEvents />
             </SellerProtectedRoute>
           }
-        />
+        />{" "}
         <Route
           path="/dashboard-events"
           element={
@@ -234,7 +234,7 @@ const App = () => {
               <ShopAllEvents />
             </SellerProtectedRoute>
           }
-        />
+        />{" "}
         <Route
           path="/dashboard-coupouns"
           element={
@@ -242,7 +242,7 @@ const App = () => {
               <ShopAllCoupouns />
             </SellerProtectedRoute>
           }
-        />
+        />{" "}
         <Route
           path="/dashboard-withdraw-money"
           element={
@@ -250,7 +250,7 @@ const App = () => {
               <ShopWithDrawMoneyPage />
             </SellerProtectedRoute>
           }
-        />
+        />{" "}
         <Route
           path="/dashboard-messages"
           element={
@@ -258,8 +258,8 @@ const App = () => {
               <ShopInboxPage />
             </SellerProtectedRoute>
           }
-        />
-        {/* Admin Routes */}
+        />{" "}
+        {/* Admin Routes */}{" "}
         <Route
           path="/admin/dashboard"
           element={
@@ -267,7 +267,7 @@ const App = () => {
               <AdminDashboardPage />
             </ProtectedAdminRoute>
           }
-        />
+        />{" "}
         <Route
           path="/admin-users"
           element={
@@ -275,7 +275,7 @@ const App = () => {
               <AdminDashboardUsers />
             </ProtectedAdminRoute>
           }
-        />
+        />{" "}
         <Route
           path="/admin-sellers"
           element={
@@ -283,7 +283,7 @@ const App = () => {
               <AdminDashboardSellers />
             </ProtectedAdminRoute>
           }
-        />
+        />{" "}
         <Route
           path="/admin-orders"
           element={
@@ -291,7 +291,7 @@ const App = () => {
               <AdminDashboardOrders />
             </ProtectedAdminRoute>
           }
-        />
+        />{" "}
         <Route
           path="/admin-products"
           element={
@@ -299,7 +299,7 @@ const App = () => {
               <AdminDashboardProducts />
             </ProtectedAdminRoute>
           }
-        />
+        />{" "}
         <Route
           path="/admin-events"
           element={
@@ -307,7 +307,7 @@ const App = () => {
               <AdminDashboardEvents />
             </ProtectedAdminRoute>
           }
-        />
+        />{" "}
         <Route
           path="/admin-withdraw-request"
           element={
@@ -315,8 +315,8 @@ const App = () => {
               <AdminDashboardWithdraw />
             </ProtectedAdminRoute>
           }
-        />
-      </Routes>
+        />{" "}
+      </Routes>{" "}
       <ToastContainer
         position="bottom-center"
         autoClose={5000}

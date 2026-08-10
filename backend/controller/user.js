@@ -19,9 +19,16 @@ router.post("/create-user", async (req, res, next) => {
       return next(new ErrorHandler("User already exists", 400));
     }
 
-    const myCloud = await cloudinary.v2.uploader.upload(avatar, {
-      folder: "avatars",
-    });
+    let myCloud = {
+      public_id: "avatars/default",
+      secure_url: "https://res.cloudinary.com/demo/image/upload/v1578330767/sample.jpg",
+    };
+
+    if (avatar) {
+      myCloud = await cloudinary.v2.uploader.upload(avatar, {
+        folder: "avatars",
+      });
+    }
 
     const user = {
       name: name,

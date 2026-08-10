@@ -3,14 +3,13 @@ import Header from "../components/Layout/Header";
 import { useSelector } from "react-redux";
 import socketIO from "socket.io-client";
 import { format } from "timeago.js";
-import { server } from "../server";
+import { server, ENDPOINT } from "../server";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineArrowRight, AiOutlineSend } from "react-icons/ai";
 import { TfiGallery } from "react-icons/tfi";
 import styles from "../styles/styles";
-const ENDPOINT = process.env.REACT_APP_SOCKET_SERVER_URL || "http://localhost:4000/";
-const socketId = socketIO(ENDPOINT, { transports: ["websocket", "polling"] });
+const socketId = socketIO(ENDPOINT, { transports: ["polling", "websocket"] });
 
 const UserInbox = () => {
   const { user,loading } = useSelector((state) => state.user);

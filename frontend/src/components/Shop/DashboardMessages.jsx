@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useRef, useState } from "react";
 import { useEffect } from "react";
-import { server } from "../../server";
+import { server, ENDPOINT } from "../../server";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineArrowRight, AiOutlineSend } from "react-icons/ai";
@@ -9,8 +9,7 @@ import styles from "../../styles/styles";
 import { TfiGallery } from "react-icons/tfi";
 import socketIO from "socket.io-client";
 import { format } from "timeago.js";
-const ENDPOINT = process.env.REACT_APP_SOCKET_SERVER_URL || "http://localhost:4000/";
-const socketId = socketIO(ENDPOINT, { transports: ["websocket", "polling"] });
+const socketId = socketIO(ENDPOINT, { transports: ["polling", "websocket"] });
 
 const DashboardMessages = () => {
   const { seller,isLoading } = useSelector((state) => state.seller);

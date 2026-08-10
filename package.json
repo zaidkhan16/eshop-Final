@@ -1,0 +1,16 @@
+{
+  "name": "eshop-socket-service",
+  "version": "1.0.0",
+  "private": true,
+  "main": "socket/index.js",
+  "scripts": {
+    "build": "echo 'No build step required'",
+    "start": "node socket/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "socket.io": "^4.6.1"
+  }
+}

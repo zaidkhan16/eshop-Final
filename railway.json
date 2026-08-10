@@ -1,0 +1,12 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS",
+    "installCommand": "npm install",
+    "buildCommand": "echo 'Skipping build step'"
+  },
+  "deploy": {
+    "startCommand": "node socket/index.js",
+    "restartPolicyType": "ON_FAILURE"
+  }
+}

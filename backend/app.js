@@ -43,6 +43,9 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 app.get("/favicon.ico", (req, res) => res.status(204).end());
+app.get("/", (req, res) => {
+  res.send("E-Shop Backend Server is running successfully!");
+});
 app.use("/test", (req, res) => {
   res.send("Hello world!");
 });

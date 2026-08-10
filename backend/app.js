@@ -42,6 +42,7 @@ app.use(
 
 app.use(express.json());
 app.use(cookieParser());
+app.get("/favicon.ico", (req, res) => res.status(204).end());
 app.use("/test", (req, res) => {
   res.send("Hello world!");
 });

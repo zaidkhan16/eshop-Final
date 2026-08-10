@@ -42,7 +42,11 @@ router.post("/create-user", async (req, res, next) => {
 
     const activationToken = createActivationToken(user);
 
-    const activationUrl = `http://localhost:3000/activation/${activationToken}`;
+    const activationUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/activation/${activationToken}`;
+
+    console.log("---------------------------------------------------");
+    console.log("ACCOUNT ACTIVATION LINK:", activationUrl);
+    console.log("---------------------------------------------------");
 
     try {
       await sendMail({
@@ -55,7 +59,13 @@ router.post("/create-user", async (req, res, next) => {
         message: `please check your email:- ${user.email} to activate your account!`,
       });
     } catch (error) {
-      return next(new ErrorHandler(error.message, 500));
+      console.error("SMTP Mail Error:", error.message);
+      return next(
+        new ErrorHandler(
+          `Failed to send activation email (${error.message}). Please update SMPT_PASSWORD in backend/config/.env`,
+          500
+        )
+      );
     }
   } catch (error) {
     return next(new ErrorHandler(error.message, 400));

@@ -75,13 +75,13 @@ const ProductDetails = ({ data }) => {
 
   const totalReviewsLength =
     products &&
-    products.reduce((acc, product) => acc + product.reviews.length, 0);
+    products.reduce((acc, product) => acc + (product.reviews ? product.reviews.length : 0), 0);
 
   const totalRatings =
     products &&
     products.reduce(
       (acc, product) =>
-        acc + product.reviews.reduce((sum, review) => sum + review.rating, 0),
+        acc + (product.reviews ? product.reviews.reduce((sum, review) => sum + review.rating, 0) : 0),
       0
     );
 

@@ -222,7 +222,7 @@ export const navItems = [
       title: "Shoes",
       subTitle: "",
       image_Url:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvBQPQMVNRd6TtDkGs2dCri0Y-rxKkFOiEWw&usqp=CAU",
+        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&auto=format&fit=crop",
     },
     {
       id: 6,

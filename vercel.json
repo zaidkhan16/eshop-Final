@@ -13,35 +13,18 @@
       }
     }
   ],
-  "headers": [
-    {
-      "source": "/api/v2/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate, max-age=0" },
-        { "key": "Pragma", "value": "no-cache" }
-      ]
-    }
-  ],
   "routes": [
     {
-      "src": "/api/v2/(.*)",
+      "src": "^/api/v2/(.*)$",
       "dest": "/api/index.js"
     },
     {
-      "src": "/static/(.*)",
-      "dest": "/frontend/static/$1"
-    },
-    {
-      "src": "/favicon.ico",
-      "dest": "/frontend/favicon.ico"
-    },
-    {
-      "src": "/manifest.json",
-      "dest": "/frontend/manifest.json"
+      "src": "^/api/v2$",
+      "dest": "/api/index.js"
     },
     {
       "src": "/(.*)",
-      "dest": "/frontend/index.html"
+      "dest": "/frontend/$1"
     }
   ]
 }

@@ -40,6 +40,11 @@ app.use(
   })
 );
 
+app.use((req, res, next) => {
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  next();
+});
+
 app.use(express.json());
 app.use(cookieParser());
 app.get("/favicon.ico", (req, res) => res.status(204).end());

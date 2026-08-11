@@ -51,6 +51,24 @@ app.get("/favicon.ico", (req, res) => res.status(204).end());
 app.get("/", (req, res) => {
   res.send("E-Shop Backend Server is running successfully!");
 });
+app.get("/config-check", (req, res) => {
+  res.status(200).json({
+    success: true,
+    dbUrlConfigured: !!process.env.DB_URL,
+    dbUrlPreview: process.env.DB_URL ? `${process.env.DB_URL.substring(0, 15)}...` : "NOT_SET",
+    cloudinaryConfigured: !!process.env.CLOUDINARY_NAME,
+    nodeEnv: process.env.NODE_ENV || "development",
+  });
+});
+app.get("/api/v2/config-check", (req, res) => {
+  res.status(200).json({
+    success: true,
+    dbUrlConfigured: !!process.env.DB_URL,
+    dbUrlPreview: process.env.DB_URL ? `${process.env.DB_URL.substring(0, 15)}...` : "NOT_SET",
+    cloudinaryConfigured: !!process.env.CLOUDINARY_NAME,
+    nodeEnv: process.env.NODE_ENV || "development",
+  });
+});
 app.use("/test", (req, res) => {
   res.send("Hello world!");
 });

@@ -108,13 +108,16 @@ router.get(
   "/get-all-products",
   catchAsyncErrors(async (req, res, next) => {
     try {
+      console.log("[BACKEND_API] /get-all-products requested");
       const products = await Product.find().sort({ createdAt: -1 });
+      console.log(`[BACKEND_API] /get-all-products returning ${products.length} products`);
 
-      res.status(201).json({
+      res.status(200).json({
         success: true,
         products,
       });
     } catch (error) {
+      console.error("[BACKEND_API_ERROR] /get-all-products failed:", error);
       return next(new ErrorHandler(error, 400));
     }
   })

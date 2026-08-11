@@ -99,12 +99,16 @@ export const getAllProducts = () => async (dispatch) => {
       type: "getAllProductsRequest",
     });
 
+    console.log("[FETCH_PRODUCTS] Requesting from URL:", `${server}/product/get-all-products`);
     const { data } = await axios.get(`${server}/product/get-all-products`);
+    console.log("[FETCH_PRODUCTS] Received products count:", data?.products?.length, data);
+
     dispatch({
       type: "getAllProductsSuccess",
       payload: data.products,
     });
   } catch (error) {
+    console.error("[FETCH_PRODUCTS_ERROR]:", error.response || error.message);
     dispatch({
       type: "getAllProductsFailed",
       payload: error.response?.data?.message || error.message,

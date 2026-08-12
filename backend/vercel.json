@@ -14,7 +14,7 @@
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/api/[...path].js"
+      "destination": "/api/index.js"
     }
   ]
 }

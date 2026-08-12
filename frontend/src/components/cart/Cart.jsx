@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import ReactDOM from "react-dom";
 import { RxCross1 } from "react-icons/rx";
 import { IoBagHandleOutline, IoTrashOutline, IoCartOutline, IoArrowForward } from "react-icons/io5";
 import { HiOutlineMinus, HiPlus, HiOutlineSparkles, HiOutlineTruck } from "react-icons/hi";
@@ -31,9 +32,9 @@ const Cart = ({ setOpenCart }) => {
     dispatch(addTocart(data));
   };
 
-  return (
+  return ReactDOM.createPortal(
     <div
-      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex justify-end transition-opacity duration-300"
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[99999] flex justify-end transition-opacity duration-300"
       onClick={(e) => {
         if (e.target === e.currentTarget) setOpenCart(false);
       }}
@@ -152,7 +153,8 @@ const Cart = ({ setOpenCart }) => {
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

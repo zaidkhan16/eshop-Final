@@ -1,4 +1,5 @@
 import React from "react";
+import ReactDOM from "react-dom";
 import { RxCross1 } from "react-icons/rx";
 import { IoHeartOutline, IoCartOutline, IoTrashOutline } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
@@ -27,9 +28,9 @@ const Wishlist = ({ setOpenWishlist }) => {
     }
   };
 
-  return (
+  return ReactDOM.createPortal(
     <div
-      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex justify-end transition-opacity duration-300"
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[99999] flex justify-end transition-opacity duration-300"
       onClick={(e) => {
         if (e.target === e.currentTarget) setOpenWishlist(false);
       }}
@@ -89,7 +90,8 @@ const Wishlist = ({ setOpenWishlist }) => {
         </div>
 
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

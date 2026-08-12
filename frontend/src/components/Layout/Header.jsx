@@ -210,17 +210,13 @@ const Header = ({ activeHeading }) => {
                 )}
               </div>
             </div>
-
-            {/* Cart popup */}
-            {openCart ? <Cart setOpenCart={setOpenCart} /> : null}
-
-            {/* Wishlist popup */}
-            {openWishlist ? (
-              <Wishlist setOpenWishlist={setOpenWishlist} />
-            ) : null}
           </div>
         </div>
       </div>
+
+      {/* Global Modals for Cart & Wishlist */}
+      {openCart ? <Cart setOpenCart={setOpenCart} /> : null}
+      {openWishlist ? <Wishlist setOpenWishlist={setOpenWishlist} /> : null}
 
       {/* Mobile Header Bar */}
       <div
@@ -248,9 +244,6 @@ const Header = ({ activeHeading }) => {
             </span>
           </div>
         </div>
-
-        {openCart ? <Cart setOpenCart={setOpenCart} /> : null}
-        {openWishlist ? <Wishlist setOpenWishlist={setOpenWishlist} /> : null}
       </div>
 
       {/* Mobile Drawer */}

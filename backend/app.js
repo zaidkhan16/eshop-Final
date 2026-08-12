@@ -42,6 +42,13 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use((req, res, next) => {
+  if (req.url.startsWith("/v2/")) {
+    req.url = "/api" + req.url;
+  }
+  next();
+});
+
 app.use(
   cors({
     origin: true,

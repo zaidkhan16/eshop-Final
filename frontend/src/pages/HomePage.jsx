@@ -7,20 +7,30 @@ import FeaturedProduct from "../components/Route/FeaturedProduct/FeaturedProduct
 import Events from "../components/Events/Events";
 import Sponsored from "../components/Route/Sponsored";
 import Footer from "../components/Layout/Footer";
+import Loader from "../components/Layout/Loader";
+import { useSelector } from "react-redux";
 
 const HomePage = () => {
-  return (
-    <div>
-        <Header activeHeading={1} />
-        <Hero />
-        <Categories />
-        <BestDeals />
-        <Events />
-        <FeaturedProduct />
-        <Sponsored />
-        <Footer />
-    </div>
-  )
-}
+  const { isLoading } = useSelector((state) => state.products);
 
-export default HomePage
+  return (
+    <>
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <div>
+          <Header activeHeading={1} />
+          <Hero />
+          <Categories />
+          <BestDeals />
+          <Events />
+          <FeaturedProduct />
+          <Sponsored />
+          <Footer />
+        </div>
+      )}
+    </>
+  );
+};
+
+export default HomePage;

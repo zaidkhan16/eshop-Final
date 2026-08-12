@@ -4,86 +4,85 @@ import { Link } from "react-router-dom";
 const LuminaLogo = ({ light = false, className = "" }) => {
   return (
     <Link to="/" className={`flex items-center gap-3 group cursor-pointer ${className}`}>
-      {/* Emblem: Modern Dynamic Shopping Bag with Gradient Wings */}
-      <div className="relative flex items-center justify-center w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 via-violet-600 to-cyan-400 p-0.5 shadow-lg shadow-indigo-500/25 group-hover:shadow-indigo-500/40 group-hover:scale-105 transition-all duration-300">
-        <div className="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center relative overflow-hidden group-hover:bg-opacity-90 transition-all">
-          {/* Inner Ambient Glow */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/20 via-violet-500/20 to-cyan-400/20 opacity-80 group-hover:opacity-100 transition-opacity"></div>
+      {/* Emblem: Sleek Modern Hexagon Spark Shield */}
+      <div className="relative flex items-center justify-center w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 via-indigo-600 to-cyan-400 p-0.5 shadow-lg shadow-indigo-500/25 group-hover:shadow-indigo-500/45 group-hover:scale-105 transition-all duration-300">
+        <div className="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center relative overflow-hidden">
+          {/* Background Ambient Glow */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/20 via-indigo-500/20 to-cyan-400/20 opacity-80 group-hover:opacity-100 transition-opacity"></div>
 
-          {/* SVG Vector: Winged Shopping Bag */}
+          {/* SVG Vector: Hexagon Spark Shield */}
           <svg
-            className="w-6 h-6 text-white relative z-10 drop-shadow-[0_2px_8px_rgba(99,102,241,0.6)]"
+            className="w-6 h-6 text-white relative z-10 drop-shadow-[0_0_10px_rgba(99,102,241,0.7)]"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="1.8"
             strokeLinecap="round"
             strokeLinejoin="round"
           >
-            {/* Bag Body */}
-            <path
-              d="M6 9l1.2 11a2 2 0 002 1.8h5.6a2 2 0 002-1.8L18 9H6z"
-              fill="url(#bagGradient)"
-              fillOpacity="0.3"
+            {/* Hexagon Shield Frame */}
+            <polygon
+              points="12 2 21 7 21 17 12 22 3 17 3 7 12 2"
+              fill="url(#shieldGrad)"
+              fillOpacity="0.25"
+              stroke="url(#frameGrad)"
+              strokeWidth="2"
             />
-            {/* Bag Handles */}
-            <path d="M9 9V6a3 3 0 016 0v3" stroke="url(#handleGradient)" strokeWidth="2.2" />
-            
-            {/* Left Dynamic Wing Accent */}
+
+            {/* Central Spark Star */}
             <path
-              d="M3 11c-1.5-2-1-4.5 1-6 2 2 2.5 4.5 2 6"
-              stroke="#38bdf8"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-            />
-            
-            {/* Right Dynamic Wing Accent */}
-            <path
-              d="M21 11c1.5-2 1-4.5-1-6-2 2-2.5 4.5-2 6"
-              stroke="#a855f7"
-              strokeWidth="1.8"
-              strokeLinecap="round"
+              d="M12 7l1.5 3.5L17 12l-3.5 1.5L12 17l-1.5-3.5L7 12l3.5-1.5L12 7z"
+              fill="url(#sparkGrad)"
+              stroke="#fbbf24"
+              strokeWidth="1"
             />
 
             {/* Gradient Definitions */}
             <defs>
-              <linearGradient id="bagGradient" x1="6" y1="9" x2="18" y2="21" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#818cf8" />
-                <stop offset="1" stopColor="#c084fc" />
+              <linearGradient id="shieldGrad" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#6366f1" />
+                <stop offset="1" stopColor="#06b6d4" />
               </linearGradient>
-              <linearGradient id="handleGradient" x1="9" y1="3" x2="15" y2="9" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#38bdf8" />
-                <stop offset="1" stopColor="#a855f7" />
+              <linearGradient id="frameGrad" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#f59e0b" />
+                <stop offset="0.5" stopColor="#6366f1" />
+                <stop offset="1" stopColor="#06b6d4" />
+              </linearGradient>
+              <linearGradient id="sparkGrad" x1="7" y1="7" x2="17" y2="17" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#fbbf24" />
+                <stop offset="1" stopColor="#f59e0b" />
               </linearGradient>
             </defs>
           </svg>
         </div>
 
-        {/* Live Sparkle Pulse Dot */}
+        {/* Live Status Indicator */}
         <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-gradient-to-r from-cyan-400 to-indigo-500 border border-white"></span>
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-gradient-to-r from-amber-400 to-indigo-600 border border-white"></span>
         </span>
       </div>
 
-      {/* Typography */}
+      {/* Brand Typography */}
       <div className="flex flex-col">
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           <span
             className={`font-black text-2xl tracking-tight leading-none ${
               light ? "text-white" : "text-slate-900"
             }`}
           >
-            Lumina
+            LUMINA
           </span>
-          <span className="w-2 h-2 rounded-full bg-gradient-to-r from-indigo-500 to-cyan-400"></span>
+          <span className="px-1.5 py-0.5 rounded-md bg-gradient-to-r from-indigo-600 to-violet-600 text-white text-[9px] font-black tracking-wider uppercase shadow-xs">
+            PRIME
+          </span>
         </div>
         <span
-          className={`text-[10px] tracking-widest uppercase font-black mt-0.5 ${
-            light ? "text-indigo-300" : "text-indigo-600"
+          className={`text-[10px] tracking-[0.2em] uppercase font-bold mt-0.5 ${
+            light ? "text-amber-300" : "text-amber-600"
           }`}
         >
-          Marketplace
+          Exclusive Market
         </span>
       </div>
     </Link>

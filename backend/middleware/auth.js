@@ -15,6 +15,10 @@ exports.isAuthenticated = catchAsyncErrors(async(req,res,next) => {
 
     req.user = await User.findById(decoded.id);
 
+    if (!req.user) {
+        return next(new ErrorHandler("User doesn't exist", 401));
+    }
+
     next();
 });
 
@@ -29,14 +33,18 @@ exports.isSeller = catchAsyncErrors(async(req,res,next) => {
 
     req.seller = await Shop.findById(decoded.id);
 
+    if (!req.seller) {
+        return next(new ErrorHandler("Seller doesn't exist", 401));
+    }
+
     next();
 });
 
 
 exports.isAdmin = (...roles) => {
     return (req,res,next) => {
-        if(!roles.includes(req.user.role)){
-            return next(new ErrorHandler(`${req.user.role} can not access this resources!`))
+        if(!req.user || !roles.includes(req.user.role)){
+            return next(new ErrorHandler(`${req.user ? req.user.role : 'User'} can not access this resources!`, 403))
         };
         next();
     }

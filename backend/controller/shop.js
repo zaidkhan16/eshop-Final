@@ -258,7 +258,7 @@ router.put(
     try {
       const { name, description, address, phoneNumber, zipCode } = req.body;
 
-      const shop = await Shop.findOne(req.seller._id);
+      const shop = await Shop.findById(req.seller._id);
 
       if (!shop) {
         return next(new ErrorHandler("User not found", 400));

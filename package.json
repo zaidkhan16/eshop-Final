@@ -1,16 +1,25 @@
 {
-  "name": "eshop-socket-service",
+  "name": "nexus-store-service",
   "version": "1.0.0",
   "private": true,
-  "main": "socket/index.js",
+  "main": "api/index.js",
   "scripts": {
     "build": "echo 'No build step required'",
-    "start": "node socket/index.js"
+    "start": "node backend/server.js"
   },
   "dependencies": {
+    "bcrypt": "^5.1.0",
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^1.37.3",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "socket.io": "^4.6.1"
+    "js-cookie": "^3.0.1",
+    "jsonwebtoken": "^9.0.0",
+    "mongoose": "^7.0.0",
+    "nodemailer": "^6.9.1",
+    "socket.io": "^4.6.1",
+    "stripe": "^12.0.0"
   }
 }

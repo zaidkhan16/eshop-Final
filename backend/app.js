@@ -14,24 +14,33 @@ if (process.env.NODE_ENV !== "PRODUCTION") {
   });
 }
 
-// connect db & cloudinary initialization for serverless compatibility
-app.use(async (req, res, next) => {
-  try {
-    await connectDatabase();
-    next();
-  } catch (err) {
-    console.error("DB Connection Error:", err);
-    next(err);
+// 1. CORS & Response Header Middleware (FIRST before any route or DB call)
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  } else {
+    res.setHeader("Access-Control-Allow-Origin", "*");
   }
-});
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, HEAD, POST, PUT, DELETE, OPTIONS, PATCH"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization, Cookie"
+  );
+  res.setHeader(
+    "Cache-Control",
+    "no-store, no-cache, must-revalidate, proxy-revalidate"
+  );
 
-if (process.env.CLOUDINARY_NAME) {
-  cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_NAME.trim(),
-    api_key: process.env.CLOUDINARY_API_KEY ? process.env.CLOUDINARY_API_KEY.trim() : "",
-    api_secret: process.env.CLOUDINARY_API_SECRET ? process.env.CLOUDINARY_API_SECRET.trim() : "",
-  });
-}
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+  next();
+});
 
 app.use(
   cors({
@@ -49,16 +58,24 @@ app.use(
   })
 );
 
-app.use((req, res, next) => {
-  res.setHeader(
-    "Cache-Control",
-    "no-store, no-cache, must-revalidate, proxy-revalidate"
-  );
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
+// 2. connect db & cloudinary initialization for serverless compatibility
+app.use(async (req, res, next) => {
+  try {
+    await connectDatabase();
+    next();
+  } catch (err) {
+    console.error("DB Connection Error:", err);
+    next(err);
   }
-  next();
 });
+
+if (process.env.CLOUDINARY_NAME) {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_NAME.trim(),
+    api_key: process.env.CLOUDINARY_API_KEY ? process.env.CLOUDINARY_API_KEY.trim() : "",
+    api_secret: process.env.CLOUDINARY_API_SECRET ? process.env.CLOUDINARY_API_SECRET.trim() : "",
+  });
+}
 
 app.use(express.json());
 app.use(cookieParser());

@@ -1,6 +1,14 @@
 const ErrorHandler = require("../utils/ErrorHandler");
 
 module.exports = (err, req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  } else {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+  }
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+
   err.statusCode = err.statusCode || 500;
   err.message = err.message || "Internal server Error";
 

@@ -35,7 +35,17 @@ if (process.env.CLOUDINARY_NAME) {
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || true,
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      if (
+        origin.includes("vercel.app") ||
+        origin.includes("localhost") ||
+        (process.env.FRONTEND_URL && origin.includes(process.env.FRONTEND_URL))
+      ) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
     credentials: true,
   })
 );
@@ -49,26 +59,26 @@ app.use(express.json());
 app.use(cookieParser());
 app.get("/favicon.ico", (req, res) => res.status(204).end());
 app.get("/", (req, res) => {
-  res.send("E-Shop Backend Server is running successfully!");
+  res.send("Nexus Store Backend Server is running successfully!");
 });
-app.get("/config-check", (req, res) => {
-  res.status(200).json({
+
+const getConfigDiagnostics = () => {
+  const mongoose = require("mongoose");
+  return {
     success: true,
+    message: "Nexus Store Server Status",
+    dbConnected: mongoose.connection.readyState === 1,
+    dbReadyState: mongoose.connection.readyState,
     dbUrlConfigured: !!process.env.DB_URL,
-    dbUrlPreview: process.env.DB_URL ? `${process.env.DB_URL.substring(0, 15)}...` : "NOT_SET",
+    dbUrlPreview: process.env.DB_URL ? `${process.env.DB_URL.substring(0, 15)}...` : "DEFAULT_FALLBACK",
+    jwtConfigured: !!process.env.JWT_SECRET_KEY,
     cloudinaryConfigured: !!process.env.CLOUDINARY_NAME,
     nodeEnv: process.env.NODE_ENV || "development",
-  });
-});
-app.get("/api/v2/config-check", (req, res) => {
-  res.status(200).json({
-    success: true,
-    dbUrlConfigured: !!process.env.DB_URL,
-    dbUrlPreview: process.env.DB_URL ? `${process.env.DB_URL.substring(0, 15)}...` : "NOT_SET",
-    cloudinaryConfigured: !!process.env.CLOUDINARY_NAME,
-    nodeEnv: process.env.NODE_ENV || "development",
-  });
-});
+  };
+};
+
+app.get("/config-check", (req, res) => res.status(200).json(getConfigDiagnostics()));
+app.get("/api/v2/config-check", (req, res) => res.status(200).json(getConfigDiagnostics()));
 app.use("/test", (req, res) => {
   res.send("Hello world!");
 });

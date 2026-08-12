@@ -147,6 +147,21 @@ app.use("/payment", payment);
 app.use("/api/v2/withdraw", withdraw);
 app.use("/withdraw", withdraw);
 
+// Explicit 404 handler for unknown routes with guaranteed CORS headers
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  } else {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+  }
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.status(404).json({
+    success: false,
+    message: `API Route Not Found: ${req.method} ${req.originalUrl || req.url}`,
+  });
+});
+
 // it's for ErrorHandling
 app.use(ErrorHandler);
 

@@ -15,19 +15,25 @@ const BestDeals = () => {
   
 
   return (
-    <div>
+    <div className="py-8">
       <div className={`${styles.section}`}>
-        <div className={`${styles.heading}`}>
-          <h1>Best Deals</h1>
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-2">
+          <div>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-pink-50 text-pink-600 border border-pink-100 uppercase tracking-wider">
+              🔥 Hot Selling Offers
+            </span>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mt-2">
+              Best Deals of the Week
+            </h2>
+          </div>
         </div>
-        <div className="grid grid-cols-1 gap-[20px] md:grid-cols-2 md:gap-[25px] lg:grid-cols-4 lg:gap-[25px] xl:grid-cols-5 xl:gap-[30px] mb-12 border-0">
-           {
-            data && data.length !== 0 &&(
-              <>
-               {data && data.map((i, index) => <ProductCard data={i} key={index} />)}
-              </>
-            )
-           }
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mb-12">
+          {data && data.length !== 0 && (
+            <>
+              {data.map((i, index) => <ProductCard data={i} key={index} />)}
+            </>
+          )}
         </div>
       </div>
     </div>

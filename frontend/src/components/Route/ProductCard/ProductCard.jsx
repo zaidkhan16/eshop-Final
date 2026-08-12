@@ -1,26 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   AiFillHeart,
-  AiFillStar,
   AiOutlineEye,
   AiOutlineHeart,
   AiOutlineShoppingCart,
-  AiOutlineStar,
 } from "react-icons/ai";
 import { Link } from "react-router-dom";
-import styles from "../../../styles/styles";
 import { useDispatch, useSelector } from "react-redux";
 import ProductDetailsCard from "../ProductDetailsCard/ProductDetailsCard";
 import {
   addToWishlist,
   removeFromWishlist,
 } from "../../../redux/actions/wishlist";
-import { useEffect } from "react";
 import { addTocart } from "../../../redux/actions/cart";
 import { toast } from "react-toastify";
 import Ratings from "../../Products/Ratings";
 
-const ProductCard = ({ data,isEvent }) => {
+const ProductCard = ({ data, isEvent }) => {
   const { wishlist } = useSelector((state) => state.wishlist);
   const { cart } = useSelector((state) => state.cart);
   const [click, setClick] = useState(false);
@@ -33,7 +29,7 @@ const ProductCard = ({ data,isEvent }) => {
     } else {
       setClick(false);
     }
-  }, [wishlist]);
+  }, [wishlist, data._id]);
 
   const removeFromWishlistHandler = (data) => {
     setClick(!click);
@@ -60,82 +56,107 @@ const ProductCard = ({ data,isEvent }) => {
     }
   };
 
+  const discountPercent =
+    data.originalPrice && data.discountPrice && data.originalPrice > data.discountPrice
+      ? Math.round(((data.originalPrice - data.discountPrice) / data.originalPrice) * 100)
+      : null;
+
   return (
     <>
-      <div className="w-full h-[370px] bg-white rounded-lg shadow-sm p-3 relative cursor-pointer">
-        <div className="flex justify-end"></div>
-        <Link to={`${isEvent === true ? `/product/${data._id}?isEvent=true` : `/product/${data._id}`}`}>
-          <img
-            src={`${data.images && data.images[0]?.url}`}
-            alt=""
-            className="w-full h-[170px] object-contain"
-          />
-        </Link>
-        <Link to={`/shop/preview/${data?.shop._id}`}>
-          <h5 className={`${styles.shop_name}`}>{data.shop.name}</h5>
-        </Link>
-        <Link to={`${isEvent === true ? `/product/${data._id}?isEvent=true` : `/product/${data._id}`}`}>
-          <h4 className="pb-3 font-[500]">
-            {data.name.length > 40 ? data.name.slice(0, 40) + "..." : data.name}
-          </h4>
+      <div className="w-full bg-white rounded-3xl border border-slate-100 shadow-xs hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 p-4 relative cursor-pointer flex flex-col justify-between group">
+        
+        {/* Discount Badge */}
+        {discountPercent ? (
+          <span className="absolute top-4 left-4 z-10 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-extrabold text-[11px] px-2.5 py-1 rounded-full shadow-md uppercase tracking-wider">
+            {discountPercent}% OFF
+          </span>
+        ) : null}
 
-          <div className="flex">
-          <Ratings rating={data?.ratings} />
-          </div>
-
-          <div className="py-2 flex items-center justify-between">
-            <div className="flex">
-              <h5 className={`${styles.productDiscountPrice}`}>
-                {data.originalPrice === 0
-                  ? data.originalPrice
-                  : data.discountPrice}
-                $
-              </h5>
-              <h4 className={`${styles.price}`}>
-                {data.originalPrice ? data.originalPrice + " $" : null}
-              </h4>
-            </div>
-            <span className="font-[400] text-[17px] text-[#68d284]">
-              {data?.sold_out} sold
-            </span>
-          </div>
-        </Link>
-
-        {/* side options */}
-        <div>
+        {/* Floating Side Quick Action Buttons */}
+        <div className="absolute top-4 right-4 z-10 flex flex-col gap-2 opacity-90 group-hover:opacity-100 transition-opacity">
           {click ? (
-            <AiFillHeart
-              size={22}
-              className="cursor-pointer absolute right-2 top-5"
+            <button
               onClick={() => removeFromWishlistHandler(data)}
-              color={click ? "red" : "#333"}
+              className="w-9 h-9 rounded-full bg-pink-50 text-pink-500 shadow-md flex items-center justify-center hover:scale-110 transition-transform"
               title="Remove from wishlist"
-            />
+            >
+              <AiFillHeart size={18} />
+            </button>
           ) : (
-            <AiOutlineHeart
-              size={22}
-              className="cursor-pointer absolute right-2 top-5"
+            <button
               onClick={() => addToWishlistHandler(data)}
-              color={click ? "red" : "#333"}
+              className="w-9 h-9 rounded-full bg-white/90 backdrop-blur-md text-slate-600 hover:text-pink-500 shadow-md flex items-center justify-center hover:scale-110 transition-all"
               title="Add to wishlist"
-            />
+            >
+              <AiOutlineHeart size={18} />
+            </button>
           )}
-          <AiOutlineEye
-            size={22}
-            className="cursor-pointer absolute right-2 top-14"
+          
+          <button
             onClick={() => setOpen(!open)}
-            color="#333"
+            className="w-9 h-9 rounded-full bg-white/90 backdrop-blur-md text-slate-600 hover:text-indigo-600 shadow-md flex items-center justify-center hover:scale-110 transition-all"
             title="Quick view"
-          />
-          <AiOutlineShoppingCart
-            size={25}
-            className="cursor-pointer absolute right-2 top-24"
-            onClick={() => addToCartHandler(data._id)}
-            color="#444"
-            title="Add to cart"
-          />
-          {open ? <ProductDetailsCard setOpen={setOpen} data={data} /> : null}
+          >
+            <AiOutlineEye size={18} />
+          </button>
         </div>
+
+        {/* Product Image Frame */}
+        <Link to={`${isEvent === true ? `/product/${data._id}?isEvent=true` : `/product/${data._id}`}`}>
+          <div className="w-full h-[180px] rounded-2xl bg-slate-50 flex items-center justify-center p-3 overflow-hidden relative mb-3">
+            <img
+              src={`${data.images && data.images[0]?.url}`}
+              alt={data.name}
+              className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-sm"
+            />
+          </div>
+        </Link>
+
+        {/* Shop Name */}
+        <Link to={`/shop/preview/${data?.shop?._id}`}>
+          <span className="text-[12px] font-bold text-indigo-500 hover:text-indigo-600 tracking-wide uppercase">
+            {data?.shop?.name || "Verified Store"}
+          </span>
+        </Link>
+
+        {/* Title */}
+        <Link to={`${isEvent === true ? `/product/${data._id}?isEvent=true` : `/product/${data._id}`}`}>
+          <h4 className="font-bold text-slate-800 text-sm leading-snug hover:text-indigo-600 transition-colors my-1 line-clamp-2 min-h-[40px]">
+            {data.name}
+          </h4>
+        </Link>
+
+        {/* Ratings & Sold */}
+        <div className="flex items-center justify-between my-2">
+          <Ratings rating={data?.ratings} />
+          <span className="text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+            {data?.sold_out || 0} sold
+          </span>
+        </div>
+
+        {/* Price & Add to Cart Footer */}
+        <div className="pt-2 border-t border-slate-100 flex items-center justify-between mt-auto">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-lg font-black text-slate-900">
+              ${data.discountPrice || data.originalPrice}
+            </span>
+            {data.originalPrice && data.discountPrice < data.originalPrice ? (
+              <span className="text-xs text-slate-400 font-medium line-through">
+                ${data.originalPrice}
+              </span>
+            ) : null}
+          </div>
+
+          <button
+            onClick={() => addToCartHandler(data._id)}
+            className="w-10 h-10 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center shadow-md shadow-indigo-500/20 hover:scale-105 active:scale-95 transition-all"
+            title="Add to cart"
+          >
+            <AiOutlineShoppingCart size={18} />
+          </button>
+        </div>
+
+        {open ? <ProductDetailsCard setOpen={setOpen} data={data} /> : null}
       </div>
     </>
   );

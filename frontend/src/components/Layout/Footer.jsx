@@ -11,112 +11,126 @@ import {
   footerProductLinks,
   footerSupportLinks,
 } from "../../static/data";
+import LuminaLogo from "./LuminaLogo";
 
 const Footer = () => {
   return (
-    <div className="bg-[#000] text-white">
-      <div className="md:flex md:justify-between md:items-center sm:px-12 px-4 bg-[#342ac8] py-7">
-        <h1 className="lg:text-4xl text-3xl md:mb-0 mb-6 lg:leading-normal font-semibold md:w-2/5">
-          <span className="text-[#56d879]">Subscribe</span> us for get news{" "}
-          <br />
-          events and offers
-        </h1>
-        <div>
-          <input
-            type="text"
-            required
-            placeholder="Enter your email..."
-            className="text-gray-800
-                sm:w-72 w-full sm:mr-5 mr-1 lg:mb-0 mb-4 py-2.5 rounded px-2 focus:outline-none"
-          />
-          <button className="bg-[#56d879] hover:bg-teal-500 duration-300 px-5 py-2.5 rounded-md text-whie md:w-auto w-full">
-            Submit
-          </button>
+    <div className="bg-slate-950 text-white border-t border-slate-900">
+      {/* Newsletter Subscribe Banner */}
+      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 py-10 px-6 sm:px-12 border-b border-indigo-500/10">
+        <div className="max-w-7xl mx-auto md:flex md:justify-between md:items-center gap-6">
+          <div className="md:w-1/2 mb-6 md:mb-0">
+            <span className="text-xs font-bold uppercase tracking-widest text-indigo-400">Stay Updated</span>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white mt-1 leading-snug">
+              Subscribe to <span className="text-indigo-400">Lumina Market</span> for exclusive flash deals & offers
+            </h1>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+            <input
+              type="email"
+              required
+              placeholder="Enter your email address..."
+              className="bg-slate-900/80 border border-slate-700 text-white placeholder-slate-400 sm:w-80 px-4 py-3 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-sm transition-all"
+            />
+            <button className="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 font-bold px-6 py-3 rounded-xl text-white text-sm shadow-md shadow-indigo-600/30 transition-all duration-300">
+              Subscribe
+            </button>
+          </div>
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:gird-cols-3 lg:grid-cols-4 gap-6 sm:px-8 px-5 py-16 sm:text-center">
-        <ul className="px-5 text-center sm:text-start flex sm:block flex-col items-center">
-          <img
-            src="https://shopo.quomodothemes.website/assets/images/logo.svg"
-            alt=""
-            style={{ filter: "brightness(0) invert(1)" }}
-          />
-          <br />
-          <p>Your Ultimate Destination For Perfect Products At One Stop</p>
-          <div className="flex items-center mt-[15px]">
-            <AiFillFacebook size={25} className="cursor-pointer" />
-            <AiOutlineTwitter
-              size={25}
-              style={{ marginLeft: "15px", cursor: "pointer" }}
-            />
-            <AiFillInstagram
-              size={25}
-              style={{ marginLeft: "15px", cursor: "pointer" }}
-            />
-            <AiFillYoutube
-              size={25}
-              style={{ marginLeft: "15px", cursor: "pointer" }}
-            />
+
+      {/* Main Footer Links */}
+      <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 px-6 sm:px-12 py-16">
+        {/* Brand & Socials Column */}
+        <div className="lg:col-span-2 flex flex-col items-start">
+          <LuminaLogo light={true} />
+          <p className="text-slate-400 text-sm mt-4 leading-relaxed max-w-sm">
+            Your premium destination for curated fashion, trending tech, and verified quality products delivered straight to your doorstep.
+          </p>
+          <div className="flex items-center gap-3 mt-6">
+            <a href="#facebook" className="p-2.5 bg-slate-900 hover:bg-indigo-600 rounded-xl text-slate-300 hover:text-white transition-all">
+              <AiFillFacebook size={20} />
+            </a>
+            <a href="#twitter" className="p-2.5 bg-slate-900 hover:bg-indigo-600 rounded-xl text-slate-300 hover:text-white transition-all">
+              <AiOutlineTwitter size={20} />
+            </a>
+            <a href="#instagram" className="p-2.5 bg-slate-900 hover:bg-indigo-600 rounded-xl text-slate-300 hover:text-white transition-all">
+              <AiFillInstagram size={20} />
+            </a>
+            <a href="#youtube" className="p-2.5 bg-slate-900 hover:bg-indigo-600 rounded-xl text-slate-300 hover:text-white transition-all">
+              <AiFillYoutube size={20} />
+            </a>
           </div>
-        </ul>
+        </div>
 
-        <ul className="text-center sm:text-start">
-          <h1 className="mb-1 font-semibold">Company</h1>
-          {footerProductLinks.map((link, index) => (
-            <li key={index}>
-              <Link
-                className="text-gray-400 hover:text-teal-400 duration-300
-                   text-sm cursor-pointer leading-6"
-                to={link.link}
-              >
-                {link.name}
-              </Link>
-            </li>
-          ))}
-        </ul>
+        {/* Company Links */}
+        <div>
+          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-200 mb-4">Company</h3>
+          <ul className="flex flex-col gap-2.5">
+            {footerProductLinks.map((link, index) => (
+              <li key={index}>
+                <Link
+                  className="text-slate-400 hover:text-indigo-400 text-sm transition-colors"
+                  to={link.link}
+                >
+                  {link.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-        <ul className="text-center sm:text-start">
-          <h1 className="mb-1 font-semibold">Shop</h1>
-          {footercompanyLinks.map((link, index) => (
-            <li key={index}>
-              <Link
-                className="text-gray-400 hover:text-teal-400 duration-300
-                   text-sm cursor-pointer leading-6"
-                to={link.link}
-              >
-                {link.name}
-              </Link>
-            </li>
-          ))}
-        </ul>
+        {/* Shop Links */}
+        <div>
+          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-200 mb-4">Shop</h3>
+          <ul className="flex flex-col gap-2.5">
+            {footercompanyLinks.map((link, index) => (
+              <li key={index}>
+                <Link
+                  className="text-slate-400 hover:text-indigo-400 text-sm transition-colors"
+                  to={link.link}
+                >
+                  {link.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-        <ul className="text-center sm:text-start">
-          <h1 className="mb-1 font-semibold">Support</h1>
-          {footerSupportLinks.map((link, index) => (
-            <li key={index}>
-              <Link
-                className="text-gray-400 hover:text-teal-400 duration-300
-                   text-sm cursor-pointer leading-6"
-                to={link.link}
-              >
-                {link.name}
-              </Link>
-            </li>
-          ))}
-        </ul>
+        {/* Support Links */}
+        <div>
+          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-200 mb-4">Support</h3>
+          <ul className="flex flex-col gap-2.5">
+            {footerSupportLinks.map((link, index) => (
+              <li key={index}>
+                <Link
+                  className="text-slate-400 hover:text-indigo-400 text-sm transition-colors"
+                  to={link.link}
+                >
+                  {link.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
 
-      <div
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10
-         text-center pt-2 text-gray-400 text-sm pb-8"
-      >
-        <span>© Eshop.com. All rights reserved.</span>
-        <span>Terms · Privacy Policy</span>
-        <div className="sm:block flex items-center justify-center w-full">
-          <img
-            src="https://hamart-shop.vercel.app/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Ffooter-payment.a37c49ac.png&w=640&q=75"
-            alt=""
-          />
+      {/* Bottom Copyright */}
+      <div className="border-t border-slate-900 py-6 px-6 sm:px-12 text-slate-500 text-xs">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <span>© {new Date().getFullYear()} Lumina Market Inc. All rights reserved.</span>
+          <div className="flex gap-6 font-medium">
+            <Link to="/privacy" className="hover:text-slate-400 transition-colors">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-slate-400 transition-colors">Terms of Service</Link>
+            <Link to="/security" className="hover:text-slate-400 transition-colors">Security</Link>
+          </div>
+          <div className="flex items-center">
+            <img
+              src="https://hamart-shop.vercel.app/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Ffooter-payment.a37c49ac.png&w=640&q=75"
+              alt="Payment Methods"
+              className="h-6 object-contain opacity-75 hover:opacity-100 transition-opacity"
+            />
+          </div>
         </div>
       </div>
     </div>

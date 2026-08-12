@@ -7,28 +7,37 @@ const Categories = () => {
   const navigate = useNavigate();
   return (
     <>
-      <div className={`${styles.section} hidden sm:block`}>
-        <div
-          className={`branding my-12 flex justify-between w-full shadow-sm bg-white p-5 rounded-md`}
-        >
+      {/* Branding Features Bar */}
+      <div className={`${styles.section} my-8`}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-white border border-slate-100 p-6 rounded-3xl shadow-sm">
           {brandingData &&
             brandingData.map((i, index) => (
-              <div className="flex items-start" key={index}>
-                {i.icon}
-                <div className="px-3">
-                  <h3 className="font-bold text-sm md:text-base">{i.title}</h3>
-                  <p className="text-xs md:text-sm">{i.Description}</p>
+              <div
+                className="flex items-center gap-4 p-3 rounded-2xl hover:bg-indigo-50/50 transition-colors group"
+                key={index}
+              >
+                <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                  {i.icon}
+                </div>
+                <div className="flex flex-col">
+                  <h3 className="font-bold text-sm text-slate-900 leading-snug">{i.title}</h3>
+                  <p className="text-xs text-slate-500 mt-0.5">{i.Description}</p>
                 </div>
               </div>
             ))}
         </div>
       </div>
 
-      <div
-        className={`${styles.section} bg-white p-6 rounded-lg mb-12`}
-        id="categories"
-      >
-        <div className="grid grid-cols-1 gap-[5px] md:grid-cols-2 md:gap-[10px] lg:grid-cols-4 lg:gap-[20px] xl:grid-cols-5 xl:gap-[30px]">
+      {/* Categories Showcase Grid */}
+      <div className={`${styles.section} mb-16`} id="categories">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-2">
+          <div>
+            <span className="text-xs font-bold text-indigo-600 tracking-wider uppercase">Explore Collections</span>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mt-1">Popular Categories</h2>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
           {categoriesData &&
             categoriesData.map((i) => {
               const handleSubmit = (i) => {
@@ -36,16 +45,24 @@ const Categories = () => {
               };
               return (
                 <div
-                  className="w-full h-[100px] flex items-center justify-between cursor-pointer overflow-hidden"
+                  className="group bg-white p-4 rounded-3xl border border-slate-100 shadow-xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 cursor-pointer flex flex-col items-center justify-between h-[180px] relative overflow-hidden"
                   key={i.id}
                   onClick={() => handleSubmit(i)}
                 >
-                  <h5 className={`text-[18px] leading-[1.3]`}>{i.title}</h5>
-                  <img
-                    src={i.image_Url}
-                    className="w-[120px] object-cover"
-                    alt=""
-                  />
+                  <div className="w-full flex justify-between items-start z-10">
+                    <h5 className="font-bold text-sm text-slate-800 group-hover:text-indigo-600 transition-colors leading-tight line-clamp-2">
+                      {i.title}
+                    </h5>
+                  </div>
+                  
+                  <div className="w-full flex justify-center items-center h-[110px] mt-2 relative">
+                    <div className="absolute inset-0 bg-indigo-50/50 rounded-2xl group-hover:scale-95 transition-transform duration-300"></div>
+                    <img
+                      src={i.image_Url}
+                      className="w-[90px] h-[90px] object-contain z-10 group-hover:scale-110 transition-transform duration-300 drop-shadow-md"
+                      alt={i.title}
+                    />
+                  </div>
                 </div>
               );
             })}

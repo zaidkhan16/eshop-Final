@@ -5,6 +5,7 @@ import { FiPackage, FiShoppingBag } from 'react-icons/fi'
 import { MdOutlineLocalOffer } from 'react-icons/md'
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
+import LuminaLogo from './LuminaLogo'
 
 const AdminHeader = () => {
     const {user} = useSelector((state) => state.user);
@@ -12,12 +13,7 @@ const AdminHeader = () => {
   return (
          <div className="w-full h-[80px] bg-white shadow sticky top-0 left-0 z-30 flex items-center justify-between px-4">
       <div>
-        <Link to="/">
-          <img
-            src="https://shopo.quomodothemes.website/assets/images/logo.svg"
-            alt=""
-          />
-        </Link>
+        <LuminaLogo />
       </div>
       <div className="flex items-center">
         <div className="flex items-center mr-4">

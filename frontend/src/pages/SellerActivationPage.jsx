@@ -50,8 +50,9 @@ const SellerActivationPage = () => {
         {/* Top Icon */}
         <div className="flex justify-center mb-6">
           {status === "verifying" && (
-            <div className="relative flex items-center justify-center w-20 h-20 bg-cyan-500/10 rounded-2xl border border-cyan-500/20 shadow-inner">
-              <div className="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+            <div className="relative flex items-center justify-center w-24 h-24 bg-emerald-500/10 rounded-3xl border border-emerald-500/30 shadow-2xl shadow-emerald-500/20">
+              <div className="absolute inset-0 rounded-3xl border-2 border-emerald-500/40 animate-ping opacity-25" />
+              <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent border-r-emerald-400 rounded-full animate-spin" />
             </div>
           )}
 

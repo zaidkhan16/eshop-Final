@@ -1,248 +1,146 @@
 const createEmailTemplate = ({ title, name, actionUrl, buttonText, subtitle, type = "user" }) => {
   const isSeller = type === "seller";
   
-  // Color tokens & badges based on email type
+  // Custom theme colors & badges based on email type
   const brandBadge = isSeller ? "🏪 ESHOP SELLER PORTAL" : "⚡ ESHOP MEMBER PORTAL";
   const headerGradient = isSeller 
-    ? "linear-gradient(135deg, #059669 0%, #10b981 50%, #6366f1 100%)" 
-    : "linear-gradient(135deg, #4f46e5 0%, #3b82f6 50%, #06b6d4 100%)";
-  const buttonGradient = isSeller
+    ? "linear-gradient(135deg, #059669 0%, #10b981 50%, #4f46e5 100%)" 
+    : "linear-gradient(135deg, #2563eb 0%, #4f46e5 50%, #7c3aed 100%)";
+  const buttonBg = isSeller
     ? "linear-gradient(135deg, #10b981 0%, #059669 100%)"
-    : "linear-gradient(135deg, #4f46e5 0%, #2563eb 100%)";
+    : "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)";
   const buttonShadow = isSeller
-    ? "0 10px 25px -5px rgba(16, 185, 129, 0.4)"
-    : "0 10px 25px -5px rgba(79, 70, 229, 0.4)";
+    ? "0 8px 20px -4px rgba(16, 185, 129, 0.45)"
+    : "0 8px 20px -4px rgba(37, 99, 235, 0.45)";
   
-  const defaultButtonText = buttonText || (isSeller ? "🚀 ACTIVATE MY SHOP NOW" : "VERIFY & ACTIVATE ACCOUNT");
   const mainTitle = title || (isSeller ? "Activate Your Shop Storefront" : "Activate Your Account");
-  
-  const featureList = isSeller ? `
-    <table cellpadding="0" cellspacing="0" width="100%" style="margin-top: 24px; margin-bottom: 28px; background-color: #1e293b; border-radius: 12px; border: 1px solid #334155; text-align: left;">
+  const defaultBtnText = buttonText || (isSeller ? "🚀 ACTIVATE MY SHOP NOW" : "✨ VERIFY & ACTIVATE ACCOUNT");
+  const welcomeHeading = name ? `Hello ${name}! 👋` : `Welcome to ${isSeller ? "Eshop Seller Portal" : "Eshop"}`;
+  const bodyDescription = subtitle || (isSeller
+    ? "Congratulations on registering your seller account on Eshop! Click the button below to verify your email address and activate your shop storefront."
+    : "Thank you for joining Eshop! Click the button below to verify your email address and unlock full access to your account.");
+
+  const featureChecklist = isSeller ? `
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin: 24px 0; background-color: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
       <tr>
-        <td style="padding: 14px 18px; border-bottom: 1px solid #334155; color: #f8fafc; font-size: 14px; font-weight: 600;">
-          📦 <span style="margin-left: 8px;">Manage products & live inventory</span>
+        <td style="padding: 14px 18px; border-bottom: 1px solid #e2e8f0; font-size: 14px; color: #334155; font-weight: 600;">
+          📦 <span style="margin-left: 8px;">List products & manage live inventory</span>
         </td>
       </tr>
       <tr>
-        <td style="padding: 14px 18px; border-bottom: 1px solid #334155; color: #f8fafc; font-size: 14px; font-weight: 600;">
-          📊 <span style="margin-left: 8px;">Real-time sales analytics & reporting</span>
+        <td style="padding: 14px 18px; border-bottom: 1px solid #e2e8f0; font-size: 14px; color: #334155; font-weight: 600;">
+          📊 <span style="margin-left: 8px;">Real-time sales analytics & customer insights</span>
         </td>
       </tr>
       <tr>
-        <td style="padding: 14px 18px; color: #f8fafc; font-size: 14px; font-weight: 600;">
+        <td style="padding: 14px 18px; font-size: 14px; color: #334155; font-weight: 600;">
           💳 <span style="margin-left: 8px;">Instant payout settlements & order management</span>
         </td>
       </tr>
     </table>
   ` : `
-    <table cellpadding="0" cellspacing="0" width="100%" style="margin-top: 24px; margin-bottom: 28px; background-color: #1e293b; border-radius: 12px; border: 1px solid #334155; text-align: left;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin: 24px 0; background-color: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
       <tr>
-        <td style="padding: 14px 18px; border-bottom: 1px solid #334155; color: #f8fafc; font-size: 14px; font-weight: 600;">
-          🛍️ <span style="margin-left: 8px;">Shop millions of trending products</span>
+        <td style="padding: 14px 18px; border-bottom: 1px solid #e2e8f0; font-size: 14px; color: #334155; font-weight: 600;">
+          🛍️ <span style="margin-left: 8px;">Shop millions of top products at best prices</span>
         </td>
       </tr>
       <tr>
-        <td style="padding: 14px 18px; border-bottom: 1px solid #334155; color: #f8fafc; font-size: 14px; font-weight: 600;">
+        <td style="padding: 14px 18px; border-bottom: 1px solid #e2e8f0; font-size: 14px; color: #334155; font-weight: 600;">
           ⚡ <span style="margin-left: 8px;">Fast, secure checkout & instant notifications</span>
         </td>
       </tr>
       <tr>
-        <td style="padding: 14px 18px; color: #f8fafc; font-size: 14px; font-weight: 600;">
-          📦 <span style="margin-left: 8px;">Real-time order tracking & 24/7 support</span>
+        <td style="padding: 14px 18px; font-size: 14px; color: #334155; font-weight: 600;">
+          🚚 <span style="margin-left: 8px;">Real-time order tracking & 24/7 support</span>
         </td>
       </tr>
     </table>
   `;
 
-  return `
-<!DOCTYPE html>
+  return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${mainTitle}</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: #0b0f19;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      color: #e2e8f0;
-      -webkit-font-smoothing: antialiased;
-    }
-    .wrapper {
-      width: 100%;
-      table-layout: fixed;
-      background-color: #0b0f19;
-      padding: 40px 16px;
-    }
-    .main-table {
-      max-width: 580px;
-      margin: 0 auto;
-      background-color: #0f172a;
-      border-radius: 20px;
-      border: 1px solid #1e293b;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-      overflow: hidden;
-    }
-    .header-bar {
-      background: ${headerGradient};
-      padding: 36px 24px;
-      text-align: center;
-    }
-    .badge {
-      display: inline-block;
-      padding: 6px 16px;
-      background: rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(8px);
-      border-radius: 50px;
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 1px;
-      color: #ffffff;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-    }
-    .header-title {
-      margin: 0;
-      font-size: 26px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      color: #ffffff;
-      text-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    }
-    .body-content {
-      padding: 40px 32px;
-      text-align: center;
-    }
-    .greeting {
-      font-size: 22px;
-      font-weight: 700;
-      color: #f8fafc;
-      margin-top: 0;
-      margin-bottom: 12px;
-    }
-    .subtext {
-      font-size: 15px;
-      line-height: 1.6;
-      color: #94a3b8;
-      margin-bottom: 24px;
-    }
-    .cta-container {
-      margin: 32px 0;
-      text-align: center;
-    }
-    .cta-button {
-      display: inline-block;
-      padding: 18px 40px;
-      font-size: 16px;
-      font-weight: 800;
-      color: #ffffff !important;
-      text-decoration: none;
-      background: ${buttonGradient};
-      border-radius: 14px;
-      box-shadow: ${buttonShadow};
-      letter-spacing: 0.5px;
-      transition: all 0.3s ease;
-    }
-    .security-box {
-      margin-top: 28px;
-      padding: 12px 18px;
-      background: rgba(30, 41, 59, 0.7);
-      border: 1px solid #334155;
-      border-radius: 10px;
-      font-size: 13px;
-      color: #cbd5e1;
-      display: inline-block;
-    }
-    .divider {
-      border: none;
-      height: 1px;
-      background: #1e293b;
-      margin: 32px 0;
-    }
-    .fallback-box {
-      background-color: #0b0f19;
-      padding: 16px;
-      border-radius: 10px;
-      border: 1px solid #1e293b;
-      text-align: left;
-    }
-    .fallback-title {
-      font-size: 12px;
-      font-weight: 600;
-      color: #64748b;
-      margin: 0 0 8px 0;
-    }
-    .fallback-url {
-      font-size: 13px;
-      color: #38bdf8;
-      word-break: break-all;
-      text-decoration: none;
-    }
-    .footer {
-      padding: 24px;
-      text-align: center;
-      background-color: #080c14;
-      font-size: 12px;
-      color: #64748b;
-      border-top: 1px solid #1e293b;
-      line-height: 1.5;
-    }
-  </style>
 </head>
-<body>
-  <div class="wrapper">
-    <table class="main-table" cellpadding="0" cellspacing="0" width="100%">
-      <tr>
-        <td class="header-bar">
-          <div class="badge">${brandBadge}</div>
-          <h1 class="header-title">${mainTitle}</h1>
-        </td>
-      </tr>
-      <tr>
-        <td class="body-content">
-          <h2 class="greeting">Hello ${name}! 👋</h2>
-          <p class="subtext">${subtitle}</p>
-
-          ${featureList}
-
-          <!-- CALL TO ACTION BUTTON -->
-          <div class="cta-container">
-            <!--[if mso]>
-            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${actionUrl}" style="height:54px;v-text-anchor:middle;width:260px;" arcsize="26%" stroke="f" fillcolor="${isSeller ? '#10b981' : '#4f46e5'}">
-              <w:anchorlock/>
-              <center style="color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:bold;">${defaultButtonText}</center>
-            </v:roundrect>
-            <![endif]-->
-            <!--[if !mso]><!-->
-            <a href="${actionUrl}" class="cta-button" target="_blank" style="display: inline-block; padding: 18px 40px; font-size: 16px; font-weight: 800; color: #ffffff !important; text-decoration: none; background: ${buttonGradient}; border-radius: 14px; box-shadow: ${buttonShadow}; letter-spacing: 0.5px;">${defaultButtonText}</a>
-            <!--<![endif]-->
-          </div>
-
-          <div class="security-box">
-            🔒 <strong>Security Guarantee:</strong> This activation link will expire in <strong>5 minutes</strong>.
-          </div>
-
-          <hr class="divider" />
-
-          <div class="fallback-box">
-            <p class="fallback-title">Having trouble clicking the button? Copy and paste this link into your browser:</p>
-            <a href="${actionUrl}" class="fallback-url" target="_blank">${actionUrl}</a>
-          </div>
-        </td>
-      </tr>
-      <tr>
-        <td class="footer">
-          &copy; ${new Date().getFullYear()} <strong>ESHOP Inc.</strong> All rights reserved.<br/>
-          This is an automated security message. If you did not request this, please ignore it or contact security support.
-        </td>
-      </tr>
-    </table>
-  </div>
+<body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f1f5f9; padding: 40px 16px;">
+    <tr>
+      <td align="center">
+        <!-- Main Card Container -->
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 560px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04); border: 1px solid #e2e8f0;">
+          
+          <!-- Gradient Top Header Banner -->
+          <tr>
+            <td style="background: ${headerGradient}; padding: 36px 24px; text-align: center;">
+              <!-- Header Badge -->
+              <div style="display: inline-block; padding: 5px 16px; background: rgba(255, 255, 255, 0.22); border-radius: 50px; font-size: 12px; font-weight: 800; color: #ffffff; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; backdrop-filter: blur(4px);">
+                ${brandBadge}
+              </div>
+              <h1 style="margin: 0; font-size: 24px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">${mainTitle}</h1>
+            </td>
+          </tr>
+          
+          <!-- Card Body Content -->
+          <tr>
+            <td style="padding: 36px 32px; text-align: left; background-color: #ffffff;">
+              <h2 style="margin-top: 0; margin-bottom: 12px; font-size: 20px; font-weight: 700; color: #0f172a;">${welcomeHeading}</h2>
+              
+              <p style="margin-top: 0; margin-bottom: 20px; font-size: 15px; line-height: 1.6; color: #475569;">
+                ${bodyDescription}
+              </p>
+              
+              ${featureChecklist}
+              
+              <!-- Glowing CTA Button Container -->
+              <div style="margin: 32px 0; text-align: center;">
+                <!--[if mso]>
+                <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${actionUrl}" style="height:50px;v-text-anchor:middle;width:260px;" arcsize="20%" stroke="f" fillcolor="${isSeller ? '#10b981' : '#2563eb'}">
+                  <w:anchorlock/>
+                  <center style="color:#ffffff;font-family:sans-serif;font-size:15px;font-weight:bold;">${defaultBtnText}</center>
+                </v:roundrect>
+                <![endif]-->
+                <!--[if !mso]><!-->
+                <a href="${actionUrl}" target="_blank" style="display: inline-block; background: ${buttonBg}; color: #ffffff !important; font-size: 15px; font-weight: 800; text-decoration: none; padding: 16px 36px; border-radius: 12px; box-shadow: ${buttonShadow}; letter-spacing: 0.5px; transition: all 0.3s ease;">
+                  ${defaultBtnText}
+                </a>
+                <!--<![endif]-->
+              </div>
+              
+              <!-- Security Guarantee Box -->
+              <div style="margin-top: 24px; padding: 12px 16px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; color: #64748b; text-align: center;">
+                🔒 <strong>Security Guarantee:</strong> This activation link is valid for <strong>5 minutes</strong> only.
+              </div>
+              
+              <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 28px 0;" />
+              
+              <!-- Fallback Link Section -->
+              <div style="background-color: #f8fafc; padding: 14px 16px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <p style="margin: 0 0 6px 0; font-size: 12px; font-weight: 600; color: #64748b;">
+                  Having trouble with the button? Copy & paste this URL into your browser:
+                </p>
+                <a href="${actionUrl}" target="_blank" style="font-size: 12px; color: #2563eb; word-break: break-all; text-decoration: underline;">
+                  ${actionUrl}
+                </a>
+              </div>
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 24px; text-align: center; background-color: #f8fafc; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0; line-height: 1.6;">
+              &copy; ${new Date().getFullYear()} <strong>ESHOP Inc.</strong> All rights reserved.<br />
+              Need help? Contact support at <a href="mailto:support@eshop.com" style="color: #2563eb; text-decoration: none;">support@eshop.com</a>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
-</html>
-  `;
+</html>`;
 };
 
 module.exports = createEmailTemplate;

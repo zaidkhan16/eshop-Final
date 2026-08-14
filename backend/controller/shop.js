@@ -55,11 +55,11 @@ router.post("/create-shop", catchAsyncErrors(async (req, res, next) => {
 
     try {
       const emailHtml = createEmailTemplate({
-        title: "Activate Your Shop Storefront",
+        title: "Activate Your Shop",
         name: seller.name,
         actionUrl: activationUrl,
-        buttonText: "🚀 ACTIVATE MY SHOP NOW",
-        subtitle: "Congratulations on registering your seller account on Eshop! Click the button below to verify your email address and activate your seller storefront.",
+        buttonText: "Activate Your Shop",
+        subtitle: "Thank you for registering your shop with us! To complete your store setup, please click the button below to verify your email address and activate your shop storefront.",
         type: "seller",
       });
 

@@ -54,8 +54,8 @@ router.post("/create-user", async (req, res, next) => {
         title: "Activate Your Account",
         name: user.name,
         actionUrl: activationUrl,
-        buttonText: "VERIFY & ACTIVATE ACCOUNT",
-        subtitle: "Welcome to Eshop! Click the button below to verify your email address and activate your account.",
+        buttonText: "Activate Your Account",
+        subtitle: "Thank you for registering with us! To complete your registration, please click the button below to verify your email address and activate your account.",
         type: "user",
       });
 

@@ -14,12 +14,18 @@ import { useState } from "react";
 
 const AllProducts = () => {
   const [data, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    setIsLoading(true);
     axios
       .get(`${server}/product/admin-all-products`, { withCredentials: true })
       .then((res) => {
         setData(res.data.products);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        setIsLoading(false);
       });
   }, []);
 
@@ -88,15 +94,19 @@ const AllProducts = () => {
 
   return (
     <>
-      <div className="w-full mx-8 pt-1 mt-10 bg-white">
-        <DataGrid
-          rows={row}
-          columns={columns}
-          pageSize={10}
-          disableSelectionOnClick
-          autoHeight
-        />
-      </div>
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <div className="w-full mx-8 pt-1 mt-10 bg-white">
+          <DataGrid
+            rows={row}
+            columns={columns}
+            pageSize={10}
+            disableSelectionOnClick
+            autoHeight
+          />
+        </div>
+      )}
     </>
   );
 };

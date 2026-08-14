@@ -24,6 +24,7 @@ import { useEffect } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { getAllOrdersOfUser } from "../../redux/actions/order";
+import Loader from "../Layout/Loader";
 
 const ProfileContent = ({ active }) => {
   const { user, error, successMessage } = useSelector((state) => state.user);
@@ -203,12 +204,14 @@ const ProfileContent = ({ active }) => {
 
 const AllOrders = () => {
   const { user } = useSelector((state) => state.user);
-  const { orders } = useSelector((state) => state.order);
+  const { orders, isLoading } = useSelector((state) => state.order);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getAllOrdersOfUser(user._id));
-  }, []);
+    if (user?._id) {
+      dispatch(getAllOrdersOfUser(user._id));
+    }
+  }, [dispatch, user]);
 
   const columns = [
     { field: "id", headerName: "Order ID", minWidth: 150, flex: 0.7 },
@@ -274,26 +277,34 @@ const AllOrders = () => {
     });
 
   return (
-    <div className="pl-8 pt-1">
-      <DataGrid
-        rows={row}
-        columns={columns}
-        pageSize={10}
-        disableSelectionOnClick
-        autoHeight
-      />
-    </div>
+    <>
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <div className="pl-8 pt-1">
+          <DataGrid
+            rows={row}
+            columns={columns}
+            pageSize={10}
+            disableSelectionOnClick
+            autoHeight
+          />
+        </div>
+      )}
+    </>
   );
 };
 
 const AllRefundOrders = () => {
   const { user } = useSelector((state) => state.user);
-  const { orders } = useSelector((state) => state.order);
+  const { orders, isLoading } = useSelector((state) => state.order);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getAllOrdersOfUser(user._id));
-  }, []);
+    if (user?._id) {
+      dispatch(getAllOrdersOfUser(user._id));
+    }
+  }, [dispatch, user]);
 
   const eligibleOrders =
     orders && orders.filter((item) => item.status === "Processing refund");
@@ -362,26 +373,34 @@ const AllRefundOrders = () => {
     });
 
   return (
-    <div className="pl-8 pt-1">
-      <DataGrid
-        rows={row}
-        columns={columns}
-        pageSize={10}
-        autoHeight
-        disableSelectionOnClick
-      />
-    </div>
+    <>
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <div className="pl-8 pt-1">
+          <DataGrid
+            rows={row}
+            columns={columns}
+            pageSize={10}
+            autoHeight
+            disableSelectionOnClick
+          />
+        </div>
+      )}
+    </>
   );
 };
 
 const TrackOrder = () => {
   const { user } = useSelector((state) => state.user);
-  const { orders } = useSelector((state) => state.order);
+  const { orders, isLoading } = useSelector((state) => state.order);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getAllOrdersOfUser(user._id));
-  }, []);
+    if (user?._id) {
+      dispatch(getAllOrdersOfUser(user._id));
+    }
+  }, [dispatch, user]);
 
   const columns = [
     { field: "id", headerName: "Order ID", minWidth: 150, flex: 0.7 },
@@ -447,15 +466,21 @@ const TrackOrder = () => {
     });
 
   return (
-    <div className="pl-8 pt-1">
-      <DataGrid
-        rows={row}
-        columns={columns}
-        pageSize={10}
-        disableSelectionOnClick
-        autoHeight
-      />
-    </div>
+    <>
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <div className="pl-8 pt-1">
+          <DataGrid
+            rows={row}
+            columns={columns}
+            pageSize={10}
+            disableSelectionOnClick
+            autoHeight
+          />
+        </div>
+      )}
+    </>
   );
 };
 

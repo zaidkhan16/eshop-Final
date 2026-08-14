@@ -9,9 +9,10 @@ import { RxCross1 } from "react-icons/rx";
 import { AiFillStar, AiOutlineStar } from "react-icons/ai";
 import axios from "axios";
 import { toast } from "react-toastify";
+import Loader from "./Layout/Loader";
 
 const UserOrderDetails = () => {
-  const { orders } = useSelector((state) => state.order);
+  const { orders, isLoading } = useSelector((state) => state.order);
   const { user } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
@@ -62,6 +63,10 @@ const UserOrderDetails = () => {
       toast.error(error.response?.data?.message || error.message || "Failed to process refund!");
     })
   };
+
+  if (isLoading) {
+    return <Loader />;
+  }
 
   return (
     <div className={`py-4 min-h-screen ${styles.section}`}>

@@ -7,6 +7,7 @@ import { getAllOrdersOfShop } from "../../redux/actions/order";
 import { server } from "../../server";
 import axios from "axios";
 import { toast } from "react-toastify";
+import Loader from "../Layout/Loader";
 
 const OrderDetails = () => {
   const { orders, isLoading } = useSelector((state) => state.order);
@@ -18,8 +19,10 @@ const OrderDetails = () => {
   const { id } = useParams();
 
   useEffect(() => {
-    dispatch(getAllOrdersOfShop(seller._id));
-  }, [dispatch]);
+    if (seller?._id) {
+      dispatch(getAllOrdersOfShop(seller._id));
+    }
+  }, [dispatch, seller]);
 
   const data = orders && orders.find((item) => item._id === id);
 
@@ -59,8 +62,9 @@ const OrderDetails = () => {
     });
   }
 
-  console.log(data?.status);
-
+  if (isLoading) {
+    return <Loader />;
+  }
 
   return (
     <div className={`py-4 min-h-screen ${styles.section}`}>

@@ -6,6 +6,7 @@ const ErrorHandler = require("../utils/ErrorHandler");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const jwt = require("jsonwebtoken");
 const sendMail = require("../utils/sendMail");
+const createEmailTemplate = require("../utils/emailTemplate");
 const sendToken = require("../utils/jwtToken");
 const { isAuthenticated, isAdmin } = require("../middleware/auth");
 
@@ -20,11 +21,11 @@ router.post("/create-user", async (req, res, next) => {
     }
 
     let myCloud = {
-      public_id: "avatars/default",
-      secure_url: "https://res.cloudinary.com/demo/image/upload/v1578330767/sample.jpg",
+      public_id: "sample_id",
+      secure_url: "https://via.placeholder.com/150",
     };
 
-    if (avatar) {
+    if (avatar && avatar !== "") {
       myCloud = await cloudinary.v2.uploader.upload(avatar, {
         folder: "avatars",
       });
@@ -49,10 +50,20 @@ router.post("/create-user", async (req, res, next) => {
     console.log("---------------------------------------------------");
 
     try {
+      const emailHtml = createEmailTemplate({
+        title: "Activate Your Account",
+        name: user.name,
+        actionUrl: activationUrl,
+        buttonText: "VERIFY & ACTIVATE ACCOUNT",
+        subtitle: "Welcome to Eshop! Click the button below to verify your email address and activate your account.",
+        type: "user",
+      });
+
       await sendMail({
         email: user.email,
-        subject: "Activate your account",
+        subject: "Activate your Eshop account",
         message: `Hello ${user.name}, please click on the link to activate your account: ${activationUrl}`,
+        html: emailHtml,
       });
       res.status(201).json({
         success: true,

@@ -4,6 +4,7 @@ import AdminSideBar from "../components/Admin/Layout/AdminSideBar";
 import { DataGrid } from "@mui/x-data-grid";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllOrdersOfAdmin } from "../redux/actions/order";
+import Loader from "../components/Layout/Loader";
 
 const AdminDashboardOrders = () => {
   const dispatch = useDispatch();
@@ -14,7 +15,7 @@ const AdminDashboardOrders = () => {
 
   useEffect(() => {
     dispatch(getAllOrdersOfAdmin());
-  }, []);
+  }, [dispatch]);
 
   const columns = [
     { field: "id", headerName: "Order ID", minWidth: 150, flex: 0.7 },
@@ -76,13 +77,17 @@ const AdminDashboardOrders = () => {
 
           <div className="w-full min-h-[45vh] pt-5 rounded flex justify-center">
             <div className="w-[97%] flex justify-center">
-              <DataGrid
-                rows={row}
-                columns={columns}
-                pageSize={4}
-                disableSelectionOnClick
-                autoHeight
-              />
+              {adminOrderLoading ? (
+                <Loader />
+              ) : (
+                <DataGrid
+                  rows={row}
+                  columns={columns}
+                  pageSize={4}
+                  disableSelectionOnClick
+                  autoHeight
+                />
+              )}
             </div>
           </div>
         </div>

@@ -4,11 +4,12 @@ import Footer from "../components/Layout/Footer";
 import Header from "../components/Layout/Header";
 import ProductDetails from "../components/Products/ProductDetails";
 import SuggestedProduct from "../components/Products/SuggestedProduct";
+import Loader from "../components/Layout/Loader";
 import { useSelector } from "react-redux";
 
 const ProductDetailsPage = () => {
-  const { allProducts } = useSelector((state) => state.products);
-  const { allEvents } = useSelector((state) => state.events);
+  const { allProducts, isLoading } = useSelector((state) => state.products);
+  const { allEvents, isLoading: eventLoading } = useSelector((state) => state.events);
   const { id } = useParams();
   const [data, setData] = useState(null);
   const [searchParams] = useSearchParams();
@@ -22,20 +23,24 @@ const ProductDetailsPage = () => {
       const data = allProducts && allProducts.find((i) => i._id === id);
       setData(data);
     }
-  }, [allProducts, allEvents]);
+  }, [allProducts, allEvents, id, eventData]);
 
   return (
     <div>
-      <Header />
-      <ProductDetails data={data} />
-        {
-          !eventData && (
+      {isLoading || eventLoading ? (
+        <Loader />
+      ) : (
+        <>
+          <Header />
+          <ProductDetails data={data} />
+          {!eventData && (
             <>
-            {data && <SuggestedProduct data={data} />}
+              {data && <SuggestedProduct data={data} />}
             </>
-          )
-        }
-      <Footer />
+          )}
+          <Footer />
+        </>
+      )}
     </div>
   );
 };

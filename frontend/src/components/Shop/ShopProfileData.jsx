@@ -6,22 +6,29 @@ import styles from "../../styles/styles";
 import ProductCard from "../Route/ProductCard/ProductCard";
 import Ratings from "../Products/Ratings";
 import { getAllEventsShop } from "../../redux/actions/event";
+import Loader from "../Layout/Loader";
 
 const ShopProfileData = ({ isOwner }) => {
-  const { products } = useSelector((state) => state.products);
-  const { events } = useSelector((state) => state.events);
+  const { products, isLoading } = useSelector((state) => state.products);
+  const { events, isLoading: eventsLoading } = useSelector((state) => state.events);
   const { id } = useParams();
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getAllProductsShop(id));
-    dispatch(getAllEventsShop(id));
-  }, [dispatch]);
+    if (id) {
+      dispatch(getAllProductsShop(id));
+      dispatch(getAllEventsShop(id));
+    }
+  }, [dispatch, id]);
 
   const [active, setActive] = useState(1);
 
   const allReviews =
     products && products.map((product) => product.reviews).flat();
+
+  if (isLoading || eventsLoading) {
+    return <Loader />;
+  }
 
   return (
     <div className="w-full">

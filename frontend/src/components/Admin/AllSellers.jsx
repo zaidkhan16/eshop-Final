@@ -11,10 +11,11 @@ import { server } from "../../server";
 import { toast } from "react-toastify";
 import { getAllSellers } from "../../redux/actions/sellers";
 import { Link } from "react-router-dom";
+import Loader from "../Layout/Loader";
 
 const AllSellers = () => {
   const dispatch = useDispatch();
-  const { sellers } = useSelector((state) => state.seller);
+  const { sellers, isLoading } = useSelector((state) => state.seller);
   const [open, setOpen] = useState(false);
   const [userId, setUserId] = useState("");
 
@@ -116,15 +117,19 @@ const AllSellers = () => {
   return (
     <div className="w-full flex justify-center pt-5">
       <div className="w-[97%]">
-        <h3 className="text-[22px] font-Poppins pb-2">All Users</h3>
+        <h3 className="text-[22px] font-Poppins pb-2">All Sellers</h3>
         <div className="w-full min-h-[45vh] bg-white rounded">
-          <DataGrid
-            rows={row}
-            columns={columns}
-            pageSize={10}
-            disableSelectionOnClick
-            autoHeight
-          />
+          {isLoading ? (
+            <Loader />
+          ) : (
+            <DataGrid
+              rows={row}
+              columns={columns}
+              pageSize={10}
+              disableSelectionOnClick
+              autoHeight
+            />
+          )}
         </div>
         {open && (
           <div className="w-full fixed top-0 left-0 z-[999] bg-[#00000039] flex items-center justify-center h-screen">

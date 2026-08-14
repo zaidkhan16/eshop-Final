@@ -7,23 +7,28 @@ import { BsPencil } from "react-icons/bs";
 import { RxCross1 } from "react-icons/rx";
 import styles from "../../styles/styles";
 import { toast } from "react-toastify";
+import Loader from "../Layout/Loader";
 
 const AllWithdraw = () => {
   const [data, setData] = useState([]);
   const [open, setOpen] = useState(false);
   const [withdrawData, setWithdrawData] = useState();
   const [withdrawStatus, setWithdrawStatus] = useState("Processing");
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    setIsLoading(true);
     axios
       .get(`${server}/withdraw/get-all-withdraw-request`, {
         withCredentials: true,
       })
       .then((res) => {
         setData(res.data.withdraws);
+        setIsLoading(false);
       })
       .catch((error) => {
         console.log(error.response?.data?.message || error.message);
+        setIsLoading(false);
       });
   }, []);
 
@@ -113,13 +118,17 @@ const AllWithdraw = () => {
   return (
     <div className="w-full flex items-center pt-5 justify-center">
       <div className="w-[95%] bg-white">
-        <DataGrid
-          rows={row}
-          columns={columns}
-          pageSize={10}
-          disableSelectionOnClick
-          autoHeight
-        />
+        {isLoading ? (
+          <Loader />
+        ) : (
+          <DataGrid
+            rows={row}
+            columns={columns}
+            pageSize={10}
+            disableSelectionOnClick
+            autoHeight
+          />
+        )}
       </div>
       {open && (
         <div className="w-full fixed h-screen top-0 left-0 bg-[#00000031] z-[9999] flex items-center justify-center">

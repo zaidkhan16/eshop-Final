@@ -1,7 +1,7 @@
 const createEmailTemplate = ({ title, name, actionUrl, buttonText, subtitle, type = "user" }) => {
   const isSeller = type === "seller";
   
-  const brandBadge = isSeller ? "🏪 ESHOP SELLER PORTAL" : "⚡ ESHOP MEMBER PORTAL";
+  const brandBadge = isSeller ? "🏪 NEXUS SELLER PORTAL" : "⚡ NEXUS MEMBER PORTAL";
   const headerBgColor = isSeller ? "#059669" : "#2563eb";
   const headerGradient = isSeller 
     ? "linear-gradient(135deg, #059669 0%, #10b981 50%, #4f46e5 100%)" 
@@ -14,10 +14,10 @@ const createEmailTemplate = ({ title, name, actionUrl, buttonText, subtitle, typ
   
   const mainTitle = title || (isSeller ? "Activate Your Shop Storefront" : "Activate Your Account");
   const defaultBtnText = buttonText || (isSeller ? "🚀 ACTIVATE MY SHOP NOW" : "✨ VERIFY & ACTIVATE ACCOUNT");
-  const welcomeHeading = name ? `Hello ${name}! 👋` : `Welcome to ${isSeller ? "Eshop Seller Portal" : "Eshop"}`;
+  const welcomeHeading = name ? `Hello ${name}! 👋` : `Welcome to ${isSeller ? "Nexus Seller Portal" : "Nexus Next-Gen Market"}`;
   const bodyDescription = subtitle || (isSeller
-    ? "Congratulations on registering your seller account on Eshop! Click the button below to verify your email address and activate your shop storefront."
-    : "Thank you for joining Eshop! Click the button below to verify your email address and unlock full access to your account.");
+    ? "Congratulations on registering your seller account on Nexus Next-Gen Market! Click the button below to verify your email address and activate your shop storefront."
+    : "Thank you for joining Nexus Next-Gen Market! Click the button below to verify your email address and unlock full access to your account.");
 
   const featureChecklist = isSeller ? `
     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 24px 0; background-color: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0;">
@@ -58,8 +58,8 @@ const createEmailTemplate = ({ title, name, actionUrl, buttonText, subtitle, typ
   `;
 
   const preheaderText = isSeller
-    ? "Welcome to Eshop Seller Portal! Click here to verify your email address and activate your shop storefront."
-    : "Welcome to Eshop! Click here to verify your email address and activate your account.";
+    ? "Welcome to Nexus Seller Portal! Click here to verify your email address and activate your shop storefront."
+    : "Welcome to Nexus Next-Gen Market! Click here to verify your email address and activate your account.";
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -144,8 +144,8 @@ const createEmailTemplate = ({ title, name, actionUrl, buttonText, subtitle, typ
           <!-- Footer -->
           <tr>
             <td style="padding: 20px; text-align: center; background-color: #f8fafc; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0; line-height: 1.5;">
-              &copy; ${new Date().getFullYear()} <strong>ESHOP Inc.</strong> All rights reserved.<br />
-              Need help? Contact support at <a href="mailto:support@eshop.com" style="color: #2563eb; text-decoration: none;">support@eshop.com</a>
+              &copy; ${new Date().getFullYear()} <strong>Nexus Store Inc.</strong> All rights reserved.<br />
+              Need help? Contact support at <a href="mailto:support@nexus-store.com" style="color: #2563eb; text-decoration: none;">support@nexus-store.com</a>
             </td>
           </tr>
         </table>

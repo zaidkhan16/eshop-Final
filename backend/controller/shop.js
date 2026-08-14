@@ -65,8 +65,8 @@ router.post("/create-shop", catchAsyncErrors(async (req, res, next) => {
 
       await sendMail({
         email: seller.email,
-        subject: "Activate your Eshop store",
-        message: `Hello ${seller.name}, welcome to Eshop Seller Portal! Please verify your email address to activate your shop.`,
+        subject: "Activate your Nexus Store",
+        message: `Hello ${seller.name}, welcome to Nexus Seller Portal! Please verify your email address to activate your shop.`,
         html: emailHtml,
       });
       res.status(201).json({

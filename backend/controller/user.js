@@ -43,7 +43,15 @@ router.post("/create-user", async (req, res, next) => {
 
     const activationToken = createActivationToken(user);
 
-    const activationUrl = `${process.env.FRONTEND_URL || "http://localhost:3000"}/activation/${activationToken}`;
+    const frontendUrl =
+      process.env.FRONTEND_URL ||
+      (req.headers.origin && req.headers.origin !== "null"
+        ? req.headers.origin
+        : process.env.NODE_ENV === "production"
+        ? "https://eshop-final-7uu8-9j4psxugm-zaidkhan16s-projects.vercel.app"
+        : "http://localhost:3000");
+
+    const activationUrl = `${frontendUrl}/activation/${activationToken}`;
 
     console.log("---------------------------------------------------");
     console.log("ACCOUNT ACTIVATION LINK:", activationUrl);

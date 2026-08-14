@@ -43,13 +43,16 @@ router.post("/create-user", async (req, res, next) => {
 
     const activationToken = createActivationToken(user);
 
-    const frontendUrl =
-      process.env.FRONTEND_URL ||
-      (req.headers.origin && req.headers.origin !== "null"
+    let frontendUrl =
+      req.headers.origin && req.headers.origin !== "null"
         ? req.headers.origin
-        : process.env.NODE_ENV === "production"
-        ? "https://eshop-final-7uu8-9j4psxugm-zaidkhan16s-projects.vercel.app"
-        : "http://localhost:3000");
+        : (process.env.FRONTEND_URL && !process.env.FRONTEND_URL.includes("your-production-frontend")
+            ? process.env.FRONTEND_URL
+            : (process.env.NODE_ENV === "production"
+                ? "https://eshop-final-7uu8-9j4psxugm-zaidkhan16s-projects.vercel.app"
+                : "http://localhost:3000"));
+
+    frontendUrl = frontendUrl.replace(/\/$/, "");
 
     const activationUrl = `${frontendUrl}/activation/${activationToken}`;
 

@@ -5,9 +5,12 @@ import axios from "axios";
 import { server } from "../../server";
 import { toast } from "react-toastify";
 import LuminaLogo from "../Layout/LuminaLogo";
+import { useDispatch } from "react-redux";
+import { loadSeller } from "../../redux/actions/user";
 
 const ShopLogin = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
@@ -31,8 +34,8 @@ const ShopLogin = () => {
           localStorage.setItem("seller_token", res.data.token);
         }
         toast.success("Seller Login Success!");
+        dispatch(loadSeller());
         navigate("/dashboard");
-        window.location.reload(true);
       })
       .catch((err) => {
         toast.error(err.response?.data?.message || err.message || "Login failed!");

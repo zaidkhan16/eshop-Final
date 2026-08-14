@@ -5,9 +5,12 @@ import axios from "axios";
 import { server } from "../../server";
 import { toast } from "react-toastify";
 import LuminaLogo from "../Layout/LuminaLogo";
+import { useDispatch } from "react-redux";
+import { loadUser } from "../../redux/actions/user";
 
 const Login = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
@@ -31,8 +34,8 @@ const Login = () => {
           localStorage.setItem("token", res.data.token);
         }
         toast.success("Welcome back to Nexus Next-Gen Market!");
+        dispatch(loadUser());
         navigate("/");
-        window.location.reload(true);
       })
       .catch((err) => {
         toast.error(err.response?.data?.message || err.message || "Login failed!");

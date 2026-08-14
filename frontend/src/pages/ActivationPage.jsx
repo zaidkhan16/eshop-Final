@@ -4,10 +4,13 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { server } from "../server";
 import { RxCheckCircled, RxCrossCircled } from "react-icons/rx";
 import { HiOutlineShieldCheck, HiArrowRight, HiOutlineSparkles } from "react-icons/hi2";
+import { useDispatch } from "react-redux";
+import { loadUser } from "../redux/actions/user";
 
 const ActivationPage = () => {
   const { activation_token } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [status, setStatus] = useState("verifying"); // "verifying" | "success" | "error"
   const [countdown, setCountdown] = useState(5);
 
@@ -37,10 +40,11 @@ const ActivationPage = () => {
         setCountdown((prev) => prev - 1);
       }, 1000);
     } else if (status === "success" && countdown === 0) {
-      navigate("/login");
+      dispatch(loadUser());
+      navigate("/");
     }
     return () => clearInterval(timer);
-  }, [status, countdown, navigate]);
+  }, [status, countdown, navigate, dispatch]);
 
   return (
     <div className="min-h-screen w-full bg-slate-950 flex items-center justify-center p-4 relative overflow-hidden font-Poppins">

@@ -5,7 +5,7 @@ import { server } from "../../server";
 export const loadUser = () => async (dispatch) => {
   try {
     const token = localStorage.getItem("token");
-    if (!token && typeof document !== "undefined" && !document.cookie.includes("token=")) {
+    if (!token) {
       dispatch({
         type: "LoadUserFail",
         payload: "No active user session",
@@ -35,7 +35,7 @@ export const loadUser = () => async (dispatch) => {
 export const loadSeller = () => async (dispatch) => {
   try {
     const sellerToken = localStorage.getItem("seller_token");
-    if (!sellerToken && typeof document !== "undefined" && !document.cookie.includes("seller_token=")) {
+    if (!sellerToken) {
       dispatch({
         type: "LoadSellerFail",
         payload: "No active seller session",

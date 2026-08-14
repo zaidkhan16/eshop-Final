@@ -4,48 +4,79 @@ const jwt = require("jsonwebtoken");
 const User = require("../model/user");
 const Shop = require("../model/shop");
 
-exports.isAuthenticated = catchAsyncErrors(async(req,res,next) => {
-    const {token} = req.cookies;
+exports.isAuthenticated = catchAsyncErrors(async(req, res, next) => {
+    let token = req.cookies?.token;
 
-    if(!token){
+    if (!token && req.headers.authorization) {
+        if (req.headers.authorization.startsWith("Bearer ")) {
+            token = req.headers.authorization.split(" ")[1];
+        } else {
+            token = req.headers.authorization;
+        }
+    }
+
+    if (!token && req.headers["x-auth-token"]) {
+        token = req.headers["x-auth-token"];
+    }
+
+    if (!token) {
         return next(new ErrorHandler("Please login to continue", 401));
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        req.user = await User.findById(decoded.id);
 
-    req.user = await User.findById(decoded.id);
+        if (!req.user) {
+            return next(new ErrorHandler("User doesn't exist", 401));
+        }
 
-    if (!req.user) {
-        return next(new ErrorHandler("User doesn't exist", 401));
+        next();
+    } catch (error) {
+        return next(new ErrorHandler("Invalid or expired session. Please login again.", 401));
     }
-
-    next();
 });
 
 
-exports.isSeller = catchAsyncErrors(async(req,res,next) => {
-    const {seller_token} = req.cookies;
-    if(!seller_token){
+exports.isSeller = catchAsyncErrors(async(req, res, next) => {
+    let seller_token = req.cookies?.seller_token;
+
+    if (!seller_token && req.headers["x-seller-token"]) {
+        seller_token = req.headers["x-seller-token"];
+    }
+
+    if (!seller_token && req.headers.authorization) {
+        if (req.headers.authorization.startsWith("Bearer ")) {
+            seller_token = req.headers.authorization.split(" ")[1];
+        } else {
+            seller_token = req.headers.authorization;
+        }
+    }
+
+    if (!seller_token) {
         return next(new ErrorHandler("Please login to continue", 401));
     }
 
-    const decoded = jwt.verify(seller_token, process.env.JWT_SECRET_KEY);
+    try {
+        const decoded = jwt.verify(seller_token, process.env.JWT_SECRET_KEY);
+        req.seller = await Shop.findById(decoded.id);
 
-    req.seller = await Shop.findById(decoded.id);
+        if (!req.seller) {
+            return next(new ErrorHandler("Seller doesn't exist", 401));
+        }
 
-    if (!req.seller) {
-        return next(new ErrorHandler("Seller doesn't exist", 401));
+        next();
+    } catch (error) {
+        return next(new ErrorHandler("Invalid or expired seller session. Please login again.", 401));
     }
-
-    next();
 });
 
 
 exports.isAdmin = (...roles) => {
-    return (req,res,next) => {
-        if(!req.user || !roles.includes(req.user.role)){
-            return next(new ErrorHandler(`${req.user ? req.user.role : 'User'} can not access this resources!`, 403))
-        };
+    return (req, res, next) => {
+        if (!req.user || !roles.includes(req.user.role)) {
+            return next(new ErrorHandler(`${req.user ? req.user.role : 'User'} can not access this resources!`, 403));
+        }
         next();
-    }
-}
+    };
+};

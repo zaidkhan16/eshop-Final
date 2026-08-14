@@ -19,6 +19,7 @@ const ProfileSidebar = ({ setActive, active }) => {
   const navigate = useNavigate();
  const {user} = useSelector((state) => state.user);
   const logoutHandler = () => {
+    localStorage.removeItem("token");
     axios
       .get(`${server}/user/logout`, { withCredentials: true })
       .then((res) => {

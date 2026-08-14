@@ -15,9 +15,12 @@ const SellerActivationPage = () => {
     if (activation_token) {
       const sendRequest = async () => {
         try {
-          await axios.post(`${server}/shop/activation`, {
+          const res = await axios.post(`${server}/shop/activation`, {
             activation_token,
           });
+          if (res.data?.token) {
+            localStorage.setItem("seller_token", res.data.token);
+          }
           setStatus("success");
         } catch (err) {
           setStatus("error");

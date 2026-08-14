@@ -88,14 +88,14 @@ app.use(express.json());
 app.use(cookieParser());
 app.get("/favicon.ico", (req, res) => res.status(204).end());
 app.get("/", (req, res) => {
-  res.send("Nexus Store Backend Server is running successfully!");
+  res.send("Nexus Next-Gen Market Backend Server is running successfully!");
 });
 
 const getConfigDiagnostics = () => {
   const mongoose = require("mongoose");
   return {
     success: true,
-    message: "Nexus Store Server Status",
+    message: "Nexus Next-Gen Market Server Status",
     dbConnected: mongoose.connection.readyState === 1,
     dbReadyState: mongoose.connection.readyState,
     dbUrlConfigured: !!process.env.DB_URL,

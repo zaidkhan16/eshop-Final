@@ -28,6 +28,7 @@ const ShopInfo = ({ isOwner }) => {
   
 
   const logoutHandler = async () => {
+    localStorage.removeItem("seller_token");
     axios.get(`${server}/shop/logout`,{
       withCredentials: true,
     });

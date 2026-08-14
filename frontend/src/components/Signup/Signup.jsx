@@ -61,7 +61,7 @@ const Singup = () => {
           <LuminaLogo className="mb-4" />
           <h2 className="text-2xl font-black text-slate-900 tracking-tight">Create Account</h2>
           <p className="text-slate-500 text-xs mt-1">
-            Join Lumina Market to unlock exclusive offers & deals
+            Join Nexus Next-Gen Market to unlock exclusive offers & deals
           </p>
         </div>
 

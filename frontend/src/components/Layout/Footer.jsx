@@ -22,7 +22,7 @@ const Footer = () => {
           <div className="md:w-1/2 mb-6 md:mb-0">
             <span className="text-xs font-bold uppercase tracking-widest text-indigo-400">Stay Updated</span>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white mt-1 leading-snug">
-              Subscribe to <span className="text-indigo-400">Lumina Market</span> for exclusive flash deals & offers
+              Subscribe to <span className="text-indigo-400">Nexus Next-Gen Market</span> for exclusive flash deals & offers
             </h1>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
@@ -118,7 +118,7 @@ const Footer = () => {
       {/* Bottom Copyright */}
       <div className="border-t border-slate-900 py-6 px-6 sm:px-12 text-slate-500 text-xs">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span>© {new Date().getFullYear()} Lumina Market Inc. All rights reserved.</span>
+          <span>© {new Date().getFullYear()} Nexus Next-Gen Market Inc. All rights reserved.</span>
           <div className="flex gap-6 font-medium">
             <Link to="/privacy" className="hover:text-slate-400 transition-colors">Privacy Policy</Link>
             <Link to="/terms" className="hover:text-slate-400 transition-colors">Terms of Service</Link>

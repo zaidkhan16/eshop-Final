@@ -12,7 +12,7 @@ const sendMail = async (options) => {
     });
 
     const mailOptions = {
-        from: `"Nexus Store" <${process.env.SMPT_MAIL}>`,
+        from: `"Nexus Next-Gen Market" <${process.env.SMPT_MAIL}>`,
         to: options.email,
         subject: options.subject,
         text: options.message,

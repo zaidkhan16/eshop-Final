@@ -1,3 +1,5 @@
+import axios from "axios";
+
 export const server =
   process.env.REACT_APP_SERVER_URL ||
   (process.env.NODE_ENV === "production"
@@ -15,3 +17,21 @@ export const ENDPOINT =
   (process.env.NODE_ENV === "production"
     ? "https://marvelous-endurance-production.up.railway.app/"
     : "http://localhost:4000/");
+
+// Configure global Axios Request Interceptor for Token Authorization across origins (Vercel)
+axios.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    const sellerToken = localStorage.getItem("seller_token");
+
+    if (token && !config.headers["Authorization"]) {
+      config.headers["Authorization"] = `Bearer ${token}`;
+    }
+    if (sellerToken && !config.headers["x-seller-token"]) {
+      config.headers["x-seller-token"] = sellerToken;
+    }
+    config.withCredentials = true;
+    return config;
+  },
+  (error) => Promise.reject(error)
+);

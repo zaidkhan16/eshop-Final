@@ -78,7 +78,7 @@ const ShopCreate = () => {
           </span>
           <h2 className="text-2xl font-black text-slate-900 tracking-tight">Register Your Shop</h2>
           <p className="text-slate-500 text-xs mt-1">
-            Start selling your products to thousands of shoppers on Lumina Market
+            Start selling your products to thousands of shoppers on Nexus Next-Gen Market
           </p>
         </div>
 
@@ -126,7 +126,7 @@ const ShopCreate = () => {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Lumina Store"
+                  placeholder="Nexus Next-Gen Market"
                   className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all"
                 />
                 <AiOutlineShop className="absolute left-3.5 top-3.5 text-slate-400" size={18} />
@@ -163,7 +163,7 @@ const ShopCreate = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="seller@store.com"
+                placeholder="seller@nexus-market.com"
                 className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all"
               />
               <AiOutlineMail className="absolute left-3.5 top-3.5 text-slate-400" size={18} />

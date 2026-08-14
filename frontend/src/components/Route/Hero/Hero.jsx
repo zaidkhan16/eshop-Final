@@ -26,7 +26,7 @@ const Hero = () => {
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.1] mb-6">
               Elevate Your Everyday <br />
               <span className="bg-gradient-to-r from-indigo-400 via-violet-300 to-pink-400 bg-clip-text text-transparent">
-                With Lumina Market.
+                With Nexus Next-Gen Market.
               </span>
             </h1>
 
@@ -75,7 +75,7 @@ const Hero = () => {
               <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-white/20 group">
                 <img
                   src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1200"
-                  alt="Lumina Market Feature"
+                  alt="Nexus Next-Gen Market Feature"
                   className="w-full h-[420px] object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>

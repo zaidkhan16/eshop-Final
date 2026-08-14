@@ -61,7 +61,7 @@ router.post("/create-user", async (req, res, next) => {
 
       await sendMail({
         email: user.email,
-        subject: "Activate your Nexus Store account",
+        subject: "Activate your Nexus Next-Gen Market account",
         message: `Hello ${user.name}, welcome to Nexus Next-Gen Market! Please verify your email address to activate your account.`,
         html: emailHtml,
       });

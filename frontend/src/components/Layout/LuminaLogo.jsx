@@ -62,7 +62,7 @@ const LuminaLogo = ({ light = false, className = "" }) => {
             NEXUS
           </span>
           <span className="px-2 py-0.5 rounded-lg bg-gradient-to-r from-cyan-500 to-indigo-600 text-white text-[10px] font-black tracking-widest uppercase shadow-md shadow-indigo-500/20">
-            STORE
+            MARKET
           </span>
         </div>
         <span

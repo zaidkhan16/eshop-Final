@@ -1,1 +1,4 @@
-@copyright by becodemy 2023
+# Nexus Next-Gen Market
+
+@copyright Nexus Next-Gen Market 2026
+

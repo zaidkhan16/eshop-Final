@@ -15,9 +15,12 @@ const ActivationPage = () => {
     if (activation_token) {
       const sendRequest = async () => {
         try {
-          await axios.post(`${server}/user/activation`, {
+          const res = await axios.post(`${server}/user/activation`, {
             activation_token,
           });
+          if (res.data?.token) {
+            localStorage.setItem("token", res.data.token);
+          }
           setStatus("success");
         } catch (err) {
           setStatus("error");
@@ -92,7 +95,7 @@ const ActivationPage = () => {
             </span>
             <h2 className="text-2xl font-extrabold text-white mb-2">Welcome Aboard! 🎉</h2>
             <p className="text-slate-300 text-sm leading-relaxed mb-6">
-              Your account has been successfully authenticated. You are all set to explore Eshop!
+              Your account has been successfully authenticated. You are all set to explore Nexus Next-Gen Market!
             </p>
 
             {/* Countdown notice */}

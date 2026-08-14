@@ -61,7 +61,7 @@ const Header = ({ activeHeading }) => {
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
               ⚡ Flash Deal
             </span>
-            <span>Free Express Shipping on orders over $99 — Use Code: <strong className="text-white">LUMINA10</strong></span>
+            <span>Free Express Shipping on orders over $99 — Use Code: <strong className="text-white">NEXUS10</strong></span>
           </div>
           <div className="flex items-center gap-6 font-medium">
             <Link to="/faq" className="hover:text-white transition-colors">Help Center</Link>

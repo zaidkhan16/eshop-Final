@@ -144,8 +144,8 @@ const createEmailTemplate = ({ title, name, actionUrl, buttonText, subtitle, typ
           <!-- Footer -->
           <tr>
             <td style="padding: 20px; text-align: center; background-color: #f8fafc; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0; line-height: 1.5;">
-              &copy; ${new Date().getFullYear()} <strong>Nexus Store Inc.</strong> All rights reserved.<br />
-              Need help? Contact support at <a href="mailto:support@nexus-store.com" style="color: #2563eb; text-decoration: none;">support@nexus-store.com</a>
+              &copy; ${new Date().getFullYear()} <strong>Nexus Next-Gen Market Inc.</strong> All rights reserved.<br />
+              Need help? Contact support at <a href="mailto:support@nexus-market.com" style="color: #2563eb; text-decoration: none;">support@nexus-market.com</a>
             </td>
           </tr>
         </table>

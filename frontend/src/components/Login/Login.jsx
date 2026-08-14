@@ -27,7 +27,10 @@ const Login = () => {
         { withCredentials: true }
       )
       .then((res) => {
-        toast.success("Welcome back to Lumina Market!");
+        if (res.data?.token) {
+          localStorage.setItem("token", res.data.token);
+        }
+        toast.success("Welcome back to Nexus Next-Gen Market!");
         navigate("/");
         window.location.reload(true);
       })
@@ -51,7 +54,7 @@ const Login = () => {
           <LuminaLogo className="mb-4" />
           <h2 className="text-2xl font-black text-slate-900 tracking-tight">Welcome Back</h2>
           <p className="text-slate-500 text-xs mt-1">
-            Sign in to access your Lumina Market account
+            Sign in to access your Nexus Next-Gen Market account
           </p>
         </div>
 

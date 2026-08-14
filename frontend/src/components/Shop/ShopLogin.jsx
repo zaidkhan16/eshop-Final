@@ -27,6 +27,9 @@ const ShopLogin = () => {
         { withCredentials: true }
       )
       .then((res) => {
+        if (res.data?.token) {
+          localStorage.setItem("seller_token", res.data.token);
+        }
         toast.success("Seller Login Success!");
         navigate("/dashboard");
         window.location.reload(true);
@@ -71,7 +74,7 @@ const ShopLogin = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="seller@lumina.com"
+                placeholder="seller@nexus-market.com"
                 className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all"
               />
               <AiOutlineMail className="absolute left-3.5 top-3.5 text-slate-400" size={18} />

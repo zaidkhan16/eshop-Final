@@ -76,8 +76,8 @@ userSchema.pre("save", async function (next){
 
 // jwt token
 userSchema.methods.getJwtToken = function () {
-  return jwt.sign({ id: this._id}, process.env.JWT_SECRET_KEY,{
-    expiresIn: process.env.JWT_EXPIRES,
+  return jwt.sign({ id: this._id}, process.env.JWT_SECRET_KEY || "NEXUS_JWT_SECRET_KEY_PROD_2026",{
+    expiresIn: process.env.JWT_EXPIRES || "7d",
   });
 };
 

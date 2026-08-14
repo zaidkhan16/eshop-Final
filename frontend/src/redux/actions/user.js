@@ -4,6 +4,15 @@ import { server } from "../../server";
 // load user
 export const loadUser = () => async (dispatch) => {
   try {
+    const token = localStorage.getItem("token");
+    if (!token && typeof document !== "undefined" && !document.cookie.includes("token=")) {
+      dispatch({
+        type: "LoadUserFail",
+        payload: "No active user session",
+      });
+      return;
+    }
+
     dispatch({
       type: "LoadUserRequest",
     });
@@ -25,6 +34,15 @@ export const loadUser = () => async (dispatch) => {
 // load seller
 export const loadSeller = () => async (dispatch) => {
   try {
+    const sellerToken = localStorage.getItem("seller_token");
+    if (!sellerToken && typeof document !== "undefined" && !document.cookie.includes("seller_token=")) {
+      dispatch({
+        type: "LoadSellerFail",
+        payload: "No active seller session",
+      });
+      return;
+    }
+
     dispatch({
       type: "LoadSellerRequest",
     });

@@ -29,7 +29,7 @@ app.use((req, res, next) => {
   );
   res.setHeader(
     "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization, Cookie"
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization, Cookie, x-auth-token, x-seller-token"
   );
   res.setHeader(
     "Cache-Control",

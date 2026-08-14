@@ -62,7 +62,7 @@ router.post("/create-user", async (req, res, next) => {
       await sendMail({
         email: user.email,
         subject: "Activate your Eshop account",
-        message: `Hello ${user.name}, please click on the link to activate your account: ${activationUrl}`,
+        message: `Hello ${user.name}, welcome to Eshop! Please verify your email address to activate your account.`,
         html: emailHtml,
       });
       res.status(201).json({

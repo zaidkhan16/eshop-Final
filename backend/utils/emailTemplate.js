@@ -57,6 +57,10 @@ const createEmailTemplate = ({ title, name, actionUrl, buttonText, subtitle, typ
     </table>
   `;
 
+  const preheaderText = isSeller
+    ? "Welcome to Eshop Seller Portal! Click here to verify your email address and activate your shop storefront."
+    : "Welcome to Eshop! Click here to verify your email address and activate your account.";
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -65,6 +69,14 @@ const createEmailTemplate = ({ title, name, actionUrl, buttonText, subtitle, typ
   <title>${mainTitle}</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <!-- Inbox List Preheader Preview Text -->
+  <div style="display: none; max-height: 0px; overflow: hidden; font-size: 1px; line-height: 1px; color: #ffffff; opacity: 0;">
+    ${preheaderText}
+  </div>
+  <div style="display: none; max-height: 0px; overflow: hidden; font-size: 1px; line-height: 1px; color: #ffffff; opacity: 0;">
+    &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
+  </div>
+
   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f1f5f9; padding: 30px 12px;">
     <tr>
       <td align="center">

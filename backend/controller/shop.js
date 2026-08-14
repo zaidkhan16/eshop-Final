@@ -66,7 +66,7 @@ router.post("/create-shop", catchAsyncErrors(async (req, res, next) => {
       await sendMail({
         email: seller.email,
         subject: "Activate your Eshop store",
-        message: `Hello ${seller.name}, please click on the link to activate your shop: ${activationUrl}`,
+        message: `Hello ${seller.name}, welcome to Eshop Seller Portal! Please verify your email address to activate your shop.`,
         html: emailHtml,
       });
       res.status(201).json({

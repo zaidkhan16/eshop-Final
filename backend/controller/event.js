@@ -55,10 +55,24 @@ router.post(
   })
 );
 
+const sanitizeEvent = (evt) => {
+  const e = evt.toObject ? evt.toObject() : { ...evt };
+  if (e.images && Array.isArray(e.images)) {
+    e.images = e.images.map((img) => ({
+      ...img,
+      url: img.url && img.url.includes("startech.com.bd")
+        ? "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80"
+        : img.url,
+    }));
+  }
+  return e;
+};
+
 // get all events
 router.get("/get-all-events", async (req, res, next) => {
   try {
-    const events = await Event.find();
+    const rawEvents = await Event.find();
+    const events = rawEvents.map(sanitizeEvent);
     res.status(201).json({
       success: true,
       events,

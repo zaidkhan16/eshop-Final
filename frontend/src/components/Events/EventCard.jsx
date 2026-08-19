@@ -51,8 +51,18 @@ const EventCard = ({ active, data }) => {
           ) : null}
 
           <img
-            src={`${data.images && data.images[0]?.url}`}
-            alt={data.name}
+            src={
+              data?.images && data.images[0]?.url && !data.images[0]?.url.includes("startech.com.bd")
+                ? data.images[0].url
+                : data?.image_Url && data.image_Url[0]?.url && !data.image_Url[0]?.url.includes("startech.com.bd")
+                ? data.image_Url[0].url
+                : "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80"
+            }
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80";
+            }}
+            alt={data.name || "Event"}
             className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-500 drop-shadow-md"
           />
         </div>

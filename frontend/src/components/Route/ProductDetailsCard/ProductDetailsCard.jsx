@@ -87,8 +87,18 @@ const ProductDetailsCard = ({ setOpen, data }) => {
               <div className="flex flex-col gap-4">
                 <div className="w-full h-[240px] sm:h-[320px] bg-slate-50 rounded-2xl flex items-center justify-center p-4 border border-slate-100 overflow-hidden">
                   <img
-                    src={`${data.images && data.images[0]?.url}`}
-                    alt={data.name}
+                    src={
+                      data?.images && data.images[0]?.url && !data.images[0]?.url.includes("startech.com.bd")
+                        ? data.images[0].url
+                        : data?.image_Url && data.image_Url[0]?.url && !data.image_Url[0]?.url.includes("startech.com.bd")
+                        ? data.image_Url[0].url
+                        : "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80"
+                    }
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80";
+                    }}
+                    alt={data.name || "Product"}
                     className="max-h-full max-w-full object-contain drop-shadow-md"
                   />
                 </div>
@@ -96,8 +106,15 @@ const ProductDetailsCard = ({ setOpen, data }) => {
                 <div className="flex items-center justify-between p-3 bg-slate-50 rounded-2xl border border-slate-100">
                   <Link to={`/shop/preview/${data.shop?._id}`} className="flex items-center gap-3">
                     <img
-                      src={`${data.images && data.images[0]?.url}`}
-                      alt=""
+                      src={
+                        data?.shop?.avatar?.url ||
+                        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&auto=format&fit=crop"
+                      }
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&auto=format&fit=crop";
+                      }}
+                      alt={data.shop?.name || "Shop"}
                       className="w-10 h-10 rounded-full object-cover ring-2 ring-indigo-500/20"
                     />
                     <div>

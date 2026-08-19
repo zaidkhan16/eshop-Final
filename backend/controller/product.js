@@ -103,13 +103,27 @@ router.delete(
   })
 );
 
+const sanitizeProduct = (prod) => {
+  const p = prod.toObject ? prod.toObject() : { ...prod };
+  if (p.images && Array.isArray(p.images)) {
+    p.images = p.images.map((img) => ({
+      ...img,
+      url: img.url && img.url.includes("startech.com.bd")
+        ? "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80"
+        : img.url,
+    }));
+  }
+  return p;
+};
+
 // get all products
 router.get(
   "/get-all-products",
   catchAsyncErrors(async (req, res, next) => {
     try {
       console.log("[BACKEND_API] /get-all-products requested");
-      const products = await Product.find().sort({ createdAt: -1 });
+      const rawProducts = await Product.find().sort({ createdAt: -1 });
+      const products = rawProducts.map(sanitizeProduct);
       console.log(`[BACKEND_API] /get-all-products returning ${products.length} products`);
 
       res.status(200).json({

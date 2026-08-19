@@ -113,8 +113,18 @@ const ProductCard = ({ data, isEvent }) => {
         <Link to={`${isEvent === true ? `/product/${data._id}?isEvent=true` : `/product/${data._id}`}`}>
           <div className="w-full h-[130px] sm:h-[180px] rounded-2xl bg-gradient-to-b from-slate-50/80 to-indigo-50/30 flex items-center justify-center p-2.5 sm:p-4 overflow-hidden relative mb-2 sm:mb-3 border border-slate-100/60">
             <img
-              src={`${data.images && data.images[0]?.url}`}
-              alt={data.name}
+              src={
+                data?.images && data.images[0]?.url && !data.images[0]?.url.includes("startech.com.bd")
+                  ? data.images[0].url
+                  : data?.image_Url && data.image_Url[0]?.url && !data.image_Url[0]?.url.includes("startech.com.bd")
+                  ? data.image_Url[0].url
+                  : "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80"
+              }
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80";
+              }}
+              alt={data.name || "Product"}
               className="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform duration-500 ease-out drop-shadow-md"
             />
           </div>

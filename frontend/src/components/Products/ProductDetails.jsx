@@ -120,23 +120,40 @@ const ProductDetails = ({ data }) => {
             <div className="block w-full 800px:flex">
               <div className="w-full 800px:w-[50%]">
                 <img
-                  src={`${data && data.images[select]?.url}`}
-                  alt=""
-                  className="w-[80%]"
+                  src={
+                    data?.images && data.images[select]?.url && !data.images[select]?.url.includes("startech.com.bd")
+                      ? data.images[select].url
+                      : "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80"
+                  }
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80";
+                  }}
+                  alt={data.name || "Product"}
+                  className="w-[80%] max-h-[400px] object-contain rounded-2xl"
                 />
-                <div className="w-full flex">
+                <div className="w-full flex gap-2 mt-4 overflow-x-auto">
                   {data &&
                     data.images.map((i, index) => (
                       <div
+                        key={index}
                         className={`${
-                          select === 0 ? "border" : "null"
-                        } cursor-pointer`}
+                          select === index ? "border-2 border-indigo-600 rounded-xl" : "border border-slate-200 rounded-xl"
+                        } cursor-pointer p-1 overflow-hidden shrink-0 bg-slate-50`}
+                        onClick={() => setSelect(index)}
                       >
                         <img
-                          src={`${i?.url}`}
+                          src={
+                            i?.url && !i.url.includes("startech.com.bd")
+                              ? i.url
+                              : "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80"
+                          }
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80";
+                          }}
                           alt=""
-                          className="h-[200px] overflow-hidden mr-3 mt-3"
-                          onClick={() => setSelect(index)}
+                          className="h-[80px] w-[80px] object-contain rounded-lg"
                         />
                       </div>
                     ))}

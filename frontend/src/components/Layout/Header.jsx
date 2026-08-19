@@ -105,7 +105,15 @@ const Header = ({ activeHeading }) => {
                       <Link to={`/product/${i._id}`} key={index} onClick={() => setSearchTerm("")}>
                         <div className="w-full flex items-center p-2.5 hover:bg-indigo-50/60 rounded-xl transition-colors gap-3 group">
                           <img
-                            src={`${i.images[0]?.url}`}
+                            src={
+                              i.images && i.images[0]?.url && !i.images[0]?.url.includes("startech.com.bd")
+                                ? i.images[0].url
+                                : "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80"
+                            }
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80";
+                            }}
                             alt=""
                             className="w-[44px] h-[44px] rounded-lg object-cover bg-slate-100"
                           />
@@ -299,7 +307,19 @@ const Header = ({ activeHeading }) => {
                     }}
                   >
                     <div className="flex items-center gap-3 p-2 hover:bg-indigo-50/60 rounded-lg">
-                      <img src={i.images[0]?.url} alt="" className="w-9 h-9 rounded object-cover bg-slate-100" />
+                      <img
+                        src={
+                          i.images && i.images[0]?.url && !i.images[0]?.url.includes("startech.com.bd")
+                            ? i.images[0].url
+                            : "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80"
+                        }
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80";
+                        }}
+                        alt=""
+                        className="w-9 h-9 rounded object-cover bg-slate-100"
+                      />
                       <div className="flex flex-col">
                         <span className="text-xs font-semibold text-slate-800 line-clamp-1">{i.name}</span>
                         <span className="text-[11px] font-bold text-indigo-600">${i.discountPrice || i.originalPrice}</span>
@@ -344,7 +364,19 @@ const Header = ({ activeHeading }) => {
                     {searchData.map((i, idx) => (
                       <Link to={`/product/${i._id}`} key={idx} onClick={() => { setOpen(false); setSearchTerm(""); }}>
                         <div className="flex items-center gap-2 p-2 hover:bg-slate-50 rounded-lg">
-                          <img src={i.images[0]?.url} alt="" className="w-8 h-8 rounded object-cover" />
+                          <img
+                            src={
+                              i.images && i.images[0]?.url && !i.images[0]?.url.includes("startech.com.bd")
+                                ? i.images[0].url
+                                : "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80"
+                            }
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80";
+                            }}
+                            alt=""
+                            className="w-8 h-8 rounded object-cover"
+                          />
                           <span className="text-xs font-medium text-slate-800 line-clamp-1">{i.name}</span>
                         </div>
                       </Link>

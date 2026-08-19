@@ -53,17 +53,17 @@ const Hero = () => {
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-8 sm:mb-10 w-full sm:w-auto">
+            <div className="grid grid-cols-2 sm:flex sm:flex-row items-center gap-2.5 sm:gap-4 mb-8 sm:mb-10 w-full sm:w-auto">
               <Link to="/products" className="w-full sm:w-auto">
-                <button className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-sm sm:text-base rounded-2xl shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-2 group transition-all duration-300 transform hover:-translate-y-0.5">
+                <button className="w-full sm:w-auto h-12 sm:h-14 px-3 sm:px-8 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-xs sm:text-base rounded-2xl shadow-xl shadow-indigo-600/30 flex items-center justify-center gap-1.5 sm:gap-2 group transition-all duration-300 transform hover:-translate-y-0.5 whitespace-nowrap">
                   <span>Explore Shop</span>
-                  <IoIosArrowForward className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <IoIosArrowForward className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform shrink-0" />
                 </button>
               </Link>
 
               <Link to="/events" className="w-full sm:w-auto">
-                <button className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-white/10 hover:bg-white/15 text-white font-semibold text-sm sm:text-base rounded-2xl border border-white/20 backdrop-blur-md transition-all duration-300">
-                  Daily Offers & Events
+                <button className="w-full sm:w-auto h-12 sm:h-14 px-3 sm:px-8 bg-white/10 hover:bg-white/15 text-white font-semibold text-xs sm:text-base rounded-2xl border border-white/20 backdrop-blur-md flex items-center justify-center gap-1.5 transition-all duration-300 whitespace-nowrap">
+                  <span>Daily Events</span>
                 </button>
               </Link>
             </div>

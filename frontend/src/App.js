@@ -322,16 +322,17 @@ const App = () => {
         />{" "}
       </Routes>{" "}
       <ToastContainer
-        position="bottom-center"
-        autoClose={5000}
+        position="top-center"
+        autoClose={3500}
         hideProgressBar={false}
-        newestOnTop={false}
+        newestOnTop
         closeOnClick
         rtl={false}
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="dark"
+        theme="colored"
+        toastClassName="!rounded-2xl !shadow-xl !font-sans !text-xs sm:!text-sm !p-3"
       />
     </BrowserRouter>
   );

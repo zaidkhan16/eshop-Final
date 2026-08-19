@@ -4,6 +4,21 @@ const jwt = require("jsonwebtoken");
 const User = require("../model/user");
 const Shop = require("../model/shop");
 
+const verifyJwtToken = (token) => {
+  const envKey = (process.env.JWT_SECRET_KEY || "").replace(/^["']|["']$/g, "").trim();
+  const fallbackKey = "NEXUS_JWT_SECRET_KEY_PROD_2026";
+  const primaryKey = envKey || fallbackKey;
+
+  try {
+    return jwt.verify(token, primaryKey);
+  } catch (err) {
+    if (primaryKey !== fallbackKey) {
+      return jwt.verify(token, fallbackKey);
+    }
+    throw err;
+  }
+};
+
 exports.isAuthenticated = catchAsyncErrors(async (req, res, next) => {
   let token = null;
 
@@ -28,8 +43,7 @@ exports.isAuthenticated = catchAsyncErrors(async (req, res, next) => {
   }
 
   try {
-    const secretKey = process.env.JWT_SECRET_KEY || "NEXUS_JWT_SECRET_KEY_PROD_2026";
-    const decoded = jwt.verify(token, secretKey);
+    const decoded = verifyJwtToken(token);
     req.user = await User.findById(decoded.id);
 
     if (!req.user) {
@@ -38,14 +52,13 @@ exports.isAuthenticated = catchAsyncErrors(async (req, res, next) => {
 
     next();
   } catch (error) {
-    // If cookie token failed, check fallback headers if available
+    // If cookie token failed, check fallback header token if available
     if (req.cookies?.token && req.headers.authorization) {
       try {
         const headerToken = req.headers.authorization.startsWith("Bearer ")
           ? req.headers.authorization.split(" ")[1]
           : req.headers.authorization;
-        const secretKey = process.env.JWT_SECRET_KEY || "NEXUS_JWT_SECRET_KEY_PROD_2026";
-        const decoded = jwt.verify(headerToken, secretKey);
+        const decoded = verifyJwtToken(headerToken);
         req.user = await User.findById(decoded.id);
         if (req.user) return next();
       } catch (e) {}
@@ -78,8 +91,7 @@ exports.isSeller = catchAsyncErrors(async (req, res, next) => {
   }
 
   try {
-    const secretKey = process.env.JWT_SECRET_KEY || "NEXUS_JWT_SECRET_KEY_PROD_2026";
-    const decoded = jwt.verify(seller_token, secretKey);
+    const decoded = verifyJwtToken(seller_token);
     req.seller = await Shop.findById(decoded.id);
 
     if (!req.seller) {

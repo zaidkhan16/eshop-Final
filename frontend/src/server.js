@@ -38,10 +38,13 @@ axios.interceptors.request.use(
     const token = localStorage.getItem("token");
     const sellerToken = localStorage.getItem("seller_token");
 
-    if (token && !config.headers["Authorization"]) {
+    if (token) {
+      config.headers = config.headers || {};
       config.headers["Authorization"] = `Bearer ${token}`;
+      config.headers["x-auth-token"] = token;
     }
-    if (sellerToken && !config.headers["x-seller-token"]) {
+    if (sellerToken) {
+      config.headers = config.headers || {};
       config.headers["x-seller-token"] = sellerToken;
     }
     config.withCredentials = true;

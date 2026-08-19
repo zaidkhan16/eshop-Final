@@ -18,6 +18,10 @@ export const loadUser = () => async (dispatch) => {
     });
     const { data } = await axios.get(`${server}/user/getuser`, {
       withCredentials: true,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "x-auth-token": token,
+      },
     });
     dispatch({
       type: "LoadUserSuccess",
@@ -48,6 +52,10 @@ export const loadSeller = () => async (dispatch) => {
     });
     const { data } = await axios.get(`${server}/shop/getSeller`, {
       withCredentials: true,
+      headers: {
+        Authorization: `Bearer ${sellerToken}`,
+        "x-seller-token": sellerToken,
+      },
     });
     dispatch({
       type: "LoadSellerSuccess",

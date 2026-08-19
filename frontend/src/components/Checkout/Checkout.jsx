@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { server } from "../../server";
+import { toast } from "react-toastify";
 import { HiOutlineSparkles, HiOutlineLocationMarker, HiOutlineMap } from "react-icons/hi";
 import { HiOutlineBuildingOffice } from "react-icons/hi2";
 
@@ -189,6 +190,7 @@ const Checkout = () => {
             address2={address2}
             setAddress2={setAddress2}
             zipCode={zipCode}
+            setZipCode={setZipCode}
             handleZipCodeChange={handleZipCodeChange}
             analyzingPin={analyzingPin}
           />
@@ -227,6 +229,7 @@ const ShippingInfo = ({
   address2,
   setAddress2,
   zipCode,
+  setZipCode,
   handleZipCodeChange,
   analyzingPin,
 }) => {

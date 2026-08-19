@@ -19,7 +19,7 @@ import {
   updatUserAddress,
   updateUserInformation,
 } from "../../redux/actions/user";
-import { Country, State } from "country-state-city";
+import { Country, State, City } from "country-state-city";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
@@ -564,13 +564,63 @@ const ChangePassword = () => {
 const Address = () => {
   const [open, setOpen] = useState(false);
   const [country, setCountry] = useState("");
+  const [state, setState] = useState("");
   const [city, setCity] = useState("");
-  const [zipCode, setZipCode] = useState();
+  const [zipCode, setZipCode] = useState("");
   const [address1, setAddress1] = useState("");
   const [address2, setAddress2] = useState("");
   const [addressType, setAddressType] = useState("");
   const { user } = useSelector((state) => state.user);
   const dispatch = useDispatch();
+
+  const handleZipCodeChange = async (val) => {
+    setZipCode(val);
+    const cleanPin = val ? val.toString().trim() : "";
+    if (cleanPin.length < 5) return;
+
+    try {
+      if (/^\d{6}$/.test(cleanPin)) {
+        const res = await axios.get(`https://api.postalpincode.in/pincode/${cleanPin}`);
+        if (res.data && res.data[0]?.Status === "Success" && res.data[0].PostOffice?.length) {
+          const po = res.data[0].PostOffice[0];
+          const detectedState = po.State;
+          const detectedCity = po.District || po.Block || po.Name;
+          
+          setCountry("IN");
+          const statesList = State.getStatesOfCountry("IN");
+          const matchedSt = statesList.find(
+            (s) => s.name.toLowerCase() === detectedState.toLowerCase()
+          );
+          if (matchedSt) {
+            setState(matchedSt.isoCode);
+            setCity(detectedCity);
+            toast.success(`PIN Code Analyzed: ${detectedCity}, ${detectedState}`);
+          }
+        }
+      } else if (/^\d{5}$/.test(cleanPin)) {
+        const cCode = country || "US";
+        const res = await axios.get(`https://api.zippopotam.us/${cCode.toLowerCase()}/${cleanPin}`);
+        if (res.data && res.data.places && res.data.places[0]) {
+          const place = res.data.places[0];
+          const placeName = place["place name"];
+          const stateName = place["state"];
+          const stateAbbr = place["state abbreviation"];
+          
+          const statesList = State.getStatesOfCountry(cCode);
+          const matchedSt = statesList.find(
+            (s) => s.name.toLowerCase() === stateName.toLowerCase() || s.isoCode === stateAbbr
+          );
+          if (matchedSt) {
+            setState(matchedSt.isoCode);
+          }
+          setCity(placeName);
+          toast.success(`Zip Code Analyzed: ${placeName}, ${stateName}`);
+        }
+      }
+    } catch (err) {
+      console.log("Pincode lookup error:", err);
+    }
+  };
 
   const addressTypeData = [
     {
@@ -634,24 +684,20 @@ const Address = () => {
               <form aria-required onSubmit={handleSubmit} className="w-full">
                 <div className="w-full block p-4">
                   <div className="w-full pb-2">
-                    <label className="block pb-2">Country</label>
+                    <label className="block pb-2 text-xs font-bold uppercase tracking-wider text-slate-700">Country</label>
                     <select
-                      name=""
-                      id=""
                       value={country}
-                      onChange={(e) => setCountry(e.target.value)}
-                      className="w-[95%] border h-[40px] rounded-[5px]"
+                      onChange={(e) => {
+                        setCountry(e.target.value);
+                        setState("");
+                        setCity("");
+                      }}
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:bg-white focus:border-indigo-500 transition-all cursor-pointer"
                     >
-                      <option value="" className="block border pb-2">
-                        choose your country
-                      </option>
+                      <option value="">Choose Country</option>
                       {Country &&
                         Country.getAllCountries().map((item) => (
-                          <option
-                            className="block pb-2"
-                            key={item.isoCode}
-                            value={item.isoCode}
-                          >
+                          <option key={item.isoCode} value={item.isoCode}>
                             {item.name}
                           </option>
                         ))}
@@ -659,28 +705,50 @@ const Address = () => {
                   </div>
 
                   <div className="w-full pb-2">
-                    <label className="block pb-2">Choose your City</label>
+                    <label className="block pb-2 text-xs font-bold uppercase tracking-wider text-slate-700">State / Province</label>
                     <select
-                      name=""
-                      id=""
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                      className="w-[95%] border h-[40px] rounded-[5px]"
+                      value={state}
+                      onChange={(e) => {
+                        setState(e.target.value);
+                        setCity("");
+                      }}
+                      disabled={!country}
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:bg-white focus:border-indigo-500 transition-all cursor-pointer"
                     >
-                      <option value="" className="block border pb-2">
-                        choose your city
-                      </option>
-                      {State &&
+                      <option value="">Choose State</option>
+                      {country &&
                         State.getStatesOfCountry(country).map((item) => (
-                          <option
-                            className="block pb-2"
-                            key={item.isoCode}
-                            value={item.isoCode}
-                          >
+                          <option key={item.isoCode} value={item.isoCode}>
                             {item.name}
                           </option>
                         ))}
                     </select>
+                  </div>
+
+                  <div className="w-full pb-2">
+                    <label className="block pb-2 text-xs font-bold uppercase tracking-wider text-slate-700">City</label>
+                    {country && state && City.getCitiesOfState(country, state).length > 0 ? (
+                      <select
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:bg-white focus:border-indigo-500 transition-all cursor-pointer"
+                      >
+                        <option value="">Choose City</option>
+                        {City.getCitiesOfState(country, state).map((item) => (
+                          <option key={item.name} value={item.name}>
+                            {item.name}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        type="text"
+                        placeholder="Enter City"
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:bg-white focus:border-indigo-500 transition-all"
+                      />
+                    )}
                   </div>
 
                   <div className="w-full pb-2">
@@ -705,13 +773,14 @@ const Address = () => {
                   </div>
 
                   <div className="w-full pb-2">
-                    <label className="block pb-2">Zip Code</label>
+                    <label className="block pb-2 text-xs font-bold uppercase tracking-wider text-slate-700">Zip Code / PIN Code</label>
                     <input
-                      type="number"
-                      className={`${styles.input}`}
+                      type="text"
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:bg-white focus:border-indigo-500 transition-all"
                       required
+                      placeholder="Type PIN code to auto-analyze"
                       value={zipCode}
-                      onChange={(e) => setZipCode(e.target.value)}
+                      onChange={(e) => handleZipCodeChange(e.target.value)}
                     />
                   </div>
 

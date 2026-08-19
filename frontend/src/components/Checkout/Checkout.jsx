@@ -5,8 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { server } from "../../server";
-import { toast } from "react-toastify";
-import { HiOutlineSparkles, HiOutlineLocationMarker, HiOutlineMap, HiOutlineBuildingOffice } from "react-icons/hi";
+import { HiOutlineSparkles, HiOutlineLocationMarker, HiOutlineMap } from "react-icons/hi";
+import { HiOutlineBuildingOffice } from "react-icons/hi2";
 
 const Checkout = () => {
   const { user } = useSelector((state) => state.user);

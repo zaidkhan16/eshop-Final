@@ -419,7 +419,7 @@ export const navItems = [
       image_Url: [
         {
           public_id: "test",
-          url: "https://www.startech.com.bd/image/cache/catalog/headphone/havit/h763d/h763d-02-500x500.jpg",
+          url: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80",
         },
         {
           public_id: "test",
@@ -487,7 +487,7 @@ export const navItems = [
       image_Url: [
         {
           public_id: "test",
-          url: "https://www.startech.com.bd/image/cache/catalog/headphone/havit/h763d/h763d-02-500x500.jpg",
+          url: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80",
         },
         {
           public_id: "test",
@@ -555,7 +555,7 @@ export const navItems = [
       image_Url: [
         {
           public_id: "test",
-          url: "https://www.startech.com.bd/image/cache/catalog/headphone/havit/h763d/h763d-02-500x500.jpg",
+          url: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80",
         },
         {
           public_id: "test",

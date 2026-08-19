@@ -109,7 +109,7 @@ const seedDatabase = async () => {
         images: [
           {
             public_id: "prod/sonyheadphones",
-            url: "https://www.startech.com.bd/image/cache/catalog/headphone/havit/h763d/h763d-02-500x500.jpg",
+            url: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80",
           },
         ],
         shopId: sampleShop._id.toString(),

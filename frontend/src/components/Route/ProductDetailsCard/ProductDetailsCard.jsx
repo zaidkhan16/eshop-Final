@@ -70,103 +70,130 @@ const ProductDetailsCard = ({ setOpen, data }) => {
   };
 
   return (
-    <div className="bg-[#fff]">
+    <div className="bg-white">
       {data ? (
-        <div className="fixed w-full h-screen top-0 left-0 bg-[#00000030] z-40 flex items-center justify-center">
-          <div className="w-[90%] 800px:w-[60%] h-[90vh] overflow-y-scroll 800px:h-[75vh] bg-white rounded-md shadow-sm relative p-4">
-            <RxCross1
-              size={30}
-              className="absolute right-3 top-3 z-50"
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-6">
+          <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-3xl shadow-2xl relative p-4 sm:p-8 border border-slate-100">
+            <button
               onClick={() => setOpen(false)}
-            />
+              className="absolute right-4 top-4 z-50 p-2 hover:bg-slate-100 rounded-full text-slate-500 transition-colors"
+              aria-label="Close modal"
+            >
+              <RxCross1 size={20} />
+            </button>
 
-            <div className="block w-full 800px:flex">
-              <div className="w-full 800px:w-[50%]">
-                <img src={`${data.images && data.images[0]?.url}`} alt="" />
-                <div className="flex">
-                  <Link to={`/shop/preview/${data.shop._id}`} className="flex">
+            <div className="grid grid-cols-1 800px:grid-cols-2 gap-6 sm:gap-8 items-start pt-4 sm:pt-0">
+              {/* Product Image & Shop Details */}
+              <div className="flex flex-col gap-4">
+                <div className="w-full h-[240px] sm:h-[320px] bg-slate-50 rounded-2xl flex items-center justify-center p-4 border border-slate-100 overflow-hidden">
+                  <img
+                    src={`${data.images && data.images[0]?.url}`}
+                    alt={data.name}
+                    className="max-h-full max-w-full object-contain drop-shadow-md"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                  <Link to={`/shop/preview/${data.shop?._id}`} className="flex items-center gap-3">
                     <img
                       src={`${data.images && data.images[0]?.url}`}
                       alt=""
-                      className="w-[50px] h-[50px] rounded-full mr-2"
+                      className="w-10 h-10 rounded-full object-cover ring-2 ring-indigo-500/20"
                     />
                     <div>
-                      <h3 className={`${styles.shop_name}`}>
-                        {data.shop.name}
+                      <h3 className="text-xs sm:text-sm font-bold text-slate-900 leading-snug">
+                        {data.shop?.name || "Official Store"}
                       </h3>
-                      <h5 className="pb-3 text-[15px]">{data?.ratings} Ratings</h5>
+                      <h5 className="text-[11px] text-slate-500 font-medium">{data?.ratings || 5} ⭐ Ratings</h5>
                     </div>
                   </Link>
+
+                  <button
+                    onClick={handleMessageSubmit}
+                    className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm"
+                  >
+                    <span>Message</span>
+                    <AiOutlineMessage size={14} />
+                  </button>
                 </div>
-                <div
-                  className={`${styles.button} bg-[#000] mt-4 rounded-[4px] h-11`}
-                  onClick={handleMessageSubmit}
-                >
-                  <span className="text-[#fff] flex items-center">
-                    Send Message <AiOutlineMessage className="ml-1" />
-                  </span>
-                </div>
-                <h5 className="text-[16px] text-[red] mt-5">(50) Sold out</h5>
               </div>
 
-              <div className="w-full 800px:w-[50%] pt-5 pl-[5px] pr-[5px]">
-                <h1 className={`${styles.productTitle} text-[20px]`}>
-                  {data.name}
-                </h1>
-                <p>{data.description}</p>
+              {/* Product Details & Actions */}
+              <div className="flex flex-col justify-between h-full space-y-4">
+                <div>
+                  <h1 className="text-lg sm:text-2xl font-black text-slate-900 leading-snug mb-2">
+                    {data.name}
+                  </h1>
+                  <p className="text-slate-600 text-xs sm:text-sm leading-relaxed line-clamp-4 mb-4">
+                    {data.description}
+                  </p>
 
-                <div className="flex pt-3">
-                  <h4 className={`${styles.productDiscountPrice}`}>
-                    {data.discountPrice}$
-                  </h4>
-                  <h3 className={`${styles.price}`}>
-                    {data.originalPrice ? data.originalPrice + "$" : null}
-                  </h3>
-                </div>
-                <div className="flex items-center mt-12 justify-between pr-3">
-                  <div>
-                    <button
-                      className="bg-gradient-to-r from-teal-400 to-teal-500 text-white font-bold rounded-l px-4 py-2 shadow-lg hover:opacity-75 transition duration-300 ease-in-out"
-                      onClick={decrementCount}
-                    >
-                      -
-                    </button>
-                    <span className="bg-gray-200 text-gray-800 font-medium px-4 py-[11px]">
-                      {count}
+                  <div className="flex items-baseline gap-2 py-3 border-y border-slate-100">
+                    <span className="text-2xl sm:text-3xl font-black text-indigo-600">
+                      ${data.discountPrice || data.originalPrice}
                     </span>
-                    <button
-                      className="bg-gradient-to-r from-teal-400 to-teal-500 text-white font-bold rounded-l px-4 py-2 shadow-lg hover:opacity-75 transition duration-300 ease-in-out"
-                      onClick={incrementCount}
-                    >
-                      +
-                    </button>
+                    {data.originalPrice && data.discountPrice < data.originalPrice ? (
+                      <span className="text-sm sm:text-base text-slate-400 font-medium line-through">
+                        ${data.originalPrice}
+                      </span>
+                    ) : null}
+                    <span className="ml-auto text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100">
+                      {data?.sold_out || 0} Sold
+                    </span>
                   </div>
-                  <div>
+                </div>
+
+                {/* Quantity & Wishlist */}
+                <div className="space-y-4 pt-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">Quantity</span>
+                    <div className="flex items-center border border-slate-200 rounded-2xl overflow-hidden bg-slate-50">
+                      <button
+                        className="px-3.5 py-2 text-slate-700 font-bold hover:bg-slate-200 transition-colors"
+                        onClick={decrementCount}
+                      >
+                        -
+                      </button>
+                      <span className="px-4 py-2 text-sm font-extrabold text-slate-900">
+                        {count}
+                      </span>
+                      <button
+                        className="px-3.5 py-2 text-slate-700 font-bold hover:bg-slate-200 transition-colors"
+                        onClick={incrementCount}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Add to Cart & Wishlist Buttons */}
+                  <div className="flex items-center gap-3">
+                    <button
+                      className="flex-1 py-3.5 px-6 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30 transition-all transform hover:-translate-y-0.5"
+                      onClick={() => addToCartHandler(data._id)}
+                    >
+                      <AiOutlineShoppingCart size={18} />
+                      <span>Add To Cart</span>
+                    </button>
+
                     {click ? (
-                      <AiFillHeart
-                        size={30}
-                        className="cursor-pointer"
+                      <button
                         onClick={() => removeFromWishlistHandler(data)}
-                        color={click ? "red" : "#333"}
+                        className="p-3.5 rounded-2xl bg-pink-50 text-pink-500 border border-pink-200 shadow-sm hover:scale-105 transition-transform"
                         title="Remove from wishlist"
-                      />
+                      >
+                        <AiFillHeart size={20} />
+                      </button>
                     ) : (
-                      <AiOutlineHeart
-                        size={30}
-                        className="cursor-pointer"
+                      <button
                         onClick={() => addToWishlistHandler(data)}
+                        className="p-3.5 rounded-2xl bg-slate-50 text-slate-600 border border-slate-200 shadow-sm hover:text-pink-500 hover:scale-105 transition-all"
                         title="Add to wishlist"
-                      />
+                      >
+                        <AiOutlineHeart size={20} />
+                      </button>
                     )}
                   </div>
-                </div>
-                <div
-                  className={`${styles.button} mt-6 rounded-[4px] h-11 flex items-center`}
-                  onClick={() => addToCartHandler(data._id)}
-                >
-                  <span className="text-[#fff] flex items-center">
-                    Add to cart <AiOutlineShoppingCart className="ml-1" />
-                  </span>
                 </div>
               </div>
             </div>

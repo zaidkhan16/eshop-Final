@@ -45,16 +45,16 @@ const CountDown = ({ data }) => {
   return (
     <div className="my-4">
       {hasTime ? (
-        <div className="flex items-center gap-3">
+        <div className="grid grid-cols-4 gap-2 sm:gap-3 max-w-sm">
           {keys.map((unit) => (
             <div
               key={unit}
-              className="flex flex-col items-center bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-3 min-w-[70px] shadow-lg border border-indigo-500/20"
+              className="flex flex-col items-center bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900 text-white rounded-xl sm:rounded-2xl p-2 sm:p-3 shadow-lg border border-indigo-500/20"
             >
-              <span className="text-xl sm:text-2xl font-black font-mono tracking-wider text-indigo-300">
+              <span className="text-base sm:text-2xl font-black font-mono tracking-wider text-indigo-300">
                 {String(timeLeft[unit] ?? 0).padStart(2, "0")}
               </span>
-              <span className="text-[10px] uppercase tracking-widest text-slate-400 font-semibold mt-0.5">
+              <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-slate-400 font-semibold mt-0.5">
                 {unit}
               </span>
             </div>

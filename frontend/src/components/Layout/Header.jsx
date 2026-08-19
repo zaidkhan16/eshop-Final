@@ -31,6 +31,7 @@ const Header = ({ activeHeading }) => {
   const [openCart, setOpenCart] = useState(false);
   const [openWishlist, setOpenWishlist] = useState(false);
   const [open, setOpen] = useState(false);
+  const [mobileSearch, setMobileSearch] = useState(false);
 
   const handleSearchChange = (e) => {
     const term = e.target.value;
@@ -222,28 +223,94 @@ const Header = ({ activeHeading }) => {
       <div
         className={`${
           active === true ? "shadow-md fixed top-0 left-0 z-50 bg-white/95 backdrop-blur-md" : "bg-white"
-        } w-full h-[64px] z-50 top-0 left-0 border-b border-slate-100 800px:hidden px-4 flex items-center justify-between`}
+        } w-full z-50 top-0 left-0 border-b border-slate-100 800px:hidden`}
       >
-        <button
-          onClick={() => setOpen(true)}
-          className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-800"
-        >
-          <BiMenuAltLeft size={28} />
-        </button>
-
-        <LuminaLogo />
-
-        <div className="flex items-center gap-2">
-          <div
-            className="relative cursor-pointer p-2 text-slate-800"
-            onClick={() => setOpenCart(true)}
+        <div className="h-[64px] px-4 flex items-center justify-between">
+          <button
+            onClick={() => setOpen(true)}
+            className="p-1.5 hover:bg-slate-100 rounded-xl transition-colors text-slate-800"
+            aria-label="Open navigation menu"
           >
-            <AiOutlineShoppingCart size={24} />
-            <span className="absolute top-0 right-0 rounded-full bg-emerald-500 w-4 h-4 flex items-center justify-center text-white font-bold text-[10px]">
-              {cart && cart.length}
-            </span>
+            <BiMenuAltLeft size={26} />
+          </button>
+
+          <LuminaLogo />
+
+          <div className="flex items-center gap-1">
+            {/* Search Icon Toggle */}
+            <button
+              onClick={() => setMobileSearch(!mobileSearch)}
+              className="p-2 hover:bg-slate-100 rounded-xl text-slate-700 transition-colors"
+              title="Search"
+            >
+              <AiOutlineSearch size={22} />
+            </button>
+
+            {/* Wishlist Icon */}
+            <div
+              className="relative cursor-pointer p-2 text-slate-700 hover:bg-slate-100 rounded-xl"
+              onClick={() => setOpenWishlist(true)}
+              title="Wishlist"
+            >
+              <AiOutlineHeart size={22} />
+              <span className="absolute top-1 right-1 rounded-full bg-pink-500 w-4 h-4 flex items-center justify-center text-white font-bold text-[10px]">
+                {wishlist ? wishlist.length : 0}
+              </span>
+            </div>
+
+            {/* Cart Icon */}
+            <div
+              className="relative cursor-pointer p-2 text-slate-700 hover:bg-slate-100 rounded-xl"
+              onClick={() => setOpenCart(true)}
+              title="Cart"
+            >
+              <AiOutlineShoppingCart size={22} />
+              <span className="absolute top-1 right-1 rounded-full bg-emerald-500 w-4 h-4 flex items-center justify-center text-white font-bold text-[10px]">
+                {cart ? cart.length : 0}
+              </span>
+            </div>
           </div>
         </div>
+
+        {/* Expandable Mobile Search Bar */}
+        {mobileSearch && (
+          <div className="px-4 pb-3 pt-1 border-t border-slate-100 relative bg-slate-50/90 backdrop-blur-md">
+            <div className="relative flex items-center">
+              <input
+                type="search"
+                placeholder="Search products, brands..."
+                className="h-[40px] w-full pl-9 pr-4 text-xs bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                autoFocus
+              />
+              <AiOutlineSearch size={18} className="absolute left-3 text-slate-400" />
+            </div>
+
+            {searchData && searchData.length !== 0 && (
+              <div className="absolute top-[50px] left-4 right-4 bg-white z-50 shadow-2xl border border-slate-100 rounded-xl p-2 max-h-[50vh] overflow-y-auto">
+                {searchData.map((i, idx) => (
+                  <Link
+                    to={`/product/${i._id}`}
+                    key={idx}
+                    onClick={() => {
+                      setMobileSearch(false);
+                      setSearchTerm("");
+                    }}
+                  >
+                    <div className="flex items-center gap-3 p-2 hover:bg-indigo-50/60 rounded-lg">
+                      <img src={i.images[0]?.url} alt="" className="w-9 h-9 rounded object-cover bg-slate-100" />
+                      <div className="flex flex-col">
+                        <span className="text-xs font-semibold text-slate-800 line-clamp-1">{i.name}</span>
+                        <span className="text-[11px] font-bold text-indigo-600">${i.discountPrice || i.originalPrice}</span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Mobile Drawer */}

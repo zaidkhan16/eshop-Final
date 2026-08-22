@@ -20,6 +20,10 @@ export const navItems = [
       title: "FAQ",
       url: "/faq",
     },
+    {
+      title: "About Us",
+      url: "/about",
+    },
   ];
   
   // branding data

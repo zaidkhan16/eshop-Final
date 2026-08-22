@@ -11,6 +11,10 @@ import {
   EventsPage,
   FAQPage,
   AboutPage,
+  LocationsPage,
+  CareersPage,
+  BlogPage,
+  ReviewsPage,
   CheckoutPage,
   PaymentPage,
   OrderSuccessPage,
@@ -116,6 +120,10 @@ const App = () => {
         <Route path="/events" element={<EventsPage />} />{" "}
         <Route path="/faq" element={<FAQPage />} />{" "}
         <Route path="/about" element={<AboutPage />} />{" "}
+        <Route path="/locations" element={<LocationsPage />} />{" "}
+        <Route path="/careers" element={<CareersPage />} />{" "}
+        <Route path="/blog" element={<BlogPage />} />{" "}
+        <Route path="/reviews" element={<ReviewsPage />} />{" "}
         <Route
           path="/checkout"
           element={

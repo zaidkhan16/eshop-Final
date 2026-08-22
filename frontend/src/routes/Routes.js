@@ -18,6 +18,10 @@ import OrderDetailsPage from "../pages/OrderDetailsPage";
 import TrackOrderPage from "../pages/TrackOrderPage";
 import UserInbox from "../pages/UserInbox.jsx";
 import AboutPage from "../pages/AboutPage";
+import LocationsPage from "../pages/LocationsPage";
+import CareersPage from "../pages/CareersPage";
+import BlogPage from "../pages/BlogPage";
+import ReviewsPage from "../pages/ReviewsPage";
 
 export { 
     LoginPage,
@@ -29,6 +33,10 @@ export {
     EventsPage,
     FAQPage,
     AboutPage,
+    LocationsPage,
+    CareersPage,
+    BlogPage,
+    ReviewsPage,
     CheckoutPage,
     PaymentPage,
     OrderSuccessPage,

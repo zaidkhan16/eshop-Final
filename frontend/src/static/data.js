@@ -598,49 +598,61 @@ export const navItems = [
     },
     {
       name: "Careers",
-      link: "/carrers"
+      link: "/careers"
     },
     {
       name: "Store Locations",
+      link: "/locations"
     },
     {
       name: "Our Blog",
+      link: "/blog"
     },
     {
       name: "Reviews",
+      link: "/reviews"
     },
   ];
   
   export const footercompanyLinks = [
     {
       name: "Game & Video",
+      link: "/products?category=Music%20and%20Gaming"
     },
     {
       name: "Phone &Tablets",
+      link: "/products?category=Mobile%20and%20Tablets"
     },
     {
       name: "Computers & Laptop",
+      link: "/products?category=Computers%20and%20Laptops"
     },
     {
       name: "Sport Watches",
+      link: "/products?category=Accesories"
     },
     {
       name: "Events",
+      link: "/events"
     },
   ];
   
   export const footerSupportLinks = [
     {
       name: "FAQ",
+      link: "/faq"
     },
     {
       name: "Reviews",
+      link: "/reviews"
     },
     {
       name: "Contact Us",
+      link: "/about#contact-form"
     },
     {
       name: "Shipping",
+      link: "/faq"
     },
     {
       name: "Live chat",

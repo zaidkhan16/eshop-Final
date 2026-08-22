@@ -15,6 +15,7 @@ import {
   CareersPage,
   BlogPage,
   ReviewsPage,
+  LiveChatPage,
   CheckoutPage,
   PaymentPage,
   OrderSuccessPage,
@@ -65,6 +66,7 @@ import axios from "axios";
 import { server } from "./server";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
+import LiveChatWidget from "./components/LiveChat/LiveChatWidget";
 
 const App = () => {
   const [stripeApikey, setStripeApiKey] = useState("");
@@ -124,6 +126,7 @@ const App = () => {
         <Route path="/careers" element={<CareersPage />} />{" "}
         <Route path="/blog" element={<BlogPage />} />{" "}
         <Route path="/reviews" element={<ReviewsPage />} />{" "}
+        <Route path="/live-chat" element={<LiveChatPage />} />{" "}
         <Route
           path="/checkout"
           element={
@@ -344,6 +347,7 @@ const App = () => {
         theme="colored"
         toastClassName="!rounded-2xl !shadow-xl !font-sans !text-xs sm:!text-sm !p-3"
       />
+      <LiveChatWidget />
     </BrowserRouter>
   );
 };

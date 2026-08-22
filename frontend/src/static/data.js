@@ -656,6 +656,7 @@ export const navItems = [
     },
     {
       name: "Live chat",
+      link: "/live-chat"
     },
   ];
   

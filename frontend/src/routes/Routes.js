@@ -22,6 +22,7 @@ import LocationsPage from "../pages/LocationsPage";
 import CareersPage from "../pages/CareersPage";
 import BlogPage from "../pages/BlogPage";
 import ReviewsPage from "../pages/ReviewsPage";
+import LiveChatPage from "../pages/LiveChatPage";
 
 export { 
     LoginPage,
@@ -37,6 +38,7 @@ export {
     CareersPage,
     BlogPage,
     ReviewsPage,
+    LiveChatPage,
     CheckoutPage,
     PaymentPage,
     OrderSuccessPage,

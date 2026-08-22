@@ -67,6 +67,7 @@ import { server } from "./server";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import LiveChatWidget from "./components/LiveChat/LiveChatWidget";
+import ThreeDCursor from "./components/Layout/ThreeDCursor";
 
 const App = () => {
   const [stripeApikey, setStripeApiKey] = useState("");
@@ -348,6 +349,7 @@ const App = () => {
         toastClassName="!rounded-2xl !shadow-xl !font-sans !text-xs sm:!text-sm !p-3"
       />
       <LiveChatWidget />
+      <ThreeDCursor />
     </BrowserRouter>
   );
 };

@@ -17,6 +17,7 @@ export const userReducer = createReducer(initialState, {
     state.loading = false;
     state.error = action.payload;
     state.isAuthenticated = false;
+    state.user = null;
   },
 
   // update user information

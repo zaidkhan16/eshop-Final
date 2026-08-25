@@ -28,14 +28,14 @@ module.exports = (err, req, res, next) => {
 
   // wrong jwt error
   if (err.name === "JsonWebTokenError") {
-    const message = `Your url is invalid please try again letter`;
-    err = new ErrorHandler(message, 400);
+    const message = `Your session token is invalid, please log in again`;
+    err = new ErrorHandler(message, 401);
   }
 
   // jwt expired
   if (err.name === "TokenExpiredError") {
-    const message = `Your Url is expired please try again letter!`;
-    err = new ErrorHandler(message, 400);
+    const message = `Your session has expired, please log in again`;
+    err = new ErrorHandler(message, 401);
   }
 
   res.status(err.statusCode).json({

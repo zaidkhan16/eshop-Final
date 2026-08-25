@@ -29,12 +29,12 @@ const ShopLogin = () => {
         },
         { withCredentials: true }
       )
-      .then((res) => {
+      .then(async (res) => {
         if (res.data?.token) {
           localStorage.setItem("seller_token", res.data.token);
         }
         toast.success("Seller Login Success!");
-        dispatch(loadSeller());
+        await dispatch(loadSeller());
         navigate("/dashboard");
       })
       .catch((err) => {

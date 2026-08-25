@@ -29,12 +29,12 @@ const Login = () => {
         },
         { withCredentials: true }
       )
-      .then((res) => {
+      .then(async (res) => {
         if (res.data?.token) {
           localStorage.setItem("token", res.data.token);
         }
         toast.success("Welcome back to Nexus Next-Gen Market!");
-        dispatch(loadUser());
+        await dispatch(loadUser());
         navigate("/");
       })
       .catch((err) => {

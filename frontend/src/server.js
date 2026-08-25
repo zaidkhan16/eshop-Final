@@ -53,16 +53,26 @@ axios.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Configure global Axios Response Interceptor to auto-clear invalid/expired tokens on 401
+// Configure global Axios Response Interceptor to auto-clear invalid/expired tokens
 axios.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
+    if (error.response && (error.response.status === 401 || error.response.status === 400)) {
       const url = error.config?.url || "";
-      if (url.includes("/user/getuser")) {
+      const msg = (error.response.data?.message || "").toLowerCase();
+      if (
+        url.includes("/user/getuser") ||
+        msg.includes("jwt") ||
+        msg.includes("token") ||
+        msg.includes("expired") ||
+        msg.includes("session")
+      ) {
         localStorage.removeItem("token");
       }
-      if (url.includes("/shop/getSeller")) {
+      if (
+        url.includes("/shop/getSeller") ||
+        (msg.includes("seller") && (msg.includes("token") || msg.includes("session")))
+      ) {
         localStorage.removeItem("seller_token");
       }
     }

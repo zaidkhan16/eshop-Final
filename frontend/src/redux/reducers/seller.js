@@ -17,6 +17,7 @@ export const sellerReducer = createReducer(initialState, {
     state.isLoading = false;
     state.error = action.payload;
     state.isSeller = false;
+    state.seller = null;
   },
 
   // get all sellers ---admin

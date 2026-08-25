@@ -28,6 +28,7 @@ export const loadUser = () => async (dispatch) => {
       payload: data.user,
     });
   } catch (error) {
+    localStorage.removeItem("token");
     dispatch({
       type: "LoadUserFail",
       payload: error.response?.data?.message || error.message,
@@ -62,6 +63,7 @@ export const loadSeller = () => async (dispatch) => {
       payload: data.seller,
     });
   } catch (error) {
+    localStorage.removeItem("seller_token");
     dispatch({
       type: "LoadSellerFail",
       payload: error.response?.data?.message || error.message,

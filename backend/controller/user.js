@@ -43,14 +43,23 @@ router.post("/create-user", async (req, res, next) => {
 
     const activationToken = createActivationToken(user);
 
-    let frontendUrl =
-      req.headers.origin && req.headers.origin !== "null"
-        ? req.headers.origin
-        : (process.env.FRONTEND_URL && !process.env.FRONTEND_URL.includes("your-production-frontend")
-            ? process.env.FRONTEND_URL
-            : (process.env.NODE_ENV === "production"
-                ? "https://eshop-final-7uu8-9j4psxugm-zaidkhan16s-projects.vercel.app"
-                : "http://localhost:3000"));
+    let frontendUrl = "";
+    if (req.headers.origin && req.headers.origin !== "null") {
+      frontendUrl = req.headers.origin;
+    } else if (req.headers.referer) {
+      try {
+        frontendUrl = new URL(req.headers.referer).origin;
+      } catch (e) {}
+    }
+
+    if (!frontendUrl || frontendUrl === "null") {
+      frontendUrl =
+        process.env.FRONTEND_URL && !process.env.FRONTEND_URL.includes("your-production-frontend")
+          ? process.env.FRONTEND_URL
+          : (process.env.NODE_ENV === "production"
+              ? "https://eshop-final-7uu8-9j4psxugm-zaidkhan16s-projects.vercel.app"
+              : "http://localhost:3000");
+    }
 
     frontendUrl = frontendUrl.replace(/\/$/, "");
 

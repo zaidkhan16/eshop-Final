@@ -30,11 +30,11 @@ exports.isAuthenticated = catchAsyncErrors(async (req, res, next) => {
     }
   }
 
-  if (!token && req.headers["x-auth-token"]) {
+  if ((!token || token === "null" || token === "undefined") && req.headers["x-auth-token"]) {
     token = req.headers["x-auth-token"];
   }
 
-  if (!token && req.cookies?.token) {
+  if ((!token || token === "null" || token === "undefined") && req.cookies?.token) {
     token = req.cookies.token;
   }
 

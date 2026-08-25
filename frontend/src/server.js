@@ -39,13 +39,22 @@ axios.interceptors.request.use(
     const sellerToken = localStorage.getItem("seller_token");
 
     if (token) {
-      config.headers = config.headers || {};
-      config.headers["Authorization"] = `Bearer ${token}`;
-      config.headers["x-auth-token"] = token;
+      if (config.headers && typeof config.headers.set === "function") {
+        config.headers.set("Authorization", `Bearer ${token}`);
+        config.headers.set("x-auth-token", token);
+      } else {
+        config.headers = config.headers || {};
+        config.headers["Authorization"] = `Bearer ${token}`;
+        config.headers["x-auth-token"] = token;
+      }
     }
     if (sellerToken) {
-      config.headers = config.headers || {};
-      config.headers["x-seller-token"] = sellerToken;
+      if (config.headers && typeof config.headers.set === "function") {
+        config.headers.set("x-seller-token", sellerToken);
+      } else {
+        config.headers = config.headers || {};
+        config.headers["x-seller-token"] = sellerToken;
+      }
     }
     config.withCredentials = true;
     return config;

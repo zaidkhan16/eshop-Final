@@ -68,6 +68,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import LiveChatWidget from "./components/LiveChat/LiveChatWidget";
 import ThreeDCursor from "./components/Layout/ThreeDCursor";
+import ScrollToTop from "./components/Layout/ScrollToTop";
 
 const App = () => {
   const [stripeApikey, setStripeApiKey] = useState("");
@@ -90,6 +91,7 @@ const App = () => {
 
   return (
     <BrowserRouter>
+      <ScrollToTop />
       {" "}
       {stripeApikey && (
         <Elements stripe={loadStripe(stripeApikey)}>

@@ -19,11 +19,10 @@ const ProductsPage = () => {
       setData(d);
     } else {
       const d =
-      allProducts && allProducts.filter((i) => i.category === categoryData);
+        allProducts && allProducts.filter((i) => i.category === categoryData);
       setData(d);
     }
-    //    window.scrollTo(0,0);
-  }, [allProducts]);
+  }, [allProducts, categoryData]);
 
   return (
   <>

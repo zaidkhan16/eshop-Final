@@ -13,9 +13,11 @@ const SellerActivationPage = () => {
   const dispatch = useDispatch();
   const [status, setStatus] = useState("verifying"); // "verifying" | "success" | "error"
   const [countdown, setCountdown] = useState(5);
+  const calledRef = React.useRef(false);
 
   useEffect(() => {
-    if (activation_token) {
+    if (activation_token && !calledRef.current) {
+      calledRef.current = true;
       const sendRequest = async () => {
         try {
           const res = await axios.post(`${server}/shop/activation`, {

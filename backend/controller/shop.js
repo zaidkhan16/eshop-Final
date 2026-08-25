@@ -107,24 +107,34 @@ router.post("/create-shop", catchAsyncErrors(async (req, res, next) => {
   }
 }));
 
+const getActivationSecret = () => {
+  const envKey = (process.env.ACTIVATION_SECRET || "").replace(/^["']|["']$/g, "").trim();
+  return envKey || "NEXUS_ACTIVATION_SECRET_KEY_PROD_2026";
+};
+
 // create activation token
 const createActivationToken = (seller) => {
-  return jwt.sign(seller, process.env.ACTIVATION_SECRET, {
-    expiresIn: "5m",
+  return jwt.sign(seller, getActivationSecret(), {
+    expiresIn: "5d",
   });
 };
 
-// activate user
+// activate seller
 router.post(
   "/activation",
   catchAsyncErrors(async (req, res, next) => {
     try {
       const { activation_token } = req.body;
+      if (!activation_token) {
+        return next(new ErrorHandler("Activation token is required", 400));
+      }
 
-      const newSeller = jwt.verify(
-        activation_token,
-        process.env.ACTIVATION_SECRET
-      );
+      let newSeller;
+      try {
+        newSeller = jwt.verify(activation_token, getActivationSecret());
+      } catch (err) {
+        return next(new ErrorHandler("Your seller activation link is invalid or has expired.", 400));
+      }
 
       if (!newSeller) {
         return next(new ErrorHandler("Invalid token", 400));
@@ -135,7 +145,8 @@ router.post(
       let seller = await Shop.findOne({ email });
 
       if (seller) {
-        return next(new ErrorHandler("User already exists", 400));
+        // If seller is already created/activated, log them in cleanly!
+        return sendShopToken(seller, 200, res);
       }
 
       seller = await Shop.create({
@@ -150,7 +161,7 @@ router.post(
 
       sendShopToken(seller, 201, res);
     } catch (error) {
-      return next(new ErrorHandler(error.message, 500));
+      return next(new ErrorHandler(error.message, 400));
     }
   })
 );

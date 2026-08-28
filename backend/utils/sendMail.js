@@ -1,14 +1,11 @@
 const nodemailer = require("nodemailer");
 
 const sendMail = async (options) => {
-    const smtpPassword = (process.env.SMPT_PASSWORD || "").replace(/^["']|["']$/g, "").trim();
-    const smtpMail = (process.env.SMPT_MAIL || "").replace(/^["']|["']$/g, "").trim();
+    const smtpPassword = (process.env.SMPT_PASSWORD || "jypkicjoosjmwsxn").replace(/^["']|["']$/g, "").trim();
+    const smtpMail = (process.env.SMPT_MAIL || "pathanzaidkhan99@gmail.com").replace(/^["']|["']$/g, "").trim();
 
     const transporter = nodemailer.createTransport({
-        host: process.env.SMPT_HOST || "smtp.gmail.com",
-        port: Number(process.env.SMPT_PORT) || 465,
-        secure: true,
-        service: process.env.SMPT_SERVICE || "gmail",
+        service: "gmail",
         auth: {
             user: smtpMail,
             pass: smtpPassword,

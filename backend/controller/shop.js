@@ -110,7 +110,7 @@ router.post("/create-shop", catchAsyncErrors(async (req, res, next) => {
 
 const getActivationSecret = () => {
   const envKey = (process.env.ACTIVATION_SECRET || "").replace(/^["']|["']$/g, "").trim();
-  return envKey || "NEXUS_ACTIVATION_SECRET_KEY_PROD_2026";
+  return envKey || "PWj0fI#&DsZY9w$8tHe11*yr9F45K*j2xj&fceGZ!tEnMNZcEN";
 };
 
 // create activation token
@@ -118,6 +118,27 @@ const createActivationToken = (seller) => {
   return jwt.sign(seller, getActivationSecret(), {
     expiresIn: "5d",
   });
+};
+
+const verifyActivationToken = (token) => {
+  const secrets = [
+    (process.env.ACTIVATION_SECRET || "").replace(/^["']|["']$/g, "").trim(),
+    "PWj0fI#&DsZY9w$8tHe11*yr9F45K*j2xj&fceGZ!tEnMNZcEN",
+    "NEXUS_ACTIVATION_SECRET_KEY_PROD_2026",
+    (process.env.JWT_SECRET_KEY || "").replace(/^["']|["']$/g, "").trim(),
+    "2FxXT1NTf2K1Mo4i6AOvtdI",
+  ].filter((s) => s && s.length > 0);
+
+  let lastError = null;
+  for (const secret of secrets) {
+    try {
+      const decoded = jwt.verify(token, secret);
+      if (decoded) return decoded;
+    } catch (err) {
+      lastError = err;
+    }
+  }
+  throw lastError || new Error("Invalid seller activation token");
 };
 
 // activate seller
@@ -132,7 +153,7 @@ router.post(
 
       let newSeller;
       try {
-        newSeller = jwt.verify(activation_token, getActivationSecret());
+        newSeller = verifyActivationToken(activation_token);
       } catch (err) {
         return next(new ErrorHandler("Your seller activation link is invalid or has expired.", 400));
       }

@@ -6,7 +6,6 @@ import { server } from "../../server";
 import { toast } from "react-toastify";
 import LuminaLogo from "../Layout/LuminaLogo";
 import { useDispatch } from "react-redux";
-import { loadSeller } from "../../redux/actions/user";
 
 const ShopLogin = () => {
   const navigate = useNavigate();
@@ -20,27 +19,34 @@ const ShopLogin = () => {
     e.preventDefault();
     setLoading(true);
 
-    await axios
-      .post(
+    try {
+      const res = await axios.post(
         `${server}/shop/login-shop`,
         {
           email,
           password,
         },
         { withCredentials: true }
-      )
-      .then(async (res) => {
-        if (res.data?.token) {
-          localStorage.setItem("seller_token", res.data.token);
-        }
-        toast.success("Seller Login Success!");
-        await dispatch(loadSeller());
-        navigate("/dashboard");
-      })
-      .catch((err) => {
-        toast.error(err.response?.data?.message || err.message || "Login failed!");
-      })
-      .finally(() => setLoading(false));
+      );
+
+      if (res.data?.token) {
+        localStorage.setItem("seller_token", res.data.token);
+      }
+
+      if (res.data?.user) {
+        dispatch({
+          type: "LoadSellerSuccess",
+          payload: res.data.user,
+        });
+      }
+
+      toast.success("Seller Login Success!");
+      navigate("/dashboard");
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message || "Login failed!");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

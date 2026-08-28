@@ -6,7 +6,6 @@ import { server } from "../../server";
 import { toast } from "react-toastify";
 import LuminaLogo from "../Layout/LuminaLogo";
 import { useDispatch } from "react-redux";
-import { loadUser } from "../../redux/actions/user";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -20,27 +19,34 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
 
-    await axios
-      .post(
+    try {
+      const res = await axios.post(
         `${server}/user/login-user`,
         {
           email,
           password,
         },
         { withCredentials: true }
-      )
-      .then(async (res) => {
-        if (res.data?.token) {
-          localStorage.setItem("token", res.data.token);
-        }
-        toast.success("Welcome back to Nexus Next-Gen Market!");
-        await dispatch(loadUser());
-        navigate("/");
-      })
-      .catch((err) => {
-        toast.error(err.response?.data?.message || err.message || "Login failed!");
-      })
-      .finally(() => setLoading(false));
+      );
+
+      if (res.data?.token) {
+        localStorage.setItem("token", res.data.token);
+      }
+
+      if (res.data?.user) {
+        dispatch({
+          type: "LoadUserSuccess",
+          payload: res.data.user,
+        });
+      }
+
+      toast.success("Welcome back to Nexus Next-Gen Market!");
+      navigate("/");
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message || "Login failed!");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

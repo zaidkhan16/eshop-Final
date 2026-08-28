@@ -14,33 +14,35 @@ if (process.env.NODE_ENV !== "PRODUCTION") {
   });
 }
 
-// 1. CORS & Response Header Middleware (FIRST before any route or DB call)
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (origin) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  } else {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-  }
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, HEAD, POST, PUT, DELETE, OPTIONS, PATCH"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization, Cookie, x-auth-token, x-seller-token"
-  );
-  res.setHeader(
+// 1. CORS & Preflight Configuration (Standardized for Safari, Chrome, and Mobile)
+const corsOptions = {
+  origin: true,
+  credentials: true,
+  methods: ["GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+  allowedHeaders: [
+    "Origin",
+    "X-Requested-With",
+    "Content-Type",
+    "Accept",
+    "Authorization",
+    "Cookie",
+    "x-auth-token",
+    "x-seller-token",
     "Cache-Control",
-    "no-store, no-cache, must-revalidate, proxy-revalidate"
-  );
+    "Pragma",
+    "Expires",
+  ],
+  exposedHeaders: [
+    "Set-Cookie",
+    "Authorization",
+    "x-auth-token",
+    "x-seller-token",
+  ],
+  optionsSuccessStatus: 200,
+};
 
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
-  next();
-});
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 app.use((req, res, next) => {
   if (req.url.startsWith("/v2/")) {
@@ -48,22 +50,6 @@ app.use((req, res, next) => {
   }
   next();
 });
-
-app.use(
-  cors({
-    origin: true,
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    allowedHeaders: [
-      "Origin",
-      "X-Requested-With",
-      "Content-Type",
-      "Accept",
-      "Authorization",
-      "Cookie",
-    ],
-  })
-);
 
 // 2. connect db & cloudinary initialization for serverless compatibility
 app.use(async (req, res, next) => {

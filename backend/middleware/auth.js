@@ -42,6 +42,8 @@ exports.isAuthenticated = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("Please login to continue", 401));
   }
 
+  token = token.replace(/^["']|["']$/g, "").trim();
+
   try {
     const decoded = verifyJwtToken(token);
     req.user = await User.findById(decoded.id);
@@ -89,6 +91,8 @@ exports.isSeller = catchAsyncErrors(async (req, res, next) => {
   if (!seller_token || seller_token === "null" || seller_token === "undefined") {
     return next(new ErrorHandler("Please login to continue", 401));
   }
+
+  seller_token = seller_token.replace(/^["']|["']$/g, "").trim();
 
   try {
     const decoded = verifyJwtToken(seller_token);

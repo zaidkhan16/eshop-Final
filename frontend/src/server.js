@@ -32,30 +32,42 @@ export const ENDPOINT =
     ? "https://marvelous-endurance-production.up.railway.app/"
     : "http://localhost:4000/");
 
+const isValidToken = (t) => {
+  return typeof t === "string" && t.trim() !== "" && t !== "null" && t !== "undefined";
+};
+
 // Configure global Axios Request Interceptor for Token Authorization
 axios.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     const sellerToken = localStorage.getItem("seller_token");
 
-    if (token) {
+    if (isValidToken(token)) {
+      const cleanToken = token.trim();
       if (config.headers && typeof config.headers.set === "function") {
-        config.headers.set("Authorization", `Bearer ${token}`);
-        config.headers.set("x-auth-token", token);
+        config.headers.set("Authorization", `Bearer ${cleanToken}`);
+        config.headers.set("x-auth-token", cleanToken);
       } else {
         config.headers = config.headers || {};
-        config.headers["Authorization"] = `Bearer ${token}`;
-        config.headers["x-auth-token"] = token;
+        config.headers["Authorization"] = `Bearer ${cleanToken}`;
+        config.headers["x-auth-token"] = cleanToken;
       }
+    } else {
+      localStorage.removeItem("token");
     }
-    if (sellerToken) {
+
+    if (isValidToken(sellerToken)) {
+      const cleanSellerToken = sellerToken.trim();
       if (config.headers && typeof config.headers.set === "function") {
-        config.headers.set("x-seller-token", sellerToken);
+        config.headers.set("x-seller-token", cleanSellerToken);
       } else {
         config.headers = config.headers || {};
-        config.headers["x-seller-token"] = sellerToken;
+        config.headers["x-seller-token"] = cleanSellerToken;
       }
+    } else {
+      localStorage.removeItem("seller_token");
     }
+
     config.withCredentials = true;
     return config;
   },

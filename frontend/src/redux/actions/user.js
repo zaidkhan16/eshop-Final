@@ -1,11 +1,16 @@
 import axios from "axios";
 import { server } from "../../server";
 
+const isValidToken = (t) => {
+  return typeof t === "string" && t.trim() !== "" && t !== "null" && t !== "undefined";
+};
+
 // load user
 export const loadUser = () => async (dispatch) => {
   try {
     const token = localStorage.getItem("token");
-    if (!token) {
+    if (!isValidToken(token)) {
+      localStorage.removeItem("token");
       dispatch({
         type: "LoadUserFail",
         payload: "No active user session",
@@ -16,11 +21,12 @@ export const loadUser = () => async (dispatch) => {
     dispatch({
       type: "LoadUserRequest",
     });
+    const cleanToken = token.trim();
     const { data } = await axios.get(`${server}/user/getuser`, {
       withCredentials: true,
       headers: {
-        Authorization: `Bearer ${token}`,
-        "x-auth-token": token,
+        Authorization: `Bearer ${cleanToken}`,
+        "x-auth-token": cleanToken,
       },
     });
     dispatch({
@@ -42,7 +48,8 @@ export const loadUser = () => async (dispatch) => {
 export const loadSeller = () => async (dispatch) => {
   try {
     const sellerToken = localStorage.getItem("seller_token");
-    if (!sellerToken) {
+    if (!isValidToken(sellerToken)) {
+      localStorage.removeItem("seller_token");
       dispatch({
         type: "LoadSellerFail",
         payload: "No active seller session",
@@ -53,11 +60,12 @@ export const loadSeller = () => async (dispatch) => {
     dispatch({
       type: "LoadSellerRequest",
     });
+    const cleanSellerToken = sellerToken.trim();
     const { data } = await axios.get(`${server}/shop/getSeller`, {
       withCredentials: true,
       headers: {
-        Authorization: `Bearer ${sellerToken}`,
-        "x-seller-token": sellerToken,
+        Authorization: `Bearer ${cleanSellerToken}`,
+        "x-seller-token": cleanSellerToken,
       },
     });
     dispatch({

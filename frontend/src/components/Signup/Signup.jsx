@@ -32,8 +32,16 @@ const Singup = () => {
     e.preventDefault();
     setLoading(true);
 
+    const frontendUrl = typeof window !== "undefined" ? window.location.origin : "";
+
     axios
-      .post(`${server}/user/create-user`, { name, email, password, avatar })
+      .post(`${server}/user/create-user`, {
+        name,
+        email,
+        password,
+        avatar,
+        frontendUrl,
+      })
       .then((res) => {
         toast.success(res.data.message);
         setName("");

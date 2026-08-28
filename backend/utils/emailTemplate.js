@@ -124,7 +124,7 @@ const createEmailTemplate = ({ title, name, actionUrl, buttonText, subtitle, typ
               
               <!-- Security Notice Box -->
               <div style="margin-top: 20px; padding: 10px 14px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px; color: #64748b; text-align: center;">
-                🔒 <strong>Security Guarantee:</strong> This link is valid for <strong>5 minutes</strong> only.
+                🔒 <strong>Security Guarantee:</strong> This link is valid for <strong>5 days</strong>.
               </div>
               
               <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />

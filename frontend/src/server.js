@@ -5,7 +5,7 @@ const getProdServer = () => {
   if (typeof window !== "undefined" && window.location.origin) {
     return `${window.location.origin}/api/v2`;
   }
-  return "https://eshop-final-7uu8-9j4psxugm-zaidkhan16s-projects.vercel.app/api/v2";
+  return "https://eshop-final-zaidkhan16s-projects.vercel.app/api/v2";
 };
 
 const getProdBackend = () => {
@@ -13,7 +13,7 @@ const getProdBackend = () => {
   if (typeof window !== "undefined" && window.location.origin) {
     return `${window.location.origin}/`;
   }
-  return "https://eshop-final-7uu8-9j4psxugm-zaidkhan16s-projects.vercel.app/";
+  return "https://eshop-final-zaidkhan16s-projects.vercel.app/";
 };
 
 export const server =

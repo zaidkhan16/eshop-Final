@@ -48,7 +48,9 @@ router.post("/create-shop", catchAsyncErrors(async (req, res, next) => {
     const activationToken = createActivationToken(seller);
 
     let frontendUrl = "";
-    if (req.headers.origin && req.headers.origin !== "null") {
+    if (req.body.frontendUrl && typeof req.body.frontendUrl === "string" && req.body.frontendUrl.startsWith("http")) {
+      frontendUrl = req.body.frontendUrl;
+    } else if (req.headers.origin && req.headers.origin !== "null") {
       frontendUrl = req.headers.origin;
     } else if (req.headers.referer) {
       try {
@@ -56,12 +58,12 @@ router.post("/create-shop", catchAsyncErrors(async (req, res, next) => {
       } catch (e) {}
     }
 
-    if (!frontendUrl || frontendUrl === "null") {
+    if (!frontendUrl || frontendUrl === "null" || frontendUrl.includes("your-production-frontend") || frontendUrl.includes("-7uu8-9j4psxugm-")) {
       frontendUrl =
-        process.env.FRONTEND_URL && !process.env.FRONTEND_URL.includes("your-production-frontend")
+        process.env.FRONTEND_URL && !process.env.FRONTEND_URL.includes("your-production-frontend") && !process.env.FRONTEND_URL.includes("-7uu8-9j4psxugm-")
           ? process.env.FRONTEND_URL
           : (process.env.NODE_ENV === "production"
-              ? "https://eshop-final-7uu8-9j4psxugm-zaidkhan16s-projects.vercel.app"
+              ? "https://eshop-final-zaidkhan16s-projects.vercel.app"
               : "http://localhost:3000");
     }
 

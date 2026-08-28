@@ -133,6 +133,35 @@ app.use("/payment", payment);
 app.use("/api/v2/withdraw", withdraw);
 app.use("/withdraw", withdraw);
 
+// Serve frontend static build if available
+const path = require("path");
+const fs = require("fs");
+const frontendBuildPath = path.join(__dirname, "../frontend/build");
+
+if (fs.existsSync(frontendBuildPath)) {
+  app.use(express.static(frontendBuildPath));
+
+  app.get("*", (req, res, next) => {
+    // Only intercept non-API GET requests
+    if (
+      req.url.startsWith("/api/") ||
+      req.url.startsWith("/user/") ||
+      req.url.startsWith("/shop/") ||
+      req.url.startsWith("/product/") ||
+      req.url.startsWith("/event/") ||
+      req.url.startsWith("/payment/") ||
+      req.url.startsWith("/config-check")
+    ) {
+      return next();
+    }
+    const indexPath = path.join(frontendBuildPath, "index.html");
+    if (fs.existsSync(indexPath)) {
+      return res.sendFile(indexPath);
+    }
+    next();
+  });
+}
+
 // Explicit 404 handler for unknown routes with guaranteed CORS headers
 app.use((req, res, next) => {
   const origin = req.headers.origin;

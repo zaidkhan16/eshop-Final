@@ -1,21 +1,33 @@
 {
   "version": 2,
-  "rewrites": [
+  "builds": [
     {
-      "source": "/api/v2/:path*",
-      "destination": "/api/index.js"
+      "src": "api/[...path].js",
+      "use": "@vercel/node"
     },
     {
-      "source": "/api/:path*",
-      "destination": "/api/index.js"
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "build"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/[...path].js"
     },
     {
-      "source": "/config-check",
-      "destination": "/api/index.js"
+      "src": "/config-check",
+      "dest": "/api/[...path].js"
     },
     {
-      "source": "/((?!api|config-check|static|favicon.ico|manifest.json|logo.*).*)",
-      "destination": "/index.html"
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/build/index.html"
     }
   ]
 }

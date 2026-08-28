@@ -1,9 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   AiOutlineArrowRight,
   AiOutlineCamera,
   AiOutlineDelete,
+  AiOutlineEye,
+  AiOutlineEyeInvisible,
+  AiOutlineLock,
 } from "react-icons/ai";
+import { FiUser, FiPhone } from "react-icons/fi";
+import {
+  HiOutlineShieldCheck,
+  HiOutlineSparkles,
+  HiOutlineLockClosed,
+  HiOutlineMail,
+} from "react-icons/hi";
 import { useDispatch, useSelector } from "react-redux";
 import { server } from "../../server";
 import styles from "../../styles/styles";
@@ -20,7 +30,6 @@ import {
   updateUserInformation,
 } from "../../redux/actions/user";
 import { Country, State, City } from "country-state-city";
-import { useEffect } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { getAllOrdersOfUser } from "../../redux/actions/order";
@@ -28,31 +37,54 @@ import Loader from "../Layout/Loader";
 
 const ProfileContent = ({ active }) => {
   const { user, error, successMessage } = useSelector((state) => state.user);
-  const [name, setName] = useState(user && user.name);
-  const [email, setEmail] = useState(user && user.email);
-  const [phoneNumber, setPhoneNumber] = useState(user && user.phoneNumber);
+  const [name, setName] = useState(user?.name || "");
+  const [email, setEmail] = useState(user?.email || "");
+  const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber || "");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [avatar, setAvatar] = useState(null);
+  const [avatarLoading, setAvatarLoading] = useState(false);
+  const [updateLoading, setUpdateLoading] = useState(false);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (user) {
+      setName(user.name || "");
+      setEmail(user.email || "");
+      setPhoneNumber(user.phoneNumber || "");
+    }
+  }, [user]);
 
   useEffect(() => {
     if (error) {
       toast.error(error);
+      setUpdateLoading(false);
       dispatch({ type: "clearErrors" });
     }
     if (successMessage) {
       toast.success(successMessage);
+      setUpdateLoading(false);
+      setPassword("");
       dispatch({ type: "clearMessages" });
     }
-  }, [error, successMessage]);
+  }, [error, successMessage, dispatch]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!password) {
+      toast.error("Please enter your current password to authorize changes.");
+      return;
+    }
+    setUpdateLoading(true);
     dispatch(updateUserInformation(name, email, phoneNumber, password));
   };
 
   const handleImage = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
     const reader = new FileReader();
+    setAvatarLoading(true);
 
     reader.onload = () => {
       if (reader.readyState === 2) {
@@ -67,101 +99,259 @@ const ProfileContent = ({ active }) => {
           )
           .then((response) => {
             dispatch(loadUser());
-            toast.success("avatar updated successfully!");
+            toast.success("Profile avatar updated successfully!");
           })
           .catch((error) => {
-            toast.error(error);
+            toast.error(error.response?.data?.message || error.message || "Failed to update avatar");
+          })
+          .finally(() => {
+            setAvatarLoading(false);
           });
       }
     };
 
-    reader.readAsDataURL(e.target.files[0]);
+    reader.readAsDataURL(file);
   };
 
   return (
     <div className="w-full">
       {/* profile */}
       {active === 1 && (
-        <>
-          <div className="flex justify-center w-full">
-            <div className="relative">
-              <img
-                src={`${user?.avatar?.url}`}
-                className="w-[150px] h-[150px] rounded-full object-cover border-[3px] border-[#3ad132]"
-                alt=""
-              />
-              <div className="w-[30px] h-[30px] bg-[#E3E9EE] rounded-full flex items-center justify-center cursor-pointer absolute bottom-[5px] right-[5px]">
+        <div className="w-full max-w-4xl mx-auto space-y-6">
+          {/* 1. Profile Hero Identity Banner */}
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-slate-800 p-6 sm:p-8 shadow-xl">
+            <div className="absolute -top-24 -right-24 w-60 h-60 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-start gap-6">
+              {/* Avatar with glowing ring & upload button */}
+              <div className="relative group">
+                <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl overflow-hidden ring-4 ring-indigo-500/30 shadow-2xl shadow-indigo-500/20 bg-slate-800">
+                  <img
+                    src={avatar || user?.avatar?.url || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80"}
+                    alt={user?.name || "Profile"}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
+
+                <label
+                  htmlFor="profile-avatar-upload"
+                  className="absolute -bottom-2 -right-2 p-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl shadow-lg cursor-pointer hover:scale-110 active:scale-95 transition-all"
+                  title="Update Profile Picture"
+                >
+                  {avatarLoading ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <AiOutlineCamera size={18} />
+                  )}
+                </label>
                 <input
                   type="file"
-                  id="image"
+                  id="profile-avatar-upload"
                   className="hidden"
+                  accept="image/*"
                   onChange={handleImage}
                 />
-                <label htmlFor="image">
-                  <AiOutlineCamera />
-                </label>
+              </div>
+
+              {/* User Quick Info */}
+              <div className="text-center sm:text-left flex-1">
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1.5">
+                  <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                    {user?.name || "Nexus Member"}
+                  </h1>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <HiOutlineShieldCheck size={14} /> Verified Account
+                  </span>
+                </div>
+
+                <p className="text-slate-400 text-xs sm:text-sm font-mono mb-4 flex items-center justify-center sm:justify-start gap-1.5">
+                  <HiOutlineMail className="text-indigo-400" /> {user?.email}
+                </p>
+
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
+                  <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-xl text-xs text-slate-300 font-medium">
+                    Role: <strong className="text-indigo-400">{user?.role || "Customer"}</strong>
+                  </span>
+                  <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-xl text-xs text-slate-300 font-medium">
+                    Joined: <strong className="text-slate-200">{user?.createdAt ? new Date(user.createdAt).toLocaleDateString("en-US", { month: "short", year: "numeric" }) : "Recently"}</strong>
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-          <br />
-          <br />
-          <div className="w-full px-5">
-            <form onSubmit={handleSubmit} aria-required={true}>
-              <div className="w-full 800px:flex block pb-3">
-                <div className=" w-[100%] 800px:w-[50%]">
-                  <label className="block pb-2">Full Name</label>
-                  <input
-                    type="text"
-                    className={`${styles.input} !w-[95%] mb-4 800px:mb-0`}
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                  />
+
+          {/* 2. Main Profile Edit Form Card */}
+          <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-8">
+            <div className="flex items-center justify-between pb-6 mb-6 border-b border-slate-100">
+              <div>
+                <h2 className="text-lg font-bold text-slate-900">Personal Information</h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Update your display username and delivery contact phone number.
+                </p>
+              </div>
+              <span className="text-xs px-3 py-1 bg-indigo-50 text-indigo-700 font-semibold rounded-full border border-indigo-100">
+                Account Settings
+              </span>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* USERNAME / FULL NAME (EDITABLE - UNIQUE MODERN CARD) */}
+                <div className="relative group bg-slate-50/70 p-4 rounded-2xl border border-slate-200/80 hover:border-indigo-500/50 hover:bg-indigo-50/20 transition-all duration-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                      <FiUser className="text-indigo-600" size={15} />
+                      Username / Full Name
+                    </label>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 bg-indigo-100/80 text-indigo-700 rounded-md">
+                      Editable
+                    </span>
+                  </div>
+                  <div className="relative mt-1">
+                    <input
+                      type="text"
+                      required
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Enter your full name"
+                      className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-800 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 shadow-xs transition-all"
+                    />
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-2 flex items-center gap-1">
+                    <HiOutlineSparkles className="text-indigo-500" size={13} />
+                    Public name displayed on your account & reviews
+                  </p>
                 </div>
-                <div className=" w-[100%] 800px:w-[50%]">
-                  <label className="block pb-2">Email Address</label>
-                  <input
-                    type="text"
-                    className={`${styles.input} !w-[95%] mb-1 800px:mb-0`}
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
+
+                {/* EMAIL ADDRESS (LOCKED / PROTECTED - CANNOT CHANGE) */}
+                <div className="relative bg-slate-100/80 p-4 rounded-2xl border border-slate-200 text-slate-500">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-2">
+                      <HiOutlineMail className="text-slate-500" size={16} />
+                      Email Address
+                    </label>
+                    <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-200 text-slate-600 rounded-md flex items-center gap-1">
+                      <HiOutlineLockClosed size={12} /> Locked
+                    </span>
+                  </div>
+                  <div className="relative mt-1">
+                    <input
+                      type="email"
+                      disabled
+                      value={email || ""}
+                      readOnly
+                      className="w-full bg-slate-200/60 border border-slate-300/80 rounded-xl px-4 py-3 text-sm font-medium text-slate-500 cursor-not-allowed select-none opacity-80"
+                    />
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-2 flex items-center gap-1">
+                    <HiOutlineShieldCheck className="text-slate-500" size={13} />
+                    Primary security ID • Locked for account safety
+                  </p>
+                </div>
+
+                {/* PHONE NUMBER (EDITABLE - UNIQUE MODERN CARD) */}
+                <div className="relative group bg-slate-50/70 p-4 rounded-2xl border border-slate-200/80 hover:border-indigo-500/50 hover:bg-indigo-50/20 transition-all duration-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                      <FiPhone className="text-indigo-600" size={15} />
+                      Phone Number
+                    </label>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 bg-indigo-100/80 text-indigo-700 rounded-md">
+                      Editable
+                    </span>
+                  </div>
+                  <div className="relative mt-1">
+                    <input
+                      type="tel"
+                      required
+                      value={phoneNumber || ""}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      placeholder="e.g. +91 9876543210"
+                      className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-800 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 shadow-xs transition-all"
+                    />
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-2 flex items-center gap-1">
+                    <HiOutlineSparkles className="text-indigo-500" size={13} />
+                    Used for delivery notifications and SMS alerts
+                  </p>
+                </div>
+
+                {/* SECURITY PASSWORD CONFIRMATION */}
+                <div className="relative group bg-slate-50/70 p-4 rounded-2xl border border-slate-200/80 hover:border-indigo-500/50 hover:bg-indigo-50/20 transition-all duration-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                      <AiOutlineLock className="text-indigo-600" size={16} />
+                      Confirm Password
+                    </label>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 bg-rose-50 text-rose-600 rounded-md">
+                      Required
+                    </span>
+                  </div>
+                  <div className="relative mt-1">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter current password"
+                      className="w-full bg-white border border-slate-200 rounded-xl pl-4 pr-11 py-3 text-sm font-medium text-slate-800 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 shadow-xs transition-all"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600 transition-colors"
+                    >
+                      {showPassword ? <AiOutlineEye size={18} /> : <AiOutlineEyeInvisible size={18} />}
+                    </button>
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-2 flex items-center gap-1">
+                    <HiOutlineShieldCheck className="text-indigo-500" size={13} />
+                    Enter password to securely authorize profile updates
+                  </p>
                 </div>
               </div>
 
-              <div className="w-full 800px:flex block pb-3">
-                <div className=" w-[100%] 800px:w-[50%]">
-                  <label className="block pb-2">Phone Number</label>
-                  <input
-                    type="number"
-                    className={`${styles.input} !w-[95%] mb-4 800px:mb-0`}
-                    required
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                  />
-                </div>
+              {/* Action Controls */}
+              <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-100">
+                <p className="text-xs text-slate-500 text-center sm:text-left">
+                  🔒 All profile updates are encrypted and verified in real-time.
+                </p>
 
-                <div className=" w-[100%] 800px:w-[50%]">
-                  <label className="block pb-2">Enter your password</label>
-                  <input
-                    type="password"
-                    className={`${styles.input} !w-[95%] mb-4 800px:mb-0`}
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setName(user?.name || "");
+                      setPhoneNumber(user?.phoneNumber || "");
+                      setPassword("");
+                    }}
+                    className="px-5 py-3 text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-2xl transition-all w-full sm:w-auto"
+                  >
+                    Reset
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={updateLoading}
+                    className="px-7 py-3 bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600 hover:from-indigo-700 hover:to-violet-700 text-white text-xs font-bold rounded-2xl shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transform active:scale-95 transition-all flex items-center justify-center gap-2 w-full sm:w-auto disabled:opacity-50"
+                  >
+                    {updateLoading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Saving...</span>
+                      </>
+                    ) : (
+                      <>
+                        <HiOutlineSparkles size={16} />
+                        <span>Save Changes</span>
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
-              <input
-                className={`w-[250px] h-[40px] border border-[#3a24db] text-center text-[#3a24db] rounded-[3px] mt-8 cursor-pointer`}
-                required
-                value="Update"
-                type="submit"
-              />
             </form>
           </div>
-        </>
+        </div>
       )}
 
       {/* order */}

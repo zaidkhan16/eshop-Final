@@ -28,9 +28,7 @@ export const backend_url =
 
 export const ENDPOINT =
   process.env.REACT_APP_SOCKET_SERVER_URL ||
-  (process.env.NODE_ENV === "production"
-    ? "https://marvelous-endurance-production.up.railway.app/"
-    : "http://localhost:4000/");
+  "https://marvelous-endurance-production.up.railway.app/";
 
 const isValidToken = (t) => {
   return typeof t === "string" && t.trim() !== "" && t !== "null" && t !== "undefined";

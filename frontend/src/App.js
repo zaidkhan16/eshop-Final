@@ -171,6 +171,30 @@ const App = () => {
             </ProtectedRoute>
           }
         />{" "}
+        <Route
+          path="/user/track/order"
+          element={
+            <ProtectedRoute>
+              <TrackOrderPage />
+            </ProtectedRoute>
+          }
+        />{" "}
+        <Route
+          path="/track-order"
+          element={
+            <ProtectedRoute>
+              <TrackOrderPage />
+            </ProtectedRoute>
+          }
+        />{" "}
+        <Route
+          path="/order/track"
+          element={
+            <ProtectedRoute>
+              <TrackOrderPage />
+            </ProtectedRoute>
+          }
+        />{" "}
         <Route path="/shop/preview/:id" element={<ShopPreviewPage />} />{" "}
         {/* shop Routes */}{" "}
         <Route path="/shop-create" element={<ShopCreatePage />} />{" "}

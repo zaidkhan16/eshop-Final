@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   AiOutlineArrowRight,
   AiOutlineCamera,
@@ -7,7 +7,16 @@ import {
   AiOutlineEyeInvisible,
   AiOutlineLock,
 } from "react-icons/ai";
-import { FiUser, FiPhone } from "react-icons/fi";
+import {
+  FiUser,
+  FiPhone,
+  FiTruck,
+  FiPackage,
+  FiCheckCircle,
+  FiClock,
+  FiSearch,
+  FiArrowRight,
+} from "react-icons/fi";
 import {
   HiOutlineShieldCheck,
   HiOutlineSparkles,
@@ -585,6 +594,8 @@ const TrackOrder = () => {
   const { user } = useSelector((state) => state.user);
   const { orders, isLoading } = useSelector((state) => state.order);
   const dispatch = useDispatch();
+  const [viewMode, setViewMode] = useState("cards"); // 'cards' | 'table'
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     if (user?._id) {
@@ -592,75 +603,312 @@ const TrackOrder = () => {
     }
   }, [dispatch, user]);
 
+  const filteredOrders = useMemo(() => {
+    if (!orders) return [];
+    if (!searchTerm.trim()) return orders;
+    const q = searchTerm.toLowerCase();
+    return orders.filter(
+      (o) =>
+        o._id.toLowerCase().includes(q) ||
+        o.status?.toLowerCase().includes(q) ||
+        o.cart?.some((item) => item.name?.toLowerCase().includes(q))
+    );
+  }, [orders, searchTerm]);
+
+  const stats = useMemo(() => {
+    if (!orders) return { total: 0, active: 0, delivered: 0 };
+    const total = orders.length;
+    const delivered = orders.filter((o) => o.status === "Delivered").length;
+    const active = total - delivered;
+    return { total, active, delivered };
+  }, [orders]);
+
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case "Delivered":
+        return {
+          bg: "bg-emerald-50 text-emerald-600 border-emerald-200",
+          dot: "bg-emerald-500",
+          percent: 100,
+        };
+      case "On the way":
+        return {
+          bg: "bg-purple-50 text-purple-600 border-purple-200",
+          dot: "bg-purple-500",
+          percent: 85,
+        };
+      case "Shipping":
+      case "Received":
+        return {
+          bg: "bg-blue-50 text-blue-600 border-blue-200",
+          dot: "bg-blue-500",
+          percent: 60,
+        };
+      case "Transferred to delivery partner":
+        return {
+          bg: "bg-indigo-50 text-indigo-600 border-indigo-200",
+          dot: "bg-indigo-500",
+          percent: 35,
+        };
+      case "Processing refund":
+      case "Refund Success":
+        return {
+          bg: "bg-amber-50 text-amber-600 border-amber-200",
+          dot: "bg-amber-500",
+          percent: 50,
+        };
+      case "Processing":
+      default:
+        return {
+          bg: "bg-indigo-50 text-indigo-600 border-indigo-200",
+          dot: "bg-indigo-500",
+          percent: 15,
+        };
+    }
+  };
+
   const columns = [
     { field: "id", headerName: "Order ID", minWidth: 150, flex: 0.7 },
-
     {
       field: "status",
       headerName: "Status",
-      minWidth: 130,
+      minWidth: 140,
       flex: 0.7,
-      cellClassName: (params) => {
-        return params.getValue(params.id, "status") === "Delivered"
-          ? "greenColor"
-          : "redColor";
+      renderCell: (params) => {
+        const badge = getStatusBadge(params.value);
+        return (
+          <span
+            className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold border ${badge.bg}`}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${badge.dot}`} />
+            {params.value}
+          </span>
+        );
       },
     },
     {
       field: "itemsQty",
       headerName: "Items Qty",
       type: "number",
-      minWidth: 130,
-      flex: 0.7,
+      minWidth: 100,
+      flex: 0.5,
     },
-
     {
       field: "total",
-      headerName: "Total",
+      headerName: "Total Amount",
       type: "number",
-      minWidth: 130,
-      flex: 0.8,
+      minWidth: 120,
+      flex: 0.6,
     },
-
     {
-      field: " ",
-      flex: 1,
-      minWidth: 150,
-      headerName: "",
-      type: "number",
+      field: "action",
+      flex: 0.8,
+      minWidth: 140,
+      headerName: "Action",
       sortable: false,
       renderCell: (params) => {
         return (
-          <>
-            <Link to={`/user/track/order/${params.id}`}>
-              <Button>
-                <MdTrackChanges size={20} />
-              </Button>
-            </Link>
-          </>
+          <Link
+            to={`/user/track/order/${params.id}`}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition-colors"
+          >
+            <MdTrackChanges size={16} /> Track
+          </Link>
         );
       },
     },
   ];
 
   const row = [];
-
-  orders &&
-    orders.forEach((item) => {
+  filteredOrders &&
+    filteredOrders.forEach((item) => {
       row.push({
         id: item._id,
         itemsQty: item.cart.length,
-        total: "US$ " + item.totalPrice,
+        total: "$" + item.totalPrice,
         status: item.status,
       });
     });
 
+  if (isLoading) {
+    return <Loader />;
+  }
+
   return (
-    <>
-      {isLoading ? (
-        <Loader />
+    <div className="w-full pl-0 sm:pl-6 space-y-6">
+      {/* Header & Stats Banner */}
+      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-6 text-white shadow-md relative overflow-hidden">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+          <div>
+            <span className="text-xs font-bold uppercase tracking-widest text-indigo-400 block mb-1">
+              Live Logistics Dashboard
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              Track Your Shipments
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-md">
+              Follow real-time courier updates, estimated delivery dates, and package transit stages.
+            </p>
+          </div>
+
+          {/* Quick Stat Pills */}
+          <div className="flex flex-wrap gap-3">
+            <div className="bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/10 text-center min-w-[90px]">
+              <span className="text-[10px] uppercase font-bold text-slate-400 block">Total</span>
+              <span className="text-xl font-extrabold text-white">{stats.total}</span>
+            </div>
+            <div className="bg-indigo-500/20 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-indigo-400/30 text-center min-w-[90px]">
+              <span className="text-[10px] uppercase font-bold text-indigo-300 block">Active</span>
+              <span className="text-xl font-extrabold text-indigo-200">{stats.active}</span>
+            </div>
+            <div className="bg-emerald-500/20 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-emerald-400/30 text-center min-w-[90px]">
+              <span className="text-[10px] uppercase font-bold text-emerald-300 block">Delivered</span>
+              <span className="text-xl font-extrabold text-emerald-200">{stats.delivered}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Filter and View Toggles */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="relative w-full sm:w-80">
+          <input
+            type="text"
+            placeholder="Search by Order ID or product..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-9 pr-4 py-2 text-xs sm:text-sm bg-white border border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all shadow-xs"
+          />
+          <FiSearch className="absolute left-3 top-3 text-slate-400 text-sm" />
+        </div>
+
+        <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-xl self-end sm:self-auto">
+          <button
+            onClick={() => setViewMode("cards")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              viewMode === "cards"
+                ? "bg-white text-indigo-600 shadow-xs"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            Cards View
+          </button>
+          <button
+            onClick={() => setViewMode("table")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              viewMode === "table"
+                ? "bg-white text-indigo-600 shadow-xs"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            Table View
+          </button>
+        </div>
+      </div>
+
+      {/* Shipment Content Views */}
+      {filteredOrders.length === 0 ? (
+        <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 shadow-xs">
+          <div className="w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto mb-3 text-2xl">
+            <FiTruck />
+          </div>
+          <h4 className="text-base font-bold text-slate-900 mb-1">No Orders Found</h4>
+          <p className="text-xs text-slate-500 max-w-sm mx-auto">
+            {searchTerm
+              ? "No orders match your search query. Try searching with a different order ID."
+              : "You haven't placed any orders yet."}
+          </p>
+        </div>
+      ) : viewMode === "cards" ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {filteredOrders.map((ord) => {
+            const badge = getStatusBadge(ord.status);
+            return (
+              <div
+                key={ord._id}
+                className="bg-white rounded-2xl p-5 border border-slate-200/90 hover:border-indigo-200 hover:shadow-md transition-all space-y-4"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <span className="text-[11px] font-mono font-bold text-slate-900 block">
+                      Order #{ord._id.slice(0, 10)}...
+                    </span>
+                    <span className="text-[11px] text-slate-400">
+                      {new Date(ord.createdAt || Date.now()).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </span>
+                  </div>
+
+                  <span
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold border uppercase tracking-wider ${badge.bg}`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${badge.dot}`} />
+                    {ord.status}
+                  </span>
+                </div>
+
+                {/* Progress bar preview */}
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[11px] text-slate-500 font-medium">
+                    <span>Tracking Progress</span>
+                    <span className="font-bold text-indigo-600">{badge.percent}%</span>
+                  </div>
+                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-indigo-500 to-violet-600 rounded-full transition-all duration-500"
+                      style={{ width: `${badge.percent}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Items preview */}
+                <div className="flex items-center justify-between pt-1 border-t border-slate-100">
+                  <div className="flex -space-x-2 overflow-hidden py-1">
+                    {ord.cart?.slice(0, 4).map((item, idx) => {
+                      const img =
+                        item?.images && item.images[0]?.url
+                          ? item.images[0].url
+                          : item.image ||
+                            "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100";
+                      return (
+                        <img
+                          key={idx}
+                          src={img}
+                          alt={item.name}
+                          className="inline-block h-9 w-9 rounded-xl ring-2 ring-white object-cover bg-slate-100"
+                          title={item.name}
+                        />
+                      );
+                    })}
+                    {ord.cart?.length > 4 && (
+                      <div className="flex items-center justify-center h-9 w-9 rounded-xl bg-slate-100 ring-2 ring-white text-[10px] font-bold text-slate-600">
+                        +{ord.cart.length - 4}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="text-right">
+                    <span className="text-xs text-slate-400 block">Total</span>
+                    <span className="text-sm font-black text-slate-900">${ord.totalPrice}</span>
+                  </div>
+                </div>
+
+                {/* Action button */}
+                <Link
+                  to={`/user/track/order/${ord._id}`}
+                  className="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-xs transition-colors"
+                >
+                  <MdTrackChanges size={16} /> Track Live Shipment <FiArrowRight />
+                </Link>
+              </div>
+            );
+          })}
+        </div>
       ) : (
-        <div className="pl-8 pt-1">
+        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
           <DataGrid
             rows={row}
             columns={columns}
@@ -670,7 +918,7 @@ const TrackOrder = () => {
           />
         </div>
       )}
-    </>
+    </div>
   );
 };
 

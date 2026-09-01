@@ -47,23 +47,23 @@ router.post("/create-shop", catchAsyncErrors(async (req, res, next) => {
 
     const activationToken = createActivationToken(seller);
 
-    let frontendUrl = "https://eshop-final-zaidkhan16s-projects.vercel.app";
+    let frontendUrl = "";
 
     if (req.body.frontendUrl && typeof req.body.frontendUrl === "string" && req.body.frontendUrl.startsWith("http")) {
-      if (!req.body.frontendUrl.includes("localhost") && !req.body.frontendUrl.includes("127.0.0.1")) {
-        frontendUrl = req.body.frontendUrl;
-      }
+      frontendUrl = req.body.frontendUrl;
     } else if (req.headers.origin && req.headers.origin !== "null") {
-      if (!req.headers.origin.includes("localhost") && !req.headers.origin.includes("127.0.0.1")) {
-        frontendUrl = req.headers.origin;
-      }
+      frontendUrl = req.headers.origin;
     } else if (req.headers.referer) {
       try {
         const refOrigin = new URL(req.headers.referer).origin;
-        if (!refOrigin.includes("localhost") && !refOrigin.includes("127.0.0.1")) {
+        if (refOrigin && refOrigin.startsWith("http")) {
           frontendUrl = refOrigin;
         }
       } catch (e) {}
+    } else if (process.env.FRONTEND_URL) {
+      frontendUrl = process.env.FRONTEND_URL;
+    } else {
+      frontendUrl = "https://eshop-final-zaidkhan16s-projects.vercel.app";
     }
 
     frontendUrl = frontendUrl.replace(/\/$/, "");
@@ -98,7 +98,7 @@ router.post("/create-shop", catchAsyncErrors(async (req, res, next) => {
       console.error("SMTP Mail Error:", error.message);
       return next(
         new ErrorHandler(
-          `Failed to send activation email (${error.message}). Please update SMPT_PASSWORD in backend/config/.env`,
+          `Failed to send activation email (${error.message}). Please check SMTP settings.`,
           500
         )
       );
@@ -121,6 +121,9 @@ const createActivationToken = (seller) => {
 };
 
 const verifyActivationToken = (token) => {
+  if (!token) throw new Error("Token missing");
+  const cleanToken = decodeURIComponent(token).replace(/^["']|["']$/g, "").trim();
+
   const secrets = [
     (process.env.ACTIVATION_SECRET || "").replace(/^["']|["']$/g, "").trim(),
     "PWj0fI#&DsZY9w$8tHe11*yr9F45K*j2xj&fceGZ!tEnMNZcEN",
@@ -132,7 +135,7 @@ const verifyActivationToken = (token) => {
   let lastError = null;
   for (const secret of secrets) {
     try {
-      const decoded = jwt.verify(token, secret);
+      const decoded = jwt.verify(cleanToken, secret);
       if (decoded) return decoded;
     } catch (err) {
       lastError = err;
@@ -184,6 +187,28 @@ router.post(
       sendShopToken(seller, 201, res);
     } catch (error) {
       return next(new ErrorHandler(error.message, 400));
+    }
+  })
+);
+
+// resend seller activation email
+router.post(
+  "/resend-activation",
+  catchAsyncErrors(async (req, res, next) => {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return next(new ErrorHandler("Please provide your email address", 400));
+      }
+
+      const existingSeller = await Shop.findOne({ email });
+      if (existingSeller) {
+        return next(new ErrorHandler("This shop account is already activated. Please sign in!", 400));
+      }
+
+      return next(new ErrorHandler("No pending shop registration found for this email. Please register your shop.", 404));
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 500));
     }
   })
 );

@@ -1,9 +1,14 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { server } from "../server";
 import { RxCheckCircled, RxCrossCircled } from "react-icons/rx";
-import { HiOutlineBuildingStorefront, HiArrowRight, HiOutlineSparkles } from "react-icons/hi2";
+import {
+  HiOutlineBuildingStorefront,
+  HiArrowRight,
+  HiOutlineSparkles,
+} from "react-icons/hi2";
+import { FiRefreshCw } from "react-icons/fi";
 import { useDispatch } from "react-redux";
 import { loadSeller } from "../redux/actions/user";
 
@@ -11,23 +16,35 @@ const SellerActivationPage = () => {
   const { activation_token } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   const [status, setStatus] = useState("verifying"); // "verifying" | "success" | "error"
-  const [countdown, setCountdown] = useState(5);
-  const calledRef = React.useRef(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [countdown, setCountdown] = useState(4);
+  const calledRef = useRef(false);
 
   useEffect(() => {
-    if (activation_token && !calledRef.current) {
+    const resolvedToken =
+      activation_token ||
+      window.location.pathname.split("/seller/activation/")[1] ||
+      window.location.pathname.split("/").pop();
+
+    if (resolvedToken && !calledRef.current) {
       calledRef.current = true;
       const sendRequest = async () => {
         try {
           const res = await axios.post(`${server}/shop/activation`, {
-            activation_token,
+            activation_token: decodeURIComponent(resolvedToken).trim(),
           });
           if (res.data?.token) {
             localStorage.setItem("seller_token", res.data.token);
           }
           setStatus("success");
         } catch (err) {
+          const msg =
+            err.response?.data?.message ||
+            err.message ||
+            "This seller activation link is invalid or has expired.";
+          setErrorMessage(msg);
           setStatus("error");
         }
       };
@@ -47,6 +64,34 @@ const SellerActivationPage = () => {
     }
     return () => clearInterval(timer);
   }, [status, countdown, navigate, dispatch]);
+
+  const handleRetry = () => {
+    calledRef.current = false;
+    setStatus("verifying");
+    const resolvedToken =
+      activation_token ||
+      window.location.pathname.split("/seller/activation/")[1] ||
+      window.location.pathname.split("/").pop();
+
+    axios
+      .post(`${server}/shop/activation`, {
+        activation_token: decodeURIComponent(resolvedToken).trim(),
+      })
+      .then((res) => {
+        if (res.data?.token) {
+          localStorage.setItem("seller_token", res.data.token);
+        }
+        setStatus("success");
+      })
+      .catch((err) => {
+        setErrorMessage(
+          err.response?.data?.message ||
+            err.message ||
+            "Verification failed. Please register your shop again."
+        );
+        setStatus("error");
+      });
+  };
 
   return (
     <div className="min-h-screen w-full bg-slate-950 flex items-center justify-center p-4 relative overflow-hidden font-Poppins">
@@ -87,9 +132,12 @@ const SellerActivationPage = () => {
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 mb-3">
               <HiOutlineBuildingStorefront size={14} /> Storefront Activation
             </span>
-            <h2 className="text-2xl font-bold text-slate-100 mb-2">Verifying Shop Email</h2>
+            <h2 className="text-2xl font-bold text-slate-100 mb-2">
+              Verifying Shop Email
+            </h2>
             <p className="text-slate-400 text-sm leading-relaxed mb-6">
-              Please wait while we validate your shop activation token and initialize your seller dashboard.
+              Please wait while we validate your shop activation token and initialize
+              your seller dashboard.
             </p>
           </div>
         )}
@@ -99,14 +147,17 @@ const SellerActivationPage = () => {
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-3">
               <HiOutlineSparkles size={14} /> Shop Live & Ready
             </span>
-            <h2 className="text-2xl font-extrabold text-white mb-2">Shop Activated! 🏪</h2>
+            <h2 className="text-2xl font-extrabold text-white mb-2">
+              Shop Activated! 🏪
+            </h2>
             <p className="text-slate-300 text-sm leading-relaxed mb-6">
-              Your seller account has been verified successfully. You can now login and start listing your products!
+              Your seller account has been verified successfully. You can now login
+              and start listing your products!
             </p>
 
             {/* Countdown notice */}
             <div className="bg-slate-800/80 border border-slate-700/60 rounded-xl p-3 mb-6 flex items-center justify-between text-xs text-slate-300">
-              <span>Redirecting to Shop Login...</span>
+              <span>Redirecting to Shop Dashboard...</span>
               <span className="font-bold text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">
                 00:0{countdown}s
               </span>
@@ -124,14 +175,24 @@ const SellerActivationPage = () => {
         {status === "error" && (
           <div>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20 mb-3">
-              Token Expired
+              Verification Notice
             </span>
-            <h2 className="text-2xl font-bold text-slate-100 mb-2">Activation Link Expired</h2>
+            <h2 className="text-2xl font-bold text-slate-100 mb-2">
+              Activation Error
+            </h2>
             <p className="text-slate-400 text-sm leading-relaxed mb-6">
-              This seller activation link is invalid or has expired. Please register your shop again.
+              {errorMessage ||
+                "This seller activation link is invalid, expired, or has already been used."}
             </p>
 
             <div className="space-y-3">
+              <button
+                onClick={handleRetry}
+                className="w-full inline-flex items-center justify-center gap-2 py-3 px-6 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold border border-slate-700 transition-all text-xs"
+              >
+                <FiRefreshCw size={14} className="inline mr-1" /> Retry Shop Activation
+              </button>
+
               <Link
                 to="/shop-create"
                 className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-600 text-white font-semibold shadow-lg hover:opacity-95 transition-all text-sm"
@@ -142,7 +203,7 @@ const SellerActivationPage = () => {
                 to="/shop-login"
                 className="block text-xs font-medium text-slate-400 hover:text-slate-200 transition-colors pt-2"
               >
-                Back to Shop Login
+                Already verified? Back to Shop Login
               </Link>
             </div>
           </div>

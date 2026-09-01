@@ -1,442 +1,747 @@
 import axios from "axios";
-import React, { useRef, useState } from "react";
-import { useEffect } from "react";
+import React, { useRef, useState, useEffect, useMemo, useCallback } from "react";
 import { server, ENDPOINT } from "../../server";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { AiOutlineArrowRight, AiOutlineSend } from "react-icons/ai";
-import styles from "../../styles/styles";
-import { TfiGallery } from "react-icons/tfi";
+import { useSelector } from "react-redux";
+import { useNavigate, useLocation } from "react-router-dom";
+import {
+  FiSend,
+  FiImage,
+  FiArrowLeft,
+  FiSearch,
+  FiMessageSquare,
+  FiX,
+} from "react-icons/fi";
+import { HiOutlineSparkles, HiOutlineChatAlt2 } from "react-icons/hi";
 import socketIO from "socket.io-client";
 import { format } from "timeago.js";
-const socketId = socketIO(ENDPOINT, { transports: ["polling", "websocket"] });
+import { toast } from "react-toastify";
 
 const DashboardMessages = () => {
-  const { seller,isLoading } = useSelector((state) => state.seller);
+  const { seller } = useSelector((state) => state.seller);
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [conversations, setConversations] = useState([]);
-  const [arrivalMessage, setArrivalMessage] = useState(null);
-  const [currentChat, setCurrentChat] = useState();
+  const [currentChat, setCurrentChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const [userData, setUserData] = useState(null);
   const [newMessage, setNewMessage] = useState("");
   const [onlineUsers, setOnlineUsers] = useState([]);
-  const [activeStatus, setActiveStatus] = useState(false);
-  const [images, setImages] = useState();
-  const [open, setOpen] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loadingConversations, setLoadingConversations] = useState(true);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [sendingMessage, setSendingMessage] = useState(false);
+  const [previewModalImg, setPreviewModalImg] = useState(null);
+
+  const socketRef = useRef(null);
   const scrollRef = useRef(null);
 
+  // Initialize Socket safely
   useEffect(() => {
-    socketId.on("getMessage", (data) => {
-      setArrivalMessage({
-        sender: data.senderId,
-        text: data.text,
-        createdAt: Date.now(),
+    try {
+      socketRef.current = socketIO(ENDPOINT, {
+        transports: ["polling", "websocket"],
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
       });
-    });
+
+      socketRef.current.on("getMessage", (data) => {
+        if (data) {
+          setMessages((prev) => {
+            const exists = prev.some(
+              (m) =>
+                (m._id && m._id === data._id) ||
+                (m.text === data.text && m.sender === data.senderId && Math.abs(new Date(m.createdAt) - new Date()) < 3000)
+            );
+            if (exists) return prev;
+            return [
+              ...prev,
+              {
+                sender: data.senderId,
+                text: data.text,
+                images: data.images,
+                createdAt: Date.now(),
+              },
+            ];
+          });
+        }
+      });
+
+      socketRef.current.on("getUsers", (data) => {
+        if (Array.isArray(data)) {
+          setOnlineUsers(data);
+        }
+      });
+    } catch (err) {
+      console.warn("Socket connection warning:", err);
+    }
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
+    };
   }, []);
 
+  // Register seller on socket
   useEffect(() => {
-    arrivalMessage &&
-      currentChat?.members.includes(arrivalMessage.sender) &&
-      setMessages((prev) => [...prev, arrivalMessage]);
-  }, [arrivalMessage, currentChat]);
+    if (seller?._id && socketRef.current) {
+      socketRef.current.emit("addUser", seller._id);
+    }
+  }, [seller?._id]);
+
+  // Fetch all seller conversations
+  const fetchConversations = useCallback(async () => {
+    if (!seller?._id) return;
+    try {
+      const res = await axios.get(
+        `${server}/conversation/get-all-conversation-seller/${seller._id}`,
+        { withCredentials: true }
+      );
+      if (res.data?.conversations) {
+        setConversations(res.data.conversations);
+      }
+    } catch (error) {
+      console.error("Failed to load seller conversations:", error);
+    } finally {
+      setLoadingConversations(false);
+    }
+  }, [seller?._id]);
 
   useEffect(() => {
-    const getConversation = async () => {
+    fetchConversations();
+  }, [fetchConversations]);
+
+  // Handle URL query param (e.g., /dashboard-messages?65f3a...)
+  useEffect(() => {
+    const rawSearch = location.search.replace("?", "");
+    if (!rawSearch) return;
+
+    let targetId = rawSearch;
+    if (targetId.includes("id=")) {
+      const params = new URLSearchParams(location.search);
+      targetId = params.get("id") || rawSearch;
+    }
+
+    if (targetId && conversations.length > 0) {
+      const matched = conversations.find((c) => c._id === targetId);
+      if (matched) {
+        setCurrentChat(matched);
+      }
+    }
+  }, [location.search, conversations]);
+
+  // Fetch customer info when current chat changes
+  useEffect(() => {
+    if (!currentChat || !seller?._id) return;
+    const partnerId = currentChat.members.find((m) => m !== seller._id);
+    if (!partnerId) return;
+
+    const getPartnerInfo = async () => {
       try {
-        const resonse = await axios.get(
-          `${server}/conversation/get-all-conversation-seller/${seller?._id}`,
+        const res = await axios.get(`${server}/user/user-info/${partnerId}`);
+        if (res.data?.user) {
+          setUserData(res.data.user);
+        }
+      } catch (e) {
+        try {
+          const shopRes = await axios.get(`${server}/shop/get-shop-info/${partnerId}`);
+          if (shopRes.data?.shop) {
+            setUserData(shopRes.data.shop);
+          }
+        } catch (err) {
+          console.error("Failed to get customer info:", err);
+        }
+      }
+    };
+
+    getPartnerInfo();
+  }, [currentChat, seller?._id]);
+
+  // Fetch messages for active chat
+  const fetchMessages = useCallback(async (isPolling = false) => {
+    if (!currentChat?._id) return;
+    if (!isPolling) setLoadingMessages(true);
+    try {
+      const res = await axios.get(
+        `${server}/message/get-all-messages/${currentChat._id}`
+      );
+      if (res.data?.messages) {
+        setMessages(res.data.messages);
+      }
+    } catch (error) {
+      console.error("Failed to fetch messages:", error);
+    } finally {
+      if (!isPolling) setLoadingMessages(false);
+    }
+  }, [currentChat?._id]);
+
+  useEffect(() => {
+    fetchMessages();
+  }, [fetchMessages]);
+
+  // 4-Second Polling Sync Fallback
+  useEffect(() => {
+    if (!currentChat?._id) return;
+    const interval = setInterval(() => {
+      fetchMessages(true);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [currentChat?._id, fetchMessages]);
+
+  // Auto-scroll on new messages
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
+
+  // Check if customer is online
+  const isCustomerOnline = useMemo(() => {
+    if (!currentChat || !seller?._id) return false;
+    const partnerId = currentChat.members.find((m) => m !== seller._id);
+    return onlineUsers.some((u) => u.userId === partnerId);
+  }, [currentChat, seller?._id, onlineUsers]);
+
+  // Filter conversations
+  const filteredConversations = useMemo(() => {
+    if (!conversations) return [];
+    if (!searchTerm.trim()) return conversations;
+    const q = searchTerm.toLowerCase();
+    return conversations.filter(
+      (c) =>
+        c.lastMessage?.toLowerCase().includes(q) ||
+        c.groupTitle?.toLowerCase().includes(q) ||
+        c._id?.toLowerCase().includes(q)
+    );
+  }, [conversations, searchTerm]);
+
+  // Send message
+  const handleSendMessage = async (e) => {
+    e?.preventDefault();
+    const textToSend = newMessage.trim();
+    if (!textToSend && !imagePreview) return;
+    if (!currentChat || !seller?._id) return;
+
+    const receiverId = currentChat.members.find((m) => m !== seller._id);
+
+    setSendingMessage(true);
+
+    try {
+      if (socketRef.current) {
+        socketRef.current.emit("sendMessage", {
+          senderId: seller._id,
+          receiverId,
+          text: textToSend,
+        });
+        socketRef.current.emit("updateLastMessage", {
+          lastMessage: textToSend,
+          lastMessagesId: seller._id,
+        });
+      }
+    } catch (err) {
+      console.warn("Socket send error:", err);
+    }
+
+    try {
+      const messagePayload = {
+        sender: seller._id,
+        text: textToSend,
+        conversationId: currentChat._id,
+        images: imagePreview || undefined,
+      };
+
+      const res = await axios.post(
+        `${server}/message/create-new-message`,
+        messagePayload
+      );
+
+      if (res.data?.message) {
+        setMessages((prev) => [...prev, res.data.message]);
+        setNewMessage("");
+        setImagePreview(null);
+
+        await axios.put(
+          `${server}/conversation/update-last-message/${currentChat._id}`,
           {
-            withCredentials: true,
+            lastMessage: textToSend || "Sent an image",
+            lastMessageId: seller._id,
           }
         );
 
-        setConversations(resonse.data.conversations);
-      } catch (error) {
-        // console.log(error);
-      }
-    };
-    getConversation();
-  }, [seller, messages]);
-
-  useEffect(() => {
-    if (seller) {
-      const sellerId = seller?._id;
-      socketId.emit("addUser", sellerId);
-      socketId.on("getUsers", (data) => {
-        setOnlineUsers(data);
-      });
-    }
-  }, [seller]);
-
-  const onlineCheck = (chat) => {
-    const chatMembers = chat.members.find((member) => member !== seller?._id);
-    const online = onlineUsers.find((user) => user.userId === chatMembers);
-
-    return online ? true : false;
-  };
-
-  // get messages
-  useEffect(() => {
-    const getMessage = async () => {
-      try {
-        const response = await axios.get(
-          `${server}/message/get-all-messages/${currentChat?._id}`
-        );
-        setMessages(response.data.messages);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    getMessage();
-  }, [currentChat]);
-
-  // create new message
-  const sendMessageHandler = async (e) => {
-    e.preventDefault();
-
-    const message = {
-      sender: seller._id,
-      text: newMessage,
-      conversationId: currentChat._id,
-    };
-
-    const receiverId = currentChat.members.find(
-      (member) => member.id !== seller._id
-    );
-
-    socketId.emit("sendMessage", {
-      senderId: seller._id,
-      receiverId,
-      text: newMessage,
-    });
-
-    try {
-      if (newMessage !== "") {
-        await axios
-          .post(`${server}/message/create-new-message`, message)
-          .then((res) => {
-            setMessages([...messages, res.data.message]);
-            updateLastMessage();
-          })
-          .catch((error) => {
-            console.log(error);
-          });
+        fetchConversations();
       }
     } catch (error) {
-      console.log(error);
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to send message."
+      );
+    } finally {
+      setSendingMessage(false);
     }
   };
 
-  const updateLastMessage = async () => {
-    socketId.emit("updateLastMessage", {
-      lastMessage: newMessage,
-      lastMessageId: seller._id,
-    });
+  const handleImageSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-    await axios
-      .put(`${server}/conversation/update-last-message/${currentChat._id}`, {
-        lastMessage: newMessage,
-        lastMessageId: seller._id,
-      })
-      .then((res) => {
-        console.log(res.data.conversation);
-        setNewMessage("");
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
+    if (file.size > 5 * 1024 * 1024) {
+      toast.warning("Please choose an image under 5MB");
+      return;
+    }
 
-  const handleImageUpload = async (e) => {
     const reader = new FileReader();
-
     reader.onload = () => {
       if (reader.readyState === 2) {
-        setImages(reader.result);
-        imageSendingHandler(reader.result);
+        setImagePreview(reader.result);
       }
     };
-
-    reader.readAsDataURL(e.target.files[0]);
+    reader.readAsDataURL(file);
   };
 
-  const imageSendingHandler = async (e) => {
-    const receiverId = currentChat.members.find(
-      (member) => member !== seller._id
-    );
-
-    socketId.emit("sendMessage", {
-      senderId: seller._id,
-      receiverId,
-      images: e,
-    });
-
-    try {
-      await axios
-        .post(`${server}/message/create-new-message`, {
-          images: e,
-          sender: seller._id,
-          text: newMessage,
-          conversationId: currentChat._id,
-        })
-        .then((res) => {
-          setImages();
-          setMessages([...messages, res.data.message]);
-          updateLastMessageForImage();
-        });
-    } catch (error) {
-      console.log(error);
-    }
+  const handleSelectChat = (chat) => {
+    setCurrentChat(chat);
+    navigate(`/dashboard-messages?${chat._id}`);
   };
 
-  const updateLastMessageForImage = async () => {
-    await axios.put(
-      `${server}/conversation/update-last-message/${currentChat._id}`,
-      {
-        lastMessage: "Photo",
-        lastMessageId: seller._id,
-      }
-    );
+  const handleBackToList = () => {
+    setCurrentChat(null);
+    navigate("/dashboard-messages");
   };
-
-  useEffect(() => {
-    scrollRef.current?.scrollIntoView({ beahaviour: "smooth" });
-  }, [messages]);
 
   return (
-    <div className="w-[90%] bg-white m-5 h-[85vh] overflow-y-scroll rounded">
-      {!open && (
-        <>
-          <h1 className="text-center text-[30px] py-3 font-Poppins">
-            All Messages
-          </h1>
-          {/* All messages list */}
-          {conversations &&
-            conversations.map((item, index) => (
-              <MessageList
-                data={item}
-                key={index}
-                index={index}
-                setOpen={setOpen}
-                setCurrentChat={setCurrentChat}
-                me={seller._id}
-                setUserData={setUserData}
-                userData={userData}
-                online={onlineCheck(item)}
-                setActiveStatus={setActiveStatus}
-                isLoading={isLoading}
-              />
-            ))}
-        </>
-      )}
+    <div className="w-full p-4 sm:p-6 space-y-4">
+      {/* Top Header */}
+      <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+        <div>
+          <h2 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            Customer Inquiries & Messages
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-600 border border-indigo-100">
+              <HiOutlineSparkles /> Real-Time
+            </span>
+          </h2>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Respond to buyer inquiries, resolve support questions, and build store loyalty.
+          </p>
+        </div>
+      </div>
 
-      {open && (
-        <SellerInbox
-          setOpen={setOpen}
-          newMessage={newMessage}
-          setNewMessage={setNewMessage}
-          sendMessageHandler={sendMessageHandler}
-          messages={messages}
-          sellerId={seller._id}
-          userData={userData}
-          activeStatus={activeStatus}
-          scrollRef={scrollRef}
-          setMessages={setMessages}
-          handleImageUpload={handleImageUpload}
-        />
+      {/* 2-Column Split Chat Container */}
+      <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden h-[75vh] flex">
+        {/* Left Column: Conversations List */}
+        <div
+          className={`w-full md:w-80 lg:w-96 border-r border-slate-100 flex flex-col bg-slate-50/50 ${
+            currentChat ? "hidden md:flex" : "flex"
+          }`}
+        >
+          {/* Search bar */}
+          <div className="p-4 border-b border-slate-100 bg-white">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search conversations..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all outline-none"
+              />
+              <FiSearch className="absolute left-3 top-2.5 text-slate-400 text-sm" />
+            </div>
+          </div>
+
+          {/* Conversation list items */}
+          <div className="flex-1 overflow-y-auto divide-y divide-slate-100 scrollbar-thin">
+            {loadingConversations ? (
+              <div className="p-8 text-center text-xs text-slate-400">
+                Loading chats...
+              </div>
+            ) : filteredConversations.length === 0 ? (
+              <div className="p-8 text-center space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto text-xl">
+                  <HiOutlineChatAlt2 />
+                </div>
+                <h4 className="text-sm font-bold text-slate-800">
+                  No Customer Inquiries
+                </h4>
+                <p className="text-xs text-slate-500 max-w-xs mx-auto">
+                  When customers message you about products, conversations will appear here.
+                </p>
+              </div>
+            ) : (
+              filteredConversations.map((item) => {
+                const isSelected = currentChat?._id === item._id;
+                const partnerId = item.members.find((m) => m !== seller?._id);
+                const isOnline = onlineUsers.some((u) => u.userId === partnerId);
+
+                return (
+                  <SellerConversationItem
+                    key={item._id}
+                    data={item}
+                    currentSellerId={seller?._id}
+                    isSelected={isSelected}
+                    isOnline={isOnline}
+                    onClick={() => handleSelectChat(item)}
+                  />
+                );
+              })
+            )}
+          </div>
+        </div>
+
+        {/* Right Column: Active Chat */}
+        <div
+          className={`flex-1 flex flex-col bg-white ${
+            !currentChat ? "hidden md:flex" : "flex"
+          }`}
+        >
+          {currentChat ? (
+            <>
+              {/* Active Chat Header */}
+              <div className="p-4 px-6 border-b border-slate-100 flex items-center justify-between bg-white/95 backdrop-blur-md">
+                <div className="flex items-center gap-3.5">
+                  <button
+                    onClick={handleBackToList}
+                    className="md:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors"
+                  >
+                    <FiArrowLeft size={18} />
+                  </button>
+
+                  <div className="relative">
+                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white flex items-center justify-center font-bold text-sm shadow-xs overflow-hidden border border-slate-200">
+                      {userData?.avatar?.url ? (
+                        <img
+                          src={userData.avatar.url}
+                          alt={userData.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span>{userData?.name ? userData.name[0] : "C"}</span>
+                      )}
+                    </div>
+                    <span
+                      className={`w-3 h-3 rounded-full absolute -top-0.5 -right-0.5 ring-2 ring-white ${
+                        isCustomerOnline ? "bg-emerald-500" : "bg-slate-300"
+                      }`}
+                    />
+                  </div>
+
+                  <div>
+                    <h3 className="text-sm font-extrabold text-slate-900">
+                      {userData?.name || "Customer"}
+                    </h3>
+                    <span className="text-[11px] font-medium text-slate-400 flex items-center gap-1.5">
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          isCustomerOnline ? "bg-emerald-500" : "bg-slate-400"
+                        }`}
+                      />
+                      {isCustomerOnline ? (
+                        <span className="text-emerald-600 font-semibold">
+                          Active Now
+                        </span>
+                      ) : (
+                        "Offline"
+                      )}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="text-xs text-slate-400 font-mono">
+                  Chat ID: #{currentChat._id.slice(0, 8)}
+                </div>
+              </div>
+
+              {/* Messages History */}
+              <div className="flex-1 p-6 overflow-y-auto space-y-4 bg-gradient-to-b from-slate-50/50 to-white scrollbar-thin">
+                {loadingMessages ? (
+                  <div className="h-full flex items-center justify-center text-xs text-slate-400">
+                    Loading messages...
+                  </div>
+                ) : messages.length === 0 ? (
+                  <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3">
+                    <div className="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl">
+                      <FiMessageSquare />
+                    </div>
+                    <h4 className="text-sm font-bold text-slate-800">
+                      Customer Conversation
+                    </h4>
+                    <p className="text-xs text-slate-500 max-w-sm">
+                      Reply promptly to customer questions to increase store conversion and satisfaction.
+                    </p>
+                  </div>
+                ) : (
+                  messages.map((item, index) => {
+                    const isMe = item.sender === seller?._id;
+                    return (
+                      <div
+                        key={item._id || index}
+                        className={`flex items-end gap-2.5 ${
+                          isMe ? "justify-end" : "justify-start"
+                        }`}
+                        ref={index === messages.length - 1 ? scrollRef : null}
+                      >
+                        {!isMe && (
+                          <div className="w-8 h-8 rounded-xl bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold flex-shrink-0 overflow-hidden mb-1">
+                            {userData?.avatar?.url ? (
+                              <img
+                                src={userData.avatar.url}
+                                alt=""
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <span>{userData?.name ? userData.name[0] : "C"}</span>
+                            )}
+                          </div>
+                        )}
+
+                        <div
+                          className={`max-w-[78%] sm:max-w-md space-y-1 ${
+                            isMe ? "items-end text-right" : "items-start text-left"
+                          }`}
+                        >
+                          {item.images && (
+                            <div
+                              onClick={() =>
+                                setPreviewModalImg(
+                                  typeof item.images === "string"
+                                    ? item.images
+                                    : item.images?.url
+                                )
+                              }
+                              className="cursor-pointer rounded-2xl overflow-hidden border border-slate-200/80 shadow-xs max-w-xs hover:opacity-95 transition-opacity"
+                            >
+                              <img
+                                src={
+                                  typeof item.images === "string"
+                                    ? item.images
+                                    : item.images?.url
+                                }
+                                alt="Attachment"
+                                className="w-full max-h-64 object-cover"
+                              />
+                            </div>
+                          )}
+
+                          {item.text && (
+                            <div
+                              className={`p-3.5 px-4 rounded-2xl text-xs sm:text-sm leading-relaxed shadow-xs ${
+                                isMe
+                                  ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-br-xs"
+                                  : "bg-white border border-slate-200 text-slate-800 rounded-bl-xs"
+                              }`}
+                            >
+                              <p>{item.text}</p>
+                            </div>
+                          )}
+
+                          <span className="text-[10px] text-slate-400 block px-1">
+                            {format(item.createdAt || Date.now())}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Image Preview bar */}
+              {imagePreview && (
+                <div className="p-3 px-6 bg-slate-100 border-t border-slate-200 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-12 h-12 rounded-xl object-cover border border-slate-300"
+                    />
+                    <span className="text-xs font-semibold text-slate-700">
+                      Image attached
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setImagePreview(null)}
+                    className="p-1.5 text-slate-500 hover:text-rose-600 rounded-lg"
+                  >
+                    <FiX size={18} />
+                  </button>
+                </div>
+              )}
+
+              {/* Chat Input */}
+              <form
+                onSubmit={handleSendMessage}
+                className="p-3.5 sm:p-4 border-t border-slate-100 bg-white flex items-center gap-2.5"
+              >
+                <label
+                  htmlFor="seller-chat-image-upload"
+                  className="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-indigo-600 cursor-pointer transition-colors"
+                  title="Attach Photo"
+                >
+                  <FiImage size={18} />
+                  <input
+                    id="seller-chat-image-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageSelect}
+                  />
+                </label>
+
+                <input
+                  type="text"
+                  placeholder={`Reply to ${userData?.name || "customer"}...`}
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  className="flex-1 py-2.5 px-4 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all outline-none"
+                />
+
+                <button
+                  type="submit"
+                  disabled={sendingMessage || (!newMessage.trim() && !imagePreview)}
+                  className="p-2.5 sm:px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-indigo-500/20 transition-all disabled:opacity-50"
+                >
+                  {sendingMessage ? (
+                    <span className="text-xs">Sending...</span>
+                  ) : (
+                    <>
+                      <FiSend size={15} />
+                      <span className="hidden sm:inline">Send</span>
+                    </>
+                  )}
+                </button>
+              </form>
+            </>
+          ) : (
+            <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-4">
+              <div className="w-16 h-16 rounded-3xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-3xl shadow-sm">
+                <FiMessageSquare />
+              </div>
+              <div>
+                <h3 className="text-lg font-black text-slate-900">
+                  Select a Customer Chat
+                </h3>
+                <p className="text-xs text-slate-500 max-w-sm mt-1">
+                  Click any conversation on the left to start replying to customer inquiries in real-time.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Image Modal Lightbox */}
+      {previewModalImg && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 cursor-pointer"
+          onClick={() => setPreviewModalImg(null)}
+        >
+          <div className="relative max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl">
+            <img
+              src={previewModalImg}
+              alt="Zoomed attachment"
+              className="w-full h-full object-contain"
+            />
+            <button
+              onClick={() => setPreviewModalImg(null)}
+              className="absolute top-4 right-4 p-2 bg-black/50 text-white rounded-full hover:bg-black/80 transition-colors"
+            >
+              <FiX size={20} />
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
 };
 
-const MessageList = ({
+const SellerConversationItem = ({
   data,
-  index,
-  setOpen,
-  setCurrentChat,
-  me,
-  setUserData,
-  online,
-  setActiveStatus,
-  isLoading
+  currentSellerId,
+  isSelected,
+  isOnline,
+  onClick,
 }) => {
-  console.log(data);
-  const [user, setUser] = useState([]);
-  const navigate = useNavigate();
-  const handleClick = (id) => {
-    navigate(`/dashboard-messages?${id}`);
-    setOpen(true);
-  };
-  const [active, setActive] = useState(0);
+  const [customer, setCustomer] = useState(null);
 
   useEffect(() => {
-    const userId = data.members.find((user) => user != me);
+    const customerId = data.members.find((m) => m !== currentSellerId);
+    if (!customerId) return;
 
-    const getUser = async () => {
+    let isMounted = true;
+    const loadCustomer = async () => {
       try {
-        const res = await axios.get(`${server}/user/user-info/${userId}`);
-        setUser(res.data.user);
-      } catch (error) {
-        console.log(error);
+        const res = await axios.get(`${server}/user/user-info/${customerId}`);
+        if (isMounted && res.data?.user) {
+          setCustomer(res.data.user);
+        }
+      } catch (e) {
+        try {
+          const shopRes = await axios.get(`${server}/shop/get-shop-info/${customerId}`);
+          if (isMounted && shopRes.data?.shop) {
+            setCustomer(shopRes.data.shop);
+          }
+        } catch (err) {
+          // ignore
+        }
       }
     };
-    getUser();
-  }, [me, data]);
+    loadCustomer();
+    return () => {
+      isMounted = false;
+    };
+  }, [data, currentSellerId]);
+
+  const customerName = customer?.name || "Customer";
+  const customerAvatar = customer?.avatar?.url;
+  const isMine = data?.lastMessageId === currentSellerId;
 
   return (
     <div
-      className={`w-full flex p-3 px-3 ${
-        active === index ? "bg-[#00000010]" : "bg-transparent"
-      }  cursor-pointer`}
-      onClick={(e) =>
-        setActive(index) ||
-        handleClick(data._id) ||
-        setCurrentChat(data) ||
-        setUserData(user) ||
-        setActiveStatus(online)
-      }
+      onClick={onClick}
+      className={`p-3.5 px-4 cursor-pointer transition-all flex items-center gap-3 relative ${
+        isSelected
+          ? "bg-indigo-50/70 border-l-4 border-indigo-600"
+          : "hover:bg-slate-100/60"
+      }`}
     >
-      <div className="relative">
-        <img
-          src={`${user?.avatar?.url}`}
-          alt=""
-          className="w-[50px] h-[50px] rounded-full"
+      <div className="relative flex-shrink-0">
+        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white flex items-center justify-center font-bold text-xs shadow-xs overflow-hidden border border-slate-200">
+          {customerAvatar ? (
+            <img
+              src={customerAvatar}
+              alt={customerName}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <span>{customerName[0]}</span>
+          )}
+        </div>
+        <span
+          className={`w-2.5 h-2.5 rounded-full absolute -top-0.5 -right-0.5 ring-2 ring-white ${
+            isOnline ? "bg-emerald-500" : "bg-slate-300"
+          }`}
         />
-        {online ? (
-          <div className="w-[12px] h-[12px] bg-green-400 rounded-full absolute top-[2px] right-[2px]" />
-        ) : (
-          <div className="w-[12px] h-[12px] bg-[#c7b9b9] rounded-full absolute top-[2px] right-[2px]" />
-        )}
       </div>
-      <div className="pl-3">
-        <h1 className="text-[18px]">{user?.name}</h1>
-        <p className="text-[16px] text-[#000c]">
-          {!isLoading && data?.lastMessageId !== user?._id
-            ? "You:"
-            : user?.name.split(" ")[0] + ": "}{" "}
-          {data?.lastMessage}
+
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center justify-between mb-0.5">
+          <h4
+            className={`text-xs font-bold truncate ${
+              isSelected ? "text-indigo-950" : "text-slate-900"
+            }`}
+          >
+            {customerName}
+          </h4>
+          <span className="text-[10px] text-slate-400 whitespace-nowrap ml-1">
+            {format(data.updatedAt || data.createdAt || Date.now())}
+          </span>
+        </div>
+
+        <p className="text-[11px] text-slate-500 truncate">
+          {isMine && <span className="font-semibold text-slate-700">You: </span>}
+          {data.lastMessage || "Customer started a conversation"}
         </p>
       </div>
-    </div>
-  );
-};
-
-const SellerInbox = ({
-  scrollRef,
-  setOpen,
-  newMessage,
-  setNewMessage,
-  sendMessageHandler,
-  messages,
-  sellerId,
-  userData,
-  activeStatus,
-  handleImageUpload,
-}) => {
-  return (
-    <div className="w-full min-h-full flex flex-col justify-between">
-      {/* message header */}
-      <div className="w-full flex p-3 items-center justify-between bg-slate-200">
-        <div className="flex">
-          <img
-            src={`${userData?.avatar?.url}`}
-            alt=""
-            className="w-[60px] h-[60px] rounded-full"
-          />
-          <div className="pl-3">
-            <h1 className="text-[18px] font-[600]">{userData?.name}</h1>
-            <h1>{activeStatus ? "Active Now" : ""}</h1>
-          </div>
-        </div>
-        <AiOutlineArrowRight
-          size={20}
-          className="cursor-pointer"
-          onClick={() => setOpen(false)}
-        />
-      </div>
-
-      {/* messages */}
-      <div className="px-3 h-[65vh] py-3 overflow-y-scroll">
-        {messages &&
-          messages.map((item, index) => {
-            return (
-              <div
-                className={`flex w-full my-2 ${
-                  item.sender === sellerId ? "justify-end" : "justify-start"
-                }`}
-                ref={scrollRef}
-              >
-                {item.sender !== sellerId && (
-                  <img
-                    src={`${userData?.avatar?.url}`}
-                    className="w-[40px] h-[40px] rounded-full mr-3"
-                    alt=""
-                  />
-                )}
-                {item.images && (
-                  <img
-                    src={typeof item.images === "string" ? item.images : item.images?.url}
-                    className="w-[300px] h-[300px] object-cover rounded-[10px] mr-2"
-                    alt=""
-                  />
-                )}
-                {item.text !== "" && (
-                  <div>
-                    <div
-                      className={`w-max p-2 rounded ${
-                        item.sender === sellerId ? "bg-[#000]" : "bg-[#38c776]"
-                      } text-[#fff] h-min`}
-                    >
-                      <p>{item.text}</p>
-                    </div>
-
-                    <p className="text-[12px] text-[#000000d3] pt-1">
-                      {format(item.createdAt)}
-                    </p>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-      </div>
-
-      {/* send message input */}
-      <form
-        aria-required={true}
-        className="p-3 relative w-full flex justify-between items-center"
-        onSubmit={sendMessageHandler}
-      >
-        <div className="w-[30px]">
-          <input
-            type="file"
-            name=""
-            id="image"
-            className="hidden"
-            onChange={handleImageUpload}
-          />
-          <label htmlFor="image">
-            <TfiGallery className="cursor-pointer" size={20} />
-          </label>
-        </div>
-        <div className="w-full">
-          <input
-            type="text"
-            required
-            placeholder="Enter your message..."
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            className={`${styles.input}`}
-          />
-          <input type="submit" value="Send" className="hidden" id="send" />
-          <label htmlFor="send">
-            <AiOutlineSend
-              size={20}
-              className="absolute right-4 top-5 cursor-pointer"
-            />
-          </label>
-        </div>
-      </form>
     </div>
   );
 };

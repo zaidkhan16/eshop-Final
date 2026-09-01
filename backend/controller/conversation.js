@@ -32,7 +32,7 @@ router.post(
         });
       }
     } catch (error) {
-      return next(new ErrorHandler(error.response.message), 500);
+      return next(new ErrorHandler(error.message || "Failed to create conversation", 500));
     }
   })
 );
@@ -49,12 +49,12 @@ router.get(
         },
       }).sort({ updatedAt: -1, createdAt: -1 });
 
-      res.status(201).json({
+      res.status(200).json({
         success: true,
         conversations,
       });
     } catch (error) {
-      return next(new ErrorHandler(error), 500);
+      return next(new ErrorHandler(error.message || "Failed to fetch conversations", 500));
     }
   })
 );
@@ -71,12 +71,12 @@ router.get(
         },
       }).sort({ updatedAt: -1, createdAt: -1 });
 
-      res.status(201).json({
+      res.status(200).json({
         success: true,
         conversations,
       });
     } catch (error) {
-      return next(new ErrorHandler(error), 500);
+      return next(new ErrorHandler(error.message || "Failed to fetch conversations", 500));
     }
   })
 );
@@ -93,12 +93,12 @@ router.put(
         lastMessageId,
       });
 
-      res.status(201).json({
+      res.status(200).json({
         success: true,
         conversation,
       });
     } catch (error) {
-      return next(new ErrorHandler(error), 500);
+      return next(new ErrorHandler(error.message || "Failed to update last message", 500));
     }
   })
 );

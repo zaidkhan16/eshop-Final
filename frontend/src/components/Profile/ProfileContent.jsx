@@ -16,12 +16,21 @@ import {
   FiClock,
   FiSearch,
   FiArrowRight,
+  FiCopy,
+  FiCheck,
+  FiRefreshCw,
+  FiExternalLink,
+  FiEye,
+  FiAlertCircle,
 } from "react-icons/fi";
 import {
   HiOutlineShieldCheck,
   HiOutlineSparkles,
   HiOutlineLockClosed,
   HiOutlineMail,
+  HiOutlineShoppingBag,
+  HiOutlineReceiptRefund,
+  HiOutlineCurrencyDollar,
 } from "react-icons/hi";
 import { useDispatch, useSelector } from "react-redux";
 import { server } from "../../server";
@@ -405,6 +414,9 @@ const AllOrders = () => {
   const { user } = useSelector((state) => state.user);
   const { orders, isLoading } = useSelector((state) => state.order);
   const dispatch = useDispatch();
+  const [viewMode, setViewMode] = useState("cards"); // 'cards' | 'table'
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
 
   useEffect(() => {
     if (user?._id) {
@@ -412,75 +424,390 @@ const AllOrders = () => {
     }
   }, [dispatch, user]);
 
-  const columns = [
-    { field: "id", headerName: "Order ID", minWidth: 150, flex: 0.7 },
+  const stats = useMemo(() => {
+    if (!orders) return { total: 0, active: 0, delivered: 0, totalSpent: "0.00" };
+    const total = orders.length;
+    const delivered = orders.filter((o) => o.status === "Delivered").length;
+    const active = orders.filter(
+      (o) => o.status !== "Delivered" && o.status !== "Refund Success"
+    ).length;
+    const totalSpent = orders.reduce((acc, curr) => acc + (curr.totalPrice || 0), 0);
+    return { total, active, delivered, totalSpent: totalSpent.toFixed(2) };
+  }, [orders]);
 
+  const filteredOrders = useMemo(() => {
+    if (!orders) return [];
+    let list = [...orders];
+
+    if (statusFilter !== "All") {
+      if (statusFilter === "Processing") {
+        list = list.filter((o) => o.status === "Processing");
+      } else if (statusFilter === "In Transit") {
+        list = list.filter(
+          (o) =>
+            o.status === "Shipping" ||
+            o.status === "Received" ||
+            o.status === "On the way" ||
+            o.status === "Transferred to delivery partner"
+        );
+      } else if (statusFilter === "Delivered") {
+        list = list.filter((o) => o.status === "Delivered");
+      } else if (statusFilter === "Refunds") {
+        list = list.filter(
+          (o) =>
+            o.status === "Processing refund" || o.status === "Refund Success"
+        );
+      }
+    }
+
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase();
+      list = list.filter(
+        (o) =>
+          o._id.toLowerCase().includes(q) ||
+          o.status?.toLowerCase().includes(q) ||
+          o.cart?.some((item) => item.name?.toLowerCase().includes(q))
+      );
+    }
+
+    return list;
+  }, [orders, statusFilter, searchTerm]);
+
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case "Delivered":
+        return {
+          bg: "bg-emerald-50 text-emerald-600 border-emerald-200",
+          dot: "bg-emerald-500",
+        };
+      case "On the way":
+        return {
+          bg: "bg-purple-50 text-purple-600 border-purple-200",
+          dot: "bg-purple-500 animate-pulse",
+        };
+      case "Shipping":
+      case "Received":
+        return {
+          bg: "bg-blue-50 text-blue-600 border-blue-200",
+          dot: "bg-blue-500 animate-pulse",
+        };
+      case "Transferred to delivery partner":
+        return {
+          bg: "bg-indigo-50 text-indigo-600 border-indigo-200",
+          dot: "bg-indigo-500",
+        };
+      case "Processing refund":
+        return {
+          bg: "bg-amber-50 text-amber-600 border-amber-200",
+          dot: "bg-amber-500 animate-pulse",
+        };
+      case "Refund Success":
+        return {
+          bg: "bg-rose-50 text-rose-600 border-rose-200",
+          dot: "bg-rose-500",
+        };
+      case "Processing":
+      default:
+        return {
+          bg: "bg-indigo-50 text-indigo-600 border-indigo-200",
+          dot: "bg-indigo-500 animate-pulse",
+        };
+    }
+  };
+
+  const columns = [
+    { field: "id", headerName: "Order ID", minWidth: 160, flex: 0.7 },
     {
       field: "status",
       headerName: "Status",
-      minWidth: 130,
+      minWidth: 140,
       flex: 0.7,
-      cellClassName: (params) => {
-        return params.getValue(params.id, "status") === "Delivered"
-          ? "greenColor"
-          : "redColor";
+      renderCell: (params) => {
+        const badge = getStatusBadge(params.value);
+        return (
+          <span
+            className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold border ${badge.bg}`}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${badge.dot}`} />
+            {params.value}
+          </span>
+        );
       },
     },
     {
       field: "itemsQty",
       headerName: "Items Qty",
       type: "number",
-      minWidth: 130,
-      flex: 0.7,
+      minWidth: 100,
+      flex: 0.5,
     },
-
     {
       field: "total",
-      headerName: "Total",
+      headerName: "Total Amount",
       type: "number",
-      minWidth: 130,
-      flex: 0.8,
+      minWidth: 120,
+      flex: 0.6,
     },
-
     {
-      field: " ",
-      flex: 1,
-      minWidth: 150,
-      headerName: "",
-      type: "number",
+      field: "action",
+      flex: 0.9,
+      minWidth: 160,
+      headerName: "Actions",
       sortable: false,
       renderCell: (params) => {
         return (
-          <>
-            <Link to={`/user/order/${params.id}`}>
-              <Button>
-                <AiOutlineArrowRight size={20} />
-              </Button>
+          <div className="flex items-center gap-2">
+            <Link
+              to={`/user/order/${params.id}`}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors"
+              title="View Order Details"
+            >
+              <FiEye size={14} /> Details
             </Link>
-          </>
+            <Link
+              to={`/user/track/order/${params.id}`}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition-colors"
+              title="Track Shipment"
+            >
+              <MdTrackChanges size={14} /> Track
+            </Link>
+          </div>
         );
       },
     },
   ];
 
   const row = [];
-
-  orders &&
-    orders.forEach((item) => {
+  filteredOrders &&
+    filteredOrders.forEach((item) => {
       row.push({
         id: item._id,
         itemsQty: item.cart.length,
-        total: "US$ " + item.totalPrice,
+        total: "$" + item.totalPrice,
         status: item.status,
       });
     });
 
+  if (isLoading) {
+    return <Loader />;
+  }
+
   return (
-    <>
-      {isLoading ? (
-        <Loader />
+    <div className="w-full pl-0 sm:pl-6 space-y-6">
+      {/* Hero Stats Card */}
+      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-6 text-white shadow-md relative overflow-hidden">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+          <div>
+            <span className="text-xs font-bold uppercase tracking-widest text-indigo-400 block mb-1">
+              Order Center
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              My Orders & Purchases
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-md">
+              Manage your orders, download invoices, request returns, and monitor live deliveries.
+            </p>
+          </div>
+
+          {/* Quick Stats Grid */}
+          <div className="flex flex-wrap gap-2.5">
+            <div className="bg-white/10 backdrop-blur-md px-3.5 py-2.5 rounded-2xl border border-white/10 text-center min-w-[85px]">
+              <span className="text-[10px] uppercase font-bold text-slate-400 block">Total</span>
+              <span className="text-lg font-black text-white">{stats.total}</span>
+            </div>
+            <div className="bg-indigo-500/20 backdrop-blur-md px-3.5 py-2.5 rounded-2xl border border-indigo-400/30 text-center min-w-[85px]">
+              <span className="text-[10px] uppercase font-bold text-indigo-300 block">Active</span>
+              <span className="text-lg font-black text-indigo-200">{stats.active}</span>
+            </div>
+            <div className="bg-emerald-500/20 backdrop-blur-md px-3.5 py-2.5 rounded-2xl border border-emerald-400/30 text-center min-w-[85px]">
+              <span className="text-[10px] uppercase font-bold text-emerald-300 block">Delivered</span>
+              <span className="text-lg font-black text-emerald-200">{stats.delivered}</span>
+            </div>
+            <div className="bg-amber-500/20 backdrop-blur-md px-3.5 py-2.5 rounded-2xl border border-amber-400/30 text-center min-w-[85px]">
+              <span className="text-[10px] uppercase font-bold text-amber-300 block">Spent</span>
+              <span className="text-lg font-black text-amber-200">${stats.totalSpent}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Filter Tabs & Search Controls */}
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+        {/* Filter Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+          {["All", "Processing", "In Transit", "Delivered", "Refunds"].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setStatusFilter(tab)}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                statusFilter === tab
+                  ? "bg-indigo-600 text-white shadow-sm shadow-indigo-500/20"
+                  : "bg-white hover:bg-slate-100 text-slate-600 border border-slate-200"
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        {/* Search & View Switcher */}
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1 sm:w-64">
+            <input
+              type="text"
+              placeholder="Search orders, items..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 text-xs sm:text-sm bg-white border border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all shadow-xs"
+            />
+            <FiSearch className="absolute left-3 top-2.5 text-slate-400 text-sm" />
+          </div>
+
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+            <button
+              onClick={() => setViewMode("cards")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                viewMode === "cards"
+                  ? "bg-white text-indigo-600 shadow-xs"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              Cards
+            </button>
+            <button
+              onClick={() => setViewMode("table")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                viewMode === "table"
+                  ? "bg-white text-indigo-600 shadow-xs"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              Table
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Orders List Content */}
+      {filteredOrders.length === 0 ? (
+        <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 shadow-xs">
+          <div className="w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto mb-3 text-2xl">
+            <HiOutlineShoppingBag />
+          </div>
+          <h4 className="text-base font-bold text-slate-900 mb-1">No Orders Found</h4>
+          <p className="text-xs text-slate-500 max-w-sm mx-auto mb-4">
+            {searchTerm || statusFilter !== "All"
+              ? "No orders match your current filter or search criteria."
+              : "You have not placed any orders yet. Explore our featured products!"}
+          </p>
+          <Link
+            to="/products"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs transition-colors"
+          >
+            Start Shopping <FiArrowRight />
+          </Link>
+        </div>
+      ) : viewMode === "cards" ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {filteredOrders.map((ord) => {
+            const badge = getStatusBadge(ord.status);
+            return (
+              <div
+                key={ord._id}
+                className="bg-white rounded-2xl p-5 border border-slate-200/90 hover:border-indigo-200 hover:shadow-md transition-all flex flex-col justify-between space-y-4"
+              >
+                <div>
+                  {/* Card Header */}
+                  <div className="flex items-start justify-between gap-2 pb-3 border-b border-slate-100">
+                    <div>
+                      <span className="text-xs font-mono font-bold text-slate-900 block">
+                        Order #{ord._id.slice(0, 10)}...
+                      </span>
+                      <span className="text-[11px] text-slate-400">
+                        Placed on{" "}
+                        {new Date(ord.createdAt || Date.now()).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </span>
+                    </div>
+
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold border uppercase tracking-wider ${badge.bg}`}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full ${badge.dot}`} />
+                      {ord.status}
+                    </span>
+                  </div>
+
+                  {/* Items Preview */}
+                  <div className="py-3 space-y-2">
+                    {ord.cart?.slice(0, 2).map((item, idx) => {
+                      const img =
+                        item?.images && item.images[0]?.url
+                          ? item.images[0].url
+                          : item.image ||
+                            "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100";
+                      const itemPrice = item.discountPrice || item.originalPrice || 0;
+                      return (
+                        <div key={idx} className="flex items-center gap-3">
+                          <img
+                            src={img}
+                            alt={item.name}
+                            className="w-10 h-10 rounded-xl object-cover border border-slate-200 bg-slate-50 flex-shrink-0"
+                          />
+                          <div className="min-w-0 flex-1">
+                            <h5 className="text-xs font-semibold text-slate-800 truncate">
+                              {item.name}
+                            </h5>
+                            <span className="text-[11px] text-slate-500">
+                              Qty: {item.qty || 1} • ${itemPrice}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {ord.cart?.length > 2 && (
+                      <span className="text-[11px] text-indigo-600 font-semibold block pt-0.5">
+                        +{ord.cart.length - 2} more item(s)
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Card Footer & Actions */}
+                <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                      Total Paid
+                    </span>
+                    <span className="text-base font-black text-slate-900">
+                      ${ord.totalPrice}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <Link
+                      to={`/user/order/${ord._id}`}
+                      className="flex-1 sm:flex-initial text-center py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors"
+                    >
+                      Details
+                    </Link>
+                    <Link
+                      to={`/user/track/order/${ord._id}`}
+                      className="flex-1 sm:flex-initial text-center py-2 px-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-colors"
+                    >
+                      <MdTrackChanges size={14} /> Track
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       ) : (
-        <div className="pl-8 pt-1">
+        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
           <DataGrid
             rows={row}
             columns={columns}
@@ -490,7 +817,7 @@ const AllOrders = () => {
           />
         </div>
       )}
-    </>
+    </div>
   );
 };
 
@@ -498,6 +825,9 @@ const AllRefundOrders = () => {
   const { user } = useSelector((state) => state.user);
   const { orders, isLoading } = useSelector((state) => state.order);
   const dispatch = useDispatch();
+  const [viewMode, setViewMode] = useState("cards"); // 'cards' | 'table'
+  const [searchTerm, setSearchTerm] = useState("");
+  const [refundFilter, setRefundFilter] = useState("All");
 
   useEffect(() => {
     if (user?._id) {
@@ -505,88 +835,367 @@ const AllRefundOrders = () => {
     }
   }, [dispatch, user]);
 
-  const eligibleOrders =
-    orders && orders.filter((item) => item.status === "Processing refund");
+  const eligibleOrders = useMemo(() => {
+    if (!orders) return [];
+    return orders.filter(
+      (item) =>
+        item.status === "Processing refund" || item.status === "Refund Success"
+    );
+  }, [orders]);
+
+  const stats = useMemo(() => {
+    const total = eligibleOrders.length;
+    const processing = eligibleOrders.filter(
+      (o) => o.status === "Processing refund"
+    ).length;
+    const completed = eligibleOrders.filter(
+      (o) => o.status === "Refund Success"
+    ).length;
+    const totalRefunded = eligibleOrders.reduce(
+      (acc, curr) => acc + (curr.totalPrice || 0),
+      0
+    );
+    return { total, processing, completed, totalRefunded: totalRefunded.toFixed(2) };
+  }, [eligibleOrders]);
+
+  const filteredRefunds = useMemo(() => {
+    let list = [...eligibleOrders];
+
+    if (refundFilter !== "All") {
+      if (refundFilter === "Processing") {
+        list = list.filter((o) => o.status === "Processing refund");
+      } else if (refundFilter === "Completed") {
+        list = list.filter((o) => o.status === "Refund Success");
+      }
+    }
+
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase();
+      list = list.filter(
+        (o) =>
+          o._id.toLowerCase().includes(q) ||
+          o.status?.toLowerCase().includes(q) ||
+          o.cart?.some((item) => item.name?.toLowerCase().includes(q))
+      );
+    }
+
+    return list;
+  }, [eligibleOrders, refundFilter, searchTerm]);
 
   const columns = [
-    { field: "id", headerName: "Order ID", minWidth: 150, flex: 0.7 },
-
+    { field: "id", headerName: "Refund Order ID", minWidth: 160, flex: 0.7 },
     {
       field: "status",
-      headerName: "Status",
-      minWidth: 130,
+      headerName: "Refund Status",
+      minWidth: 150,
       flex: 0.7,
-      cellClassName: (params) => {
-        return params.getValue(params.id, "status") === "Delivered"
-          ? "greenColor"
-          : "redColor";
+      renderCell: (params) => {
+        const isSuccess = params.value === "Refund Success";
+        return (
+          <span
+            className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold border ${
+              isSuccess
+                ? "bg-rose-50 text-rose-600 border-rose-200"
+                : "bg-amber-50 text-amber-600 border-amber-200"
+            }`}
+          >
+            <span
+              className={`w-1.5 h-1.5 rounded-full ${
+                isSuccess ? "bg-rose-500" : "bg-amber-500 animate-pulse"
+              }`}
+            />
+            {isSuccess ? "Refund Credited" : "In Progress"}
+          </span>
+        );
       },
     },
     {
       field: "itemsQty",
       headerName: "Items Qty",
       type: "number",
-      minWidth: 130,
-      flex: 0.7,
+      minWidth: 100,
+      flex: 0.5,
     },
-
     {
       field: "total",
-      headerName: "Total",
+      headerName: "Refund Amount",
       type: "number",
       minWidth: 130,
-      flex: 0.8,
+      flex: 0.6,
     },
-
     {
-      field: " ",
-      flex: 1,
-      minWidth: 150,
-      headerName: "",
-      type: "number",
+      field: "action",
+      flex: 0.9,
+      minWidth: 160,
+      headerName: "Actions",
       sortable: false,
       renderCell: (params) => {
         return (
-          <>
-            <Link to={`/user/order/${params.id}`}>
-              <Button>
-                <AiOutlineArrowRight size={20} />
-              </Button>
+          <div className="flex items-center gap-2">
+            <Link
+              to={`/user/track/order/${params.id}`}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-xs transition-colors"
+              title="Track Refund Timeline"
+            >
+              <FiRefreshCw size={14} /> Timeline
             </Link>
-          </>
+            <Link
+              to={`/user/order/${params.id}`}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors"
+              title="View Invoice"
+            >
+              <FiEye size={14} /> Invoice
+            </Link>
+          </div>
         );
       },
     },
   ];
 
   const row = [];
-
-  eligibleOrders &&
-    eligibleOrders.forEach((item) => {
+  filteredRefunds &&
+    filteredRefunds.forEach((item) => {
       row.push({
         id: item._id,
         itemsQty: item.cart.length,
-        total: "US$ " + item.totalPrice,
+        total: "$" + item.totalPrice,
         status: item.status,
       });
     });
 
+  if (isLoading) {
+    return <Loader />;
+  }
+
   return (
-    <>
-      {isLoading ? (
-        <Loader />
+    <div className="w-full pl-0 sm:pl-6 space-y-6">
+      {/* Refund Hero Stats Banner */}
+      <div className="bg-gradient-to-r from-slate-900 via-amber-950 to-slate-900 rounded-3xl p-6 text-white shadow-md relative overflow-hidden">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+          <div>
+            <span className="text-xs font-bold uppercase tracking-widest text-amber-400 block mb-1 flex items-center gap-1.5">
+              <HiOutlineReceiptRefund /> Buyer Protection & Returns
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              Refund & Return Center
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-md">
+              Monitor approved refund requests, bank reversals, and credit status in real-time.
+            </p>
+          </div>
+
+          {/* Stat Pills */}
+          <div className="flex flex-wrap gap-2.5">
+            <div className="bg-white/10 backdrop-blur-md px-3.5 py-2.5 rounded-2xl border border-white/10 text-center min-w-[85px]">
+              <span className="text-[10px] uppercase font-bold text-slate-400 block">Total</span>
+              <span className="text-lg font-black text-white">{stats.total}</span>
+            </div>
+            <div className="bg-amber-500/20 backdrop-blur-md px-3.5 py-2.5 rounded-2xl border border-amber-400/30 text-center min-w-[85px]">
+              <span className="text-[10px] uppercase font-bold text-amber-300 block">Processing</span>
+              <span className="text-lg font-black text-amber-200">{stats.processing}</span>
+            </div>
+            <div className="bg-rose-500/20 backdrop-blur-md px-3.5 py-2.5 rounded-2xl border border-rose-400/30 text-center min-w-[85px]">
+              <span className="text-[10px] uppercase font-bold text-rose-300 block">Credited</span>
+              <span className="text-lg font-black text-rose-200">{stats.completed}</span>
+            </div>
+            <div className="bg-emerald-500/20 backdrop-blur-md px-3.5 py-2.5 rounded-2xl border border-emerald-400/30 text-center min-w-[85px]">
+              <span className="text-[10px] uppercase font-bold text-emerald-300 block">Amount</span>
+              <span className="text-lg font-black text-emerald-200">${stats.totalRefunded}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Filter and View Toggles */}
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+        {/* Filter Pills */}
+        <div className="flex items-center gap-1.5">
+          {["All", "Processing", "Completed"].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setRefundFilter(tab)}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                refundFilter === tab
+                  ? "bg-amber-600 text-white shadow-sm shadow-amber-500/20"
+                  : "bg-white hover:bg-slate-100 text-slate-600 border border-slate-200"
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        {/* Search & View Switcher */}
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1 sm:w-64">
+            <input
+              type="text"
+              placeholder="Search refund ID, items..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 text-xs sm:text-sm bg-white border border-slate-200 rounded-xl focus:border-amber-500 focus:ring-2 focus:ring-amber-100 transition-all shadow-xs"
+            />
+            <FiSearch className="absolute left-3 top-2.5 text-slate-400 text-sm" />
+          </div>
+
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+            <button
+              onClick={() => setViewMode("cards")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                viewMode === "cards"
+                  ? "bg-white text-amber-600 shadow-xs"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              Cards
+            </button>
+            <button
+              onClick={() => setViewMode("table")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                viewMode === "table"
+                  ? "bg-white text-amber-600 shadow-xs"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              Table
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Refunds Content */}
+      {filteredRefunds.length === 0 ? (
+        <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 shadow-xs">
+          <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-3 text-2xl">
+            <HiOutlineReceiptRefund />
+          </div>
+          <h4 className="text-base font-bold text-slate-900 mb-1">No Refund Requests</h4>
+          <p className="text-xs text-slate-500 max-w-sm mx-auto mb-4">
+            {searchTerm || refundFilter !== "All"
+              ? "No refund records match your search filter."
+              : "You currently have no active or completed refunds. Return requests on delivered orders will appear here."}
+          </p>
+        </div>
+      ) : viewMode === "cards" ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {filteredRefunds.map((ord) => {
+            const isSuccess = ord.status === "Refund Success";
+            return (
+              <div
+                key={ord._id}
+                className="bg-white rounded-2xl p-5 border border-slate-200/90 hover:border-amber-200 hover:shadow-md transition-all flex flex-col justify-between space-y-4"
+              >
+                <div>
+                  {/* Card Header */}
+                  <div className="flex items-start justify-between gap-2 pb-3 border-b border-slate-100">
+                    <div>
+                      <span className="text-xs font-mono font-bold text-slate-900 block">
+                        Order #{ord._id.slice(0, 10)}...
+                      </span>
+                      <span className="text-[11px] text-slate-400">
+                        Requested on{" "}
+                        {new Date(ord.createdAt || Date.now()).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </span>
+                    </div>
+
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold border uppercase tracking-wider ${
+                        isSuccess
+                          ? "bg-rose-50 text-rose-600 border-rose-200"
+                          : "bg-amber-50 text-amber-600 border-amber-200"
+                      }`}
+                    >
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          isSuccess ? "bg-rose-500" : "bg-amber-500 animate-pulse"
+                        }`}
+                      />
+                      {isSuccess ? "Refund Credited" : "In Progress"}
+                    </span>
+                  </div>
+
+                  {/* Items in Refund */}
+                  <div className="py-3 space-y-2">
+                    {ord.cart?.slice(0, 2).map((item, idx) => {
+                      const img =
+                        item?.images && item.images[0]?.url
+                          ? item.images[0].url
+                          : item.image ||
+                            "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100";
+                      const itemPrice = item.discountPrice || item.originalPrice || 0;
+                      return (
+                        <div key={idx} className="flex items-center gap-3">
+                          <img
+                            src={img}
+                            alt={item.name}
+                            className="w-10 h-10 rounded-xl object-cover border border-slate-200 bg-slate-50 flex-shrink-0"
+                          />
+                          <div className="min-w-0 flex-1">
+                            <h5 className="text-xs font-semibold text-slate-800 truncate">
+                              {item.name}
+                            </h5>
+                            <span className="text-[11px] text-slate-500">
+                              Qty: {item.qty || 1} • ${itemPrice}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="bg-amber-50/50 p-2.5 rounded-xl border border-amber-100 text-[11px] text-amber-800 leading-snug">
+                    {isSuccess
+                      ? "✓ Full refund has been sent to your bank/card issuer."
+                      : "⏳ Return is being verified. Refund will be credited upon approval."}
+                  </div>
+                </div>
+
+                {/* Footer Actions */}
+                <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                      Refund Amount
+                    </span>
+                    <span className="text-base font-black text-amber-600">
+                      ${ord.totalPrice}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <Link
+                      to={`/user/order/${ord._id}`}
+                      className="flex-1 sm:flex-initial text-center py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors"
+                    >
+                      Invoice
+                    </Link>
+                    <Link
+                      to={`/user/track/order/${ord._id}`}
+                      className="flex-1 sm:flex-initial text-center py-2 px-3.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-colors"
+                    >
+                      <FiRefreshCw size={14} /> Track Status
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       ) : (
-        <div className="pl-8 pt-1">
+        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
           <DataGrid
             rows={row}
             columns={columns}
             pageSize={10}
-            autoHeight
             disableSelectionOnClick
+            autoHeight
           />
         </div>
       )}
-    </>
+    </div>
   );
 };
 

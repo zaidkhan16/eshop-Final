@@ -85,28 +85,70 @@ router.post("/create-user", async (req, res, next) => {
 });
 
 const getFrontendBaseUrl = (req) => {
+  const defaultFrontend = (
+    process.env.FRONTEND_URL || "https://eshop-final-zaidkhan16s-projects.vercel.app"
+  )
+    .replace(/^["']|["']$/g, "")
+    .trim()
+    .replace(/\/$/, "");
+
   let frontendUrl = "";
-  if (req && req.body && req.body.frontendUrl && typeof req.body.frontendUrl === "string" && req.body.frontendUrl.startsWith("http")) {
+
+  if (
+    req &&
+    req.headers &&
+    req.headers["x-forwarded-host"] &&
+    !req.headers["x-forwarded-host"].includes("localhost") &&
+    !req.headers["x-forwarded-host"].includes("127.0.0.1")
+  ) {
+    const proto = req.headers["x-forwarded-proto"] || "https";
+    frontendUrl = `${proto}://${req.headers["x-forwarded-host"]}`;
+  } else if (
+    req &&
+    req.body &&
+    req.body.frontendUrl &&
+    typeof req.body.frontendUrl === "string" &&
+    req.body.frontendUrl.startsWith("http") &&
+    !req.body.frontendUrl.includes("localhost") &&
+    !req.body.frontendUrl.includes("127.0.0.1")
+  ) {
     frontendUrl = req.body.frontendUrl;
-  } else if (req && req.headers && req.headers.origin && req.headers.origin !== "null") {
+  } else if (
+    req &&
+    req.headers &&
+    req.headers.origin &&
+    req.headers.origin !== "null" &&
+    !req.headers.origin.includes("localhost") &&
+    !req.headers.origin.includes("127.0.0.1")
+  ) {
     frontendUrl = req.headers.origin;
-  } else if (req && req.headers && req.headers.referer) {
+  } else if (
+    req &&
+    req.headers &&
+    req.headers.referer &&
+    !req.headers.referer.includes("localhost") &&
+    !req.headers.referer.includes("127.0.0.1")
+  ) {
     try {
       const refOrigin = new URL(req.headers.referer).origin;
-      if (refOrigin && refOrigin.startsWith("http")) {
+      if (
+        refOrigin &&
+        refOrigin.startsWith("http") &&
+        !refOrigin.includes("localhost") &&
+        !refOrigin.includes("127.0.0.1")
+      ) {
         frontendUrl = refOrigin;
       }
     } catch (e) {}
-  } else if (req && req.headers && req.headers["x-forwarded-host"]) {
-    const proto = req.headers["x-forwarded-proto"] || "https";
-    frontendUrl = `${proto}://${req.headers["x-forwarded-host"]}`;
-  } else if (process.env.FRONTEND_URL) {
-    frontendUrl = process.env.FRONTEND_URL;
-  } else {
-    frontendUrl = "https://eshop-final-zaidkhan16s-projects.vercel.app";
   }
+
+  if (!frontendUrl) {
+    frontendUrl = defaultFrontend;
+  }
+
   return frontendUrl.replace(/\/$/, "");
 };
+
 
 const getActivationSecret = () => {
   const envKey = (process.env.ACTIVATION_SECRET || "").replace(/^["']|["']$/g, "").trim();

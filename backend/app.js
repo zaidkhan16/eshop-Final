@@ -7,12 +7,13 @@ const connectDatabase = require("./db/Database");
 const cloudinary = require("cloudinary");
 const cors = require("cors");
 
-// config
-if (process.env.NODE_ENV !== "PRODUCTION") {
-  require("dotenv").config({
-    path: "config/.env",
-  });
-}
+const path = require("path");
+
+// config - load environment variables reliably from backend/config/.env
+require("dotenv").config({
+  path: path.resolve(__dirname, "config/.env"),
+});
+
 
 // 1. CORS & Preflight Configuration (Standardized for Safari, Chrome, and Mobile)
 const corsOptions = {
@@ -134,7 +135,6 @@ app.use("/api/v2/withdraw", withdraw);
 app.use("/withdraw", withdraw);
 
 // Serve frontend static build if available
-const path = require("path");
 const fs = require("fs");
 const frontendBuildPath = path.join(__dirname, "../frontend/build");
 
@@ -167,10 +167,10 @@ app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (origin) {
     res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Credentials", "true");
   } else {
     res.setHeader("Access-Control-Allow-Origin", "*");
   }
-  res.setHeader("Access-Control-Allow-Credentials", "true");
   res.status(404).json({
     success: false,
     message: `API Route Not Found: ${req.method} ${req.originalUrl || req.url}`,

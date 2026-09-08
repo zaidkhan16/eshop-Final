@@ -43,27 +43,7 @@ router.post("/create-user", async (req, res, next) => {
 
     const activationToken = createActivationToken(user);
 
-    let frontendUrl = "";
-
-    if (req.body.frontendUrl && typeof req.body.frontendUrl === "string" && req.body.frontendUrl.startsWith("http")) {
-      frontendUrl = req.body.frontendUrl;
-    } else if (req.headers.origin && req.headers.origin !== "null") {
-      frontendUrl = req.headers.origin;
-    } else if (req.headers.referer) {
-      try {
-        const refOrigin = new URL(req.headers.referer).origin;
-        if (refOrigin && refOrigin.startsWith("http")) {
-          frontendUrl = refOrigin;
-        }
-      } catch (e) {}
-    } else if (process.env.FRONTEND_URL) {
-      frontendUrl = process.env.FRONTEND_URL;
-    } else {
-      frontendUrl = "https://eshop-final-zaidkhan16s-projects.vercel.app";
-    }
-
-    frontendUrl = frontendUrl.replace(/\/$/, "");
-
+    const frontendUrl = getFrontendBaseUrl(req);
     const activationUrl = `${frontendUrl}/activation/${activationToken}`;
 
     console.log("---------------------------------------------------");
@@ -104,6 +84,30 @@ router.post("/create-user", async (req, res, next) => {
   }
 });
 
+const getFrontendBaseUrl = (req) => {
+  let frontendUrl = "";
+  if (req && req.body && req.body.frontendUrl && typeof req.body.frontendUrl === "string" && req.body.frontendUrl.startsWith("http")) {
+    frontendUrl = req.body.frontendUrl;
+  } else if (req && req.headers && req.headers.origin && req.headers.origin !== "null") {
+    frontendUrl = req.headers.origin;
+  } else if (req && req.headers && req.headers.referer) {
+    try {
+      const refOrigin = new URL(req.headers.referer).origin;
+      if (refOrigin && refOrigin.startsWith("http")) {
+        frontendUrl = refOrigin;
+      }
+    } catch (e) {}
+  } else if (req && req.headers && req.headers["x-forwarded-host"]) {
+    const proto = req.headers["x-forwarded-proto"] || "https";
+    frontendUrl = `${proto}://${req.headers["x-forwarded-host"]}`;
+  } else if (process.env.FRONTEND_URL) {
+    frontendUrl = process.env.FRONTEND_URL;
+  } else {
+    frontendUrl = "https://eshop-final-zaidkhan16s-projects.vercel.app";
+  }
+  return frontendUrl.replace(/\/$/, "");
+};
+
 const getActivationSecret = () => {
   const envKey = (process.env.ACTIVATION_SECRET || "").replace(/^["']|["']$/g, "").trim();
   return envKey || "PWj0fI#&DsZY9w$8tHe11*yr9F45K*j2xj&fceGZ!tEnMNZcEN";
@@ -116,9 +120,16 @@ const createActivationToken = (user) => {
   });
 };
 
+const sanitizeToken = (token) => {
+  if (!token) return "";
+  let clean = decodeURIComponent(token).replace(/^["']|["']$/g, "").trim();
+  clean = clean.split("?")[0].split("#")[0].replace(/\/+$/, "").trim();
+  return clean;
+};
+
 const verifyActivationToken = (token) => {
   if (!token) throw new Error("Token missing");
-  const cleanToken = decodeURIComponent(token).replace(/^["']|["']$/g, "").trim();
+  const cleanToken = sanitizeToken(token);
 
   const secrets = [
     (process.env.ACTIVATION_SECRET || "").replace(/^["']|["']$/g, "").trim(),
@@ -140,7 +151,7 @@ const verifyActivationToken = (token) => {
   throw lastError || new Error("Invalid activation token");
 };
 
-// activate user
+// activate user - POST endpoint (for frontend React SPA)
 router.post(
   "/activation",
   catchAsyncErrors(async (req, res, next) => {
@@ -173,7 +184,10 @@ router.post(
         name,
         email,
         password,
-        avatar,
+        avatar: avatar || {
+          public_id: "sample_id",
+          url: "https://via.placeholder.com/150",
+        },
       });
 
       sendToken(user, 201, res);
@@ -182,6 +196,55 @@ router.post(
     }
   })
 );
+
+// activate user - GET endpoint (for direct link clicks or email clients)
+router.get(
+  ["/activation/:activation_token", "/activation"],
+  catchAsyncErrors(async (req, res, next) => {
+    try {
+      const token =
+        req.params.activation_token || req.query.token || req.query.activation_token;
+
+      if (!token) {
+        return res.status(400).send("Activation token is missing.");
+      }
+
+      let newUser;
+      try {
+        newUser = verifyActivationToken(token);
+      } catch (err) {
+        return res
+          .status(400)
+          .send("Your activation link is invalid or has expired. Please sign up again.");
+      }
+
+      if (!newUser) {
+        return res.status(400).send("Invalid activation token.");
+      }
+
+      const { name, email, password, avatar } = newUser;
+      let user = await User.findOne({ email });
+
+      if (!user) {
+        user = await User.create({
+          name,
+          email,
+          password,
+          avatar: avatar || {
+            public_id: "sample_id",
+            url: "https://via.placeholder.com/150",
+          },
+        });
+      }
+
+      const frontendUrl = getFrontendBaseUrl(req);
+      return res.redirect(302, `${frontendUrl}/login?activated=true`);
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  })
+);
+
 
 // resend activation email
 router.post(

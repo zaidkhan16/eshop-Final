@@ -22,18 +22,29 @@ const SellerActivationPage = () => {
   const [countdown, setCountdown] = useState(4);
   const calledRef = useRef(false);
 
-  useEffect(() => {
-    const resolvedToken =
+  const getCleanToken = () => {
+    const raw =
       activation_token ||
-      window.location.pathname.split("/seller/activation/")[1] ||
-      window.location.pathname.split("/").pop();
+      (window.location.pathname.includes("/seller/activation/")
+        ? window.location.pathname.split("/seller/activation/")[1]
+        : window.location.pathname.split("/").pop()) ||
+      "";
+    return decodeURIComponent(raw)
+      .split("?")[0]
+      .split("#")[0]
+      .replace(/\/+$/, "")
+      .trim();
+  };
+
+  useEffect(() => {
+    const resolvedToken = getCleanToken();
 
     if (resolvedToken && !calledRef.current) {
       calledRef.current = true;
       const sendRequest = async () => {
         try {
           const res = await axios.post(`${server}/shop/activation`, {
-            activation_token: decodeURIComponent(resolvedToken).trim(),
+            activation_token: resolvedToken,
           });
           if (res.data?.token) {
             localStorage.setItem("seller_token", res.data.token);
@@ -68,14 +79,11 @@ const SellerActivationPage = () => {
   const handleRetry = () => {
     calledRef.current = false;
     setStatus("verifying");
-    const resolvedToken =
-      activation_token ||
-      window.location.pathname.split("/seller/activation/")[1] ||
-      window.location.pathname.split("/").pop();
+    const resolvedToken = getCleanToken();
 
     axios
       .post(`${server}/shop/activation`, {
-        activation_token: decodeURIComponent(resolvedToken).trim(),
+        activation_token: resolvedToken,
       })
       .then((res) => {
         if (res.data?.token) {

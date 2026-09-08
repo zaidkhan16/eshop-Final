@@ -47,27 +47,7 @@ router.post("/create-shop", catchAsyncErrors(async (req, res, next) => {
 
     const activationToken = createActivationToken(seller);
 
-    let frontendUrl = "";
-
-    if (req.body.frontendUrl && typeof req.body.frontendUrl === "string" && req.body.frontendUrl.startsWith("http")) {
-      frontendUrl = req.body.frontendUrl;
-    } else if (req.headers.origin && req.headers.origin !== "null") {
-      frontendUrl = req.headers.origin;
-    } else if (req.headers.referer) {
-      try {
-        const refOrigin = new URL(req.headers.referer).origin;
-        if (refOrigin && refOrigin.startsWith("http")) {
-          frontendUrl = refOrigin;
-        }
-      } catch (e) {}
-    } else if (process.env.FRONTEND_URL) {
-      frontendUrl = process.env.FRONTEND_URL;
-    } else {
-      frontendUrl = "https://eshop-final-zaidkhan16s-projects.vercel.app";
-    }
-
-    frontendUrl = frontendUrl.replace(/\/$/, "");
-
+    const frontendUrl = getFrontendBaseUrl(req);
     const activationUrl = `${frontendUrl}/seller/activation/${activationToken}`;
 
     console.log("---------------------------------------------------");
@@ -108,6 +88,30 @@ router.post("/create-shop", catchAsyncErrors(async (req, res, next) => {
   }
 }));
 
+const getFrontendBaseUrl = (req) => {
+  let frontendUrl = "";
+  if (req && req.body && req.body.frontendUrl && typeof req.body.frontendUrl === "string" && req.body.frontendUrl.startsWith("http")) {
+    frontendUrl = req.body.frontendUrl;
+  } else if (req && req.headers && req.headers.origin && req.headers.origin !== "null") {
+    frontendUrl = req.headers.origin;
+  } else if (req && req.headers && req.headers.referer) {
+    try {
+      const refOrigin = new URL(req.headers.referer).origin;
+      if (refOrigin && refOrigin.startsWith("http")) {
+        frontendUrl = refOrigin;
+      }
+    } catch (e) {}
+  } else if (req && req.headers && req.headers["x-forwarded-host"]) {
+    const proto = req.headers["x-forwarded-proto"] || "https";
+    frontendUrl = `${proto}://${req.headers["x-forwarded-host"]}`;
+  } else if (process.env.FRONTEND_URL) {
+    frontendUrl = process.env.FRONTEND_URL;
+  } else {
+    frontendUrl = "https://eshop-final-zaidkhan16s-projects.vercel.app";
+  }
+  return frontendUrl.replace(/\/$/, "");
+};
+
 const getActivationSecret = () => {
   const envKey = (process.env.ACTIVATION_SECRET || "").replace(/^["']|["']$/g, "").trim();
   return envKey || "PWj0fI#&DsZY9w$8tHe11*yr9F45K*j2xj&fceGZ!tEnMNZcEN";
@@ -120,9 +124,16 @@ const createActivationToken = (seller) => {
   });
 };
 
+const sanitizeToken = (token) => {
+  if (!token) return "";
+  let clean = decodeURIComponent(token).replace(/^["']|["']$/g, "").trim();
+  clean = clean.split("?")[0].split("#")[0].replace(/\/+$/, "").trim();
+  return clean;
+};
+
 const verifyActivationToken = (token) => {
   if (!token) throw new Error("Token missing");
-  const cleanToken = decodeURIComponent(token).replace(/^["']|["']$/g, "").trim();
+  const cleanToken = sanitizeToken(token);
 
   const secrets = [
     (process.env.ACTIVATION_SECRET || "").replace(/^["']|["']$/g, "").trim(),
@@ -144,7 +155,7 @@ const verifyActivationToken = (token) => {
   throw lastError || new Error("Invalid seller activation token");
 };
 
-// activate seller
+// activate seller - POST endpoint (for React SPA)
 router.post(
   "/activation",
   catchAsyncErrors(async (req, res, next) => {
@@ -177,7 +188,10 @@ router.post(
       seller = await Shop.create({
         name,
         email,
-        avatar,
+        avatar: avatar || {
+          public_id: "avatars/default",
+          url: "https://res.cloudinary.com/demo/image/upload/v1578330767/sample.jpg",
+        },
         password,
         zipCode,
         address,
@@ -190,6 +204,60 @@ router.post(
     }
   })
 );
+
+// activate seller - GET endpoint (for direct link clicks or email clients)
+router.get(
+  ["/activation/:activation_token", "/activation"],
+  catchAsyncErrors(async (req, res, next) => {
+    try {
+      const token =
+        req.params.activation_token || req.query.token || req.query.activation_token;
+
+      if (!token) {
+        return res.status(400).send("Seller activation token is missing.");
+      }
+
+      let newSeller;
+      try {
+        newSeller = verifyActivationToken(token);
+      } catch (err) {
+        return res
+          .status(400)
+          .send("Your seller activation link is invalid or has expired.");
+      }
+
+      if (!newSeller) {
+        return res.status(400).send("Invalid seller activation token.");
+      }
+
+      const { name, email, password, avatar, zipCode, address, phoneNumber } =
+        newSeller;
+
+      let seller = await Shop.findOne({ email });
+
+      if (!seller) {
+        seller = await Shop.create({
+          name,
+          email,
+          avatar: avatar || {
+            public_id: "avatars/default",
+            url: "https://res.cloudinary.com/demo/image/upload/v1578330767/sample.jpg",
+          },
+          password,
+          zipCode,
+          address,
+          phoneNumber,
+        });
+      }
+
+      const frontendUrl = getFrontendBaseUrl(req);
+      return res.redirect(302, `${frontendUrl}/shop-login?activated=true`);
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  })
+);
+
 
 // resend seller activation email
 router.post(

@@ -4,7 +4,7 @@ import { server } from "../../server";
 // create product
 export const createProduct =
   (
-    name,
+    productData,
     description,
     category,
     tags,
@@ -20,29 +20,36 @@ export const createProduct =
         type: "productCreateRequest",
       });
 
+      const payload =
+        typeof productData === "object"
+          ? productData
+          : {
+              name: productData,
+              description,
+              category,
+              tags,
+              originalPrice,
+              discountPrice,
+              stock,
+              shopId,
+              images,
+            };
+
       const { data } = await axios.post(
         `${server}/product/create-product`,
-        name,
-        description,
-        category,
-        tags,
-        originalPrice,
-        discountPrice,
-        stock,
-        shopId,
-        images,
+        payload
       );
-      dispatch({
-        type: "productCreateSuccess",
-        payload: data.product,
-      });
-    } catch (error) {
-      dispatch({
-        type: "productCreateFail",
-        payload: error.response?.data?.message || error.message,
-      });
-    }
-  };
+    dispatch({
+      type: "productCreateSuccess",
+      payload: data.product,
+    });
+  } catch (error) {
+    dispatch({
+      type: "productCreateFail",
+      payload: error.response?.data?.message || error.message,
+    });
+  }
+};
 
 // get All Products of a shop
 export const getAllProductsShop = (id) => async (dispatch) => {

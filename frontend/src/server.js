@@ -2,7 +2,7 @@ import axios from "axios";
 
 const getServerUrl = () => {
   if (typeof window !== "undefined") {
-    // If running in browser on localhost/127.0.0.1
+    // 1. If running in browser on localhost/127.0.0.1
     if (
       window.location.hostname === "localhost" ||
       window.location.hostname === "127.0.0.1" ||
@@ -13,17 +13,20 @@ const getServerUrl = () => {
         "http://localhost:8000/api/v2"
       );
     }
-    // If in production or Vercel preview browser, use the current origin's /api/v2 endpoint
-    if (window.location.origin && window.location.origin.startsWith("http")) {
-      return `${window.location.origin}/api/v2`;
-    }
   }
-  if (process.env.REACT_APP_SERVER_URL) return process.env.REACT_APP_SERVER_URL;
-  return "https://eshop-final-zaidkhan16s-projects.vercel.app/api/v2";
+
+  // 2. Production / Vercel deployment -> use configured backend server URL
+  if (process.env.REACT_APP_SERVER_URL) {
+    return process.env.REACT_APP_SERVER_URL.replace(/\/$/, "");
+  }
+
+  // 3. Fallback to production backend API deployed on Vercel
+  return "https://eshop-final-7uu8-zaidkhan16s-projects.vercel.app/api/v2";
 };
 
 const getBackendUrl = () => {
   if (typeof window !== "undefined") {
+    // 1. If running in browser on localhost/127.0.0.1
     if (
       window.location.hostname === "localhost" ||
       window.location.hostname === "127.0.0.1" ||
@@ -34,12 +37,15 @@ const getBackendUrl = () => {
         "http://localhost:8000/"
       );
     }
-    if (window.location.origin && window.location.origin.startsWith("http")) {
-      return `${window.location.origin}/`;
-    }
   }
-  if (process.env.REACT_APP_BACKEND_URL) return process.env.REACT_APP_BACKEND_URL;
-  return "https://eshop-final-zaidkhan16s-projects.vercel.app/";
+
+  // 2. Production / Vercel deployment -> use configured backend base URL
+  if (process.env.REACT_APP_BACKEND_URL) {
+    return process.env.REACT_APP_BACKEND_URL.replace(/\/$/, "") + "/";
+  }
+
+  // 3. Fallback to production backend deployed on Vercel
+  return "https://eshop-final-7uu8-zaidkhan16s-projects.vercel.app/";
 };
 
 export const server = getServerUrl();

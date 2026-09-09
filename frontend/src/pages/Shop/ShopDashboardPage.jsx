@@ -5,7 +5,7 @@ import DashboardHero from "../../components/Shop/DashboardHero";
 
 const ShopDashboardPage = () => {
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-Poppins selection:bg-indigo-500 selection:text-white">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-800 flex flex-col font-Poppins selection:bg-indigo-500 selection:text-white">
       <DashboardHeader />
       <div className="flex items-start w-full flex-1 max-w-[1800px] mx-auto">
         <div className="w-[68px] 800px:w-[280px] flex-shrink-0">

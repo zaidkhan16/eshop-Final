@@ -17,6 +17,7 @@ import {
   HiOutlineArrowPath,
   HiOutlineChatBubbleBottomCenterText,
   HiOutlineSparkles,
+  HiOutlineCheckBadge,
 } from "react-icons/hi2";
 import { AiFillStar } from "react-icons/ai";
 

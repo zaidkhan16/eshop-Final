@@ -115,8 +115,13 @@ const App = () => {
           path="/activation/:activation_token"
           element={<ActivationPage />}
         />{" "}
+        <Route path="/activation" element={<ActivationPage />} />{" "}
         <Route
           path="/seller/activation/:activation_token"
+          element={<SellerActivationPage />}
+        />{" "}
+        <Route
+          path="/seller/activation"
           element={<SellerActivationPage />}
         />{" "}
         <Route path="/products" element={<ProductsPage />} />{" "}

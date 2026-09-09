@@ -1,28 +1,44 @@
 import axios from "axios";
 
 const getServerUrl = () => {
-  if (process.env.REACT_APP_SERVER_URL) return process.env.REACT_APP_SERVER_URL;
   if (typeof window !== "undefined") {
-    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-      return "http://localhost:8000/api/v2";
+    // If running in browser on localhost/127.0.0.1
+    if (
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1" ||
+      window.location.hostname === "::1"
+    ) {
+      return (
+        process.env.REACT_APP_LOCAL_SERVER_URL ||
+        "http://localhost:8000/api/v2"
+      );
     }
-    if (window.location.origin) {
+    // If in production or Vercel preview browser, use the current origin's /api/v2 endpoint
+    if (window.location.origin && window.location.origin.startsWith("http")) {
       return `${window.location.origin}/api/v2`;
     }
   }
+  if (process.env.REACT_APP_SERVER_URL) return process.env.REACT_APP_SERVER_URL;
   return "https://eshop-final-zaidkhan16s-projects.vercel.app/api/v2";
 };
 
 const getBackendUrl = () => {
-  if (process.env.REACT_APP_BACKEND_URL) return process.env.REACT_APP_BACKEND_URL;
   if (typeof window !== "undefined") {
-    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-      return "http://localhost:8000/";
+    if (
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1" ||
+      window.location.hostname === "::1"
+    ) {
+      return (
+        process.env.REACT_APP_LOCAL_BACKEND_URL ||
+        "http://localhost:8000/"
+      );
     }
-    if (window.location.origin) {
+    if (window.location.origin && window.location.origin.startsWith("http")) {
       return `${window.location.origin}/`;
     }
   }
+  if (process.env.REACT_APP_BACKEND_URL) return process.env.REACT_APP_BACKEND_URL;
   return "https://eshop-final-zaidkhan16s-projects.vercel.app/";
 };
 

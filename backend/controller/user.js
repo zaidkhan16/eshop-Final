@@ -25,10 +25,14 @@ router.post("/create-user", async (req, res, next) => {
       secure_url: "https://via.placeholder.com/150",
     };
 
-    if (avatar && avatar !== "") {
-      myCloud = await cloudinary.v2.uploader.upload(avatar, {
-        folder: "avatars",
-      });
+    if (avatar && avatar !== "" && typeof avatar === "string" && (avatar.startsWith("data:") || avatar.startsWith("http"))) {
+      try {
+        myCloud = await cloudinary.v2.uploader.upload(avatar, {
+          folder: "avatars",
+        });
+      } catch (cloudErr) {
+        console.warn("Avatar upload fallback warning:", cloudErr.message);
+      }
     }
 
     const user = {
@@ -96,50 +100,39 @@ const getFrontendBaseUrl = (req) => {
 
   if (
     req &&
-    req.headers &&
-    req.headers["x-forwarded-host"] &&
-    !req.headers["x-forwarded-host"].includes("localhost") &&
-    !req.headers["x-forwarded-host"].includes("127.0.0.1")
-  ) {
-    const proto = req.headers["x-forwarded-proto"] || "https";
-    frontendUrl = `${proto}://${req.headers["x-forwarded-host"]}`;
-  } else if (
-    req &&
     req.body &&
     req.body.frontendUrl &&
     typeof req.body.frontendUrl === "string" &&
-    req.body.frontendUrl.startsWith("http") &&
-    !req.body.frontendUrl.includes("localhost") &&
-    !req.body.frontendUrl.includes("127.0.0.1")
+    req.body.frontendUrl.startsWith("http")
   ) {
-    frontendUrl = req.body.frontendUrl;
+    frontendUrl = req.body.frontendUrl.trim();
   } else if (
     req &&
     req.headers &&
     req.headers.origin &&
     req.headers.origin !== "null" &&
-    !req.headers.origin.includes("localhost") &&
-    !req.headers.origin.includes("127.0.0.1")
+    req.headers.origin.startsWith("http")
   ) {
-    frontendUrl = req.headers.origin;
+    frontendUrl = req.headers.origin.trim();
   } else if (
     req &&
     req.headers &&
     req.headers.referer &&
-    !req.headers.referer.includes("localhost") &&
-    !req.headers.referer.includes("127.0.0.1")
+    req.headers.referer.startsWith("http")
   ) {
     try {
       const refOrigin = new URL(req.headers.referer).origin;
-      if (
-        refOrigin &&
-        refOrigin.startsWith("http") &&
-        !refOrigin.includes("localhost") &&
-        !refOrigin.includes("127.0.0.1")
-      ) {
+      if (refOrigin && refOrigin.startsWith("http")) {
         frontendUrl = refOrigin;
       }
     } catch (e) {}
+  } else if (
+    req &&
+    req.headers &&
+    req.headers["x-forwarded-host"]
+  ) {
+    const proto = req.headers["x-forwarded-proto"] || "https";
+    frontendUrl = `${proto}://${req.headers["x-forwarded-host"]}`;
   }
 
   if (!frontendUrl) {

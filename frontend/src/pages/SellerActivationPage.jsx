@@ -23,12 +23,31 @@ const SellerActivationPage = () => {
   const calledRef = useRef(false);
 
   const getCleanToken = () => {
-    const raw =
-      activation_token ||
-      (window.location.pathname.includes("/seller/activation/")
-        ? window.location.pathname.split("/seller/activation/")[1]
-        : window.location.pathname.split("/").pop()) ||
+    const searchParams = new URLSearchParams(window.location.search);
+    const queryToken =
+      searchParams.get("token") ||
+      searchParams.get("activation_token") ||
       "";
+
+    let pathToken = activation_token || "";
+    if (!pathToken && typeof window !== "undefined") {
+      if (window.location.pathname.includes("/seller/activation/")) {
+        pathToken = window.location.pathname.split("/seller/activation/")[1];
+      } else if (window.location.pathname.includes("/activation/")) {
+        pathToken = window.location.pathname.split("/activation/")[1];
+      } else {
+        const segments = window.location.pathname.split("/").filter(Boolean);
+        if (
+          segments.length > 0 &&
+          segments[segments.length - 1] !== "activation" &&
+          segments[segments.length - 1] !== "seller"
+        ) {
+          pathToken = segments[segments.length - 1];
+        }
+      }
+    }
+
+    const raw = queryToken || pathToken || "";
     return decodeURIComponent(raw)
       .split("?")[0]
       .split("#")[0]
@@ -38,6 +57,12 @@ const SellerActivationPage = () => {
 
   useEffect(() => {
     const resolvedToken = getCleanToken();
+
+    if (!resolvedToken) {
+      setErrorMessage("Shop activation token is missing. Please check your email link or register your shop again.");
+      setStatus("error");
+      return;
+    }
 
     if (resolvedToken && !calledRef.current) {
       calledRef.current = true;

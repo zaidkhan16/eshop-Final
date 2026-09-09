@@ -17,7 +17,7 @@ import {
   HiOutlineShoppingBag,
   HiOutlineSearch,
 } from "react-icons/hi";
-import { FiSend, FiCheck, FiHeadphones, FiStore } from "react-icons/fi";
+import { FiSend, FiCheck, FiHeadphones } from "react-icons/fi";
 
 const socketId = socketIO(ENDPOINT, { transports: ["polling", "websocket"] });
 

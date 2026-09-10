@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import {
@@ -89,12 +89,15 @@ const App = () => {
     getStripeApikey();
   }, []);
 
+  const stripePromise = useMemo(() => {
+    return stripeApikey ? loadStripe(stripeApikey) : null;
+  }, [stripeApikey]);
+
   return (
     <BrowserRouter>
       <ScrollToTop />
-      {" "}
-      {stripeApikey && (
-        <Elements stripe={loadStripe(stripeApikey)}>
+      {stripePromise && (
+        <Elements stripe={stripePromise}>
           <Routes>
             <Route
               path="/payment"
@@ -103,8 +106,8 @@ const App = () => {
                   <PaymentPage />
                 </ProtectedRoute>
               }
-            />{" "}
-          </Routes>{" "}
+            />
+          </Routes>
         </Elements>
       )}{" "}
       <Routes>

@@ -13,19 +13,14 @@ const getServerUrl = () => {
         "http://localhost:8000/api/v2"
       );
     }
-
-    // 2. If running on Vercel / hosted web domain and no explicit REACT_APP_SERVER_URL override
-    if (!process.env.REACT_APP_SERVER_URL && window.location.origin) {
-      return `${window.location.origin}/api/v2`;
-    }
   }
 
-  // 3. Production / custom deployment -> use configured backend server URL
+  // 2. Custom environment variable override
   if (process.env.REACT_APP_SERVER_URL) {
     return process.env.REACT_APP_SERVER_URL.replace(/\/$/, "");
   }
 
-  // 4. Fallback to production backend API deployed on Vercel
+  // 3. Dedicated Backend Server API on Vercel
   return "https://eshop-final-7uu8-zaidkhan16s-projects.vercel.app/api/v2";
 };
 
@@ -42,19 +37,14 @@ const getBackendUrl = () => {
         "http://localhost:8000/"
       );
     }
-
-    // 2. If running on Vercel / hosted web domain and no explicit REACT_APP_BACKEND_URL override
-    if (!process.env.REACT_APP_BACKEND_URL && window.location.origin) {
-      return `${window.location.origin}/`;
-    }
   }
 
-  // 3. Production / custom deployment -> use configured backend base URL
+  // 2. Custom environment variable override
   if (process.env.REACT_APP_BACKEND_URL) {
     return process.env.REACT_APP_BACKEND_URL.replace(/\/$/, "") + "/";
   }
 
-  // 4. Fallback to production backend deployed on Vercel
+  // 3. Dedicated Backend Server on Vercel
   return "https://eshop-final-7uu8-zaidkhan16s-projects.vercel.app/";
 };
 

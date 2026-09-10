@@ -162,8 +162,28 @@ if (fs.existsSync(frontendBuildPath)) {
   });
 }
 
-// Explicit 404 handler for unknown routes with guaranteed CORS headers
+// Explicit 404 handler for unknown routes with guaranteed CORS headers & frontend redirect
 app.use((req, res, next) => {
+  const isApiRoute =
+    req.url.startsWith("/api/") ||
+    req.url.startsWith("/user/") ||
+    req.url.startsWith("/shop/") ||
+    req.url.startsWith("/product/") ||
+    req.url.startsWith("/event/") ||
+    req.url.startsWith("/payment/") ||
+    req.url.startsWith("/coupon/") ||
+    req.url.startsWith("/order/") ||
+    req.url.startsWith("/conversation/") ||
+    req.url.startsWith("/message/") ||
+    req.url.startsWith("/withdraw/") ||
+    req.url.startsWith("/config-check");
+
+  // If a user navigates to a frontend page on the backend server in their browser, redirect them to the frontend app
+  if (req.method === "GET" && !isApiRoute && !req.xhr && (!req.headers.accept || req.headers.accept.includes("html"))) {
+    const frontendUrl = (process.env.FRONTEND_URL || "https://eshop-final-zaidkhan16s-projects.vercel.app").replace(/\/$/, "");
+    return res.redirect(302, `${frontendUrl}${req.originalUrl || req.url}`);
+  }
+
   const origin = req.headers.origin;
   if (origin) {
     res.setHeader("Access-Control-Allow-Origin", origin);

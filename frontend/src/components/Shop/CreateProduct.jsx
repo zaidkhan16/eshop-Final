@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { createProduct } from "../../redux/actions/product";
 import { categoriesData } from "../../static/data";
 import { toast } from "react-toastify";
+import { compressImage } from "../../utils/imageCompressor";
 import {
   HiOutlinePlusCircle,
   HiOutlinePhoto,
@@ -38,6 +39,7 @@ const CreateProduct = () => {
     if (error) {
       toast.error(error);
       setIsSubmitting(false);
+      dispatch({ type: "clearErrors" });
     }
     if (success) {
       toast.success("Product published successfully!");
@@ -47,19 +49,20 @@ const CreateProduct = () => {
     }
   }, [dispatch, error, success, navigate]);
 
-  // Handle image upload and conversion to base64
-  const handleImageChange = (e) => {
+  // Handle image upload and conversion to compressed base64
+  const handleImageChange = async (e) => {
     const files = Array.from(e.target.files);
+    if (!files.length) return;
 
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (reader.readyState === 2) {
-          setImages((old) => [...old, reader.result]);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+    try {
+      const compressedList = await Promise.all(
+        files.map((file) => compressImage(file))
+      );
+      setImages((old) => [...old, ...compressedList.filter(Boolean)]);
+    } catch (err) {
+      console.error("Image processing error:", err);
+      toast.error("Failed to process selected image(s)");
+    }
   };
 
   // Remove individual image
@@ -79,6 +82,11 @@ const CreateProduct = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!seller || !seller._id) {
+      toast.error("Seller account session not found. Please log in to your shop account.");
+      return;
+    }
 
     if (!name.trim()) {
       toast.error("Please enter a product title");

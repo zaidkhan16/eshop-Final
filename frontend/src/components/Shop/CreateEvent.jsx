@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { categoriesData } from "../../static/data";
 import { toast } from "react-toastify";
 import { createevent } from "../../redux/actions/event";
+import { compressImage } from "../../utils/imageCompressor";
 import {
   HiOutlineSparkles,
   HiOutlineCalendarDays,
@@ -88,6 +89,7 @@ const CreateEvent = () => {
     if (error) {
       toast.error(error);
       setIsSubmitting(false);
+      dispatch({ type: "clearErrors" });
     }
     if (success) {
       toast.success("Event promotion created successfully!");
@@ -97,18 +99,19 @@ const CreateEvent = () => {
     }
   }, [dispatch, error, success, navigate]);
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const files = Array.from(e.target.files);
+    if (!files.length) return;
 
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (reader.readyState === 2) {
-          setImages((old) => [...old, reader.result]);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+    try {
+      const compressedList = await Promise.all(
+        files.map((file) => compressImage(file))
+      );
+      setImages((old) => [...old, ...compressedList.filter(Boolean)]);
+    } catch (err) {
+      console.error("Event image processing error:", err);
+      toast.error("Failed to process selected image(s)");
+    }
   };
 
   const removeImage = (indexToRemove) => {
@@ -117,6 +120,11 @@ const CreateEvent = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!seller || !seller._id) {
+      toast.error("Seller account session not found. Please log in to your shop account.");
+      return;
+    }
 
     if (!name.trim()) {
       toast.error("Please enter an event product title");

@@ -35,9 +35,19 @@ export const createProduct =
               images,
             };
 
+      const sellerToken = localStorage.getItem("seller_token");
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          ...(sellerToken ? { Authorization: `Bearer ${sellerToken.trim()}`, "x-seller-token": sellerToken.trim() } : {}),
+        },
+        withCredentials: true,
+      };
+
       const { data } = await axios.post(
         `${server}/product/create-product`,
-        payload
+        payload,
+        config
       );
     dispatch({
       type: "productCreateSuccess",

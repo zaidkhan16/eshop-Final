@@ -26,6 +26,20 @@ module.exports = (err, req, res, next) => {
     err = new ErrorHandler(message, 400);
   }
 
+  // Mongoose validation error
+  if (err.name === "ValidationError") {
+    const message = Object.values(err.errors || {})
+      .map((val) => val.message)
+      .join(", ");
+    err = new ErrorHandler(message || "Validation Error", 400);
+  }
+
+  // Payload too large error
+  if (err.type === "entity.too.large" || err.status === 413) {
+    const message = "The image or request payload is too large. Please upload smaller images.";
+    err = new ErrorHandler(message, 413);
+  }
+
   // wrong jwt error
   if (err.name === "JsonWebTokenError") {
     const message = `Your session token is invalid, please log in again`;
@@ -38,8 +52,8 @@ module.exports = (err, req, res, next) => {
     err = new ErrorHandler(message, 401);
   }
 
-  res.status(err.statusCode).json({
+  res.status(err.statusCode || 500).json({
     success: false,
-    message: err.message,
+    message: err.message || "Internal Server Error",
   });
 };

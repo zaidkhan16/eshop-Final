@@ -65,13 +65,15 @@ app.use(async (req, res, next) => {
 
 if (process.env.CLOUDINARY_NAME) {
   cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_NAME.trim(),
-    api_key: process.env.CLOUDINARY_API_KEY ? process.env.CLOUDINARY_API_KEY.trim() : "",
-    api_secret: process.env.CLOUDINARY_API_SECRET ? process.env.CLOUDINARY_API_SECRET.trim() : "",
+    cloud_name: String(process.env.CLOUDINARY_NAME).trim(),
+    api_key: process.env.CLOUDINARY_API_KEY ? String(process.env.CLOUDINARY_API_KEY).trim() : "",
+    api_secret: process.env.CLOUDINARY_API_SECRET ? String(process.env.CLOUDINARY_API_SECRET).trim() : "",
   });
 }
 
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
+app.use(bodyParser.json({ limit: "50mb" }));
+app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 app.use(cookieParser());
 app.get("/favicon.ico", (req, res) => res.status(204).end());
 app.get("/", (req, res) => {
@@ -98,8 +100,6 @@ app.get("/api/v2/config-check", (req, res) => res.status(200).json(getConfigDiag
 app.use("/test", (req, res) => {
   res.send("Hello world!");
 });
-
-app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 
 // import routes
 const user = require("./controller/user");

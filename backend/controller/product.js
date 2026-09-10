@@ -10,6 +10,14 @@ const Shop = require("../model/shop");
 const cloudinary = require("cloudinary");
 const ErrorHandler = require("../utils/ErrorHandler");
 
+// GET create-product info route
+router.get("/create-product", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Product creation API endpoint is active. Use HTTP POST with product details to create a product, or open /dashboard-create-product in your browser.",
+  });
+});
+
 // create product
 router.post(
   "/create-product",

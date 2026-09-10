@@ -9,6 +9,14 @@ const { isSeller, isAdmin, isAuthenticated } = require("../middleware/auth");
 const router = express.Router();
 const cloudinary = require("cloudinary");
 
+// GET create-event info route
+router.get("/create-event", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Event creation API endpoint is active. Use HTTP POST with event details to create an event, or open /dashboard-create-event in your browser.",
+  });
+});
+
 // create event
 router.post(
   "/create-event",

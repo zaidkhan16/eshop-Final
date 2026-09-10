@@ -15,9 +15,12 @@ const getServerUrl = () => {
     }
   }
 
-  // 2. Custom environment variable override
+// 2. Custom environment variable override with legacy preview URL filter
   if (process.env.REACT_APP_SERVER_URL) {
-    return process.env.REACT_APP_SERVER_URL.replace(/\/$/, "");
+    const customUrl = process.env.REACT_APP_SERVER_URL.replace(/\/$/, "");
+    if (!customUrl.includes("9j4psxugm") && !customUrl.includes("eshop-final-7uu8-9j4")) {
+      return customUrl;
+    }
   }
 
   // 3. Active Vercel Backend Server API
@@ -39,9 +42,12 @@ const getBackendUrl = () => {
     }
   }
 
-  // 2. Custom environment variable override
+  // 2. Custom environment variable override with legacy preview URL filter
   if (process.env.REACT_APP_BACKEND_URL) {
-    return process.env.REACT_APP_BACKEND_URL.replace(/\/$/, "") + "/";
+    const customUrl = process.env.REACT_APP_BACKEND_URL.replace(/\/$/, "");
+    if (!customUrl.includes("9j4psxugm") && !customUrl.includes("eshop-final-7uu8-9j4")) {
+      return customUrl + "/";
+    }
   }
 
   // 3. Active Vercel Backend Server
@@ -51,6 +57,9 @@ const getBackendUrl = () => {
 export const server = getServerUrl();
 
 export const backend_url = getBackendUrl();
+
+console.log("[NEXUS_CONFIG] Configured API Server:", server);
+console.log("[NEXUS_CONFIG] Configured Backend URL:", backend_url);
 
 export const ENDPOINT =
   process.env.REACT_APP_SOCKET_SERVER_URL ||
@@ -62,9 +71,23 @@ const isValidToken = (t) => {
   return typeof t === "string" && t.trim() !== "" && t !== "null" && t !== "undefined";
 };
 
-// Configure global Axios Request Interceptor for Token Authorization
+// Configure global Axios Request Interceptor for Token Authorization & URL Rewriting
 axios.interceptors.request.use(
   (config) => {
+    // Automatically rewrite any legacy or frozen preview URLs to active backend
+    if (
+      config.url &&
+      (config.url.includes("9j4psxugm") ||
+        config.url.includes("eshop-final-7uu8-9j4") ||
+        config.url.includes("eshop-final-7uu8-9j4psxugm-zaidkhan16sprojects"))
+    ) {
+      console.warn("[AXIOS] Rewriting legacy URL:", config.url);
+      config.url = config.url.replace(
+        /https:\/\/eshop-final-7uu8-9j4psxugm-zaidkhan16s-?projects\.vercel\.app/g,
+        "https://eshop-final-7uu8-da96bt9pw-zaidkhan16s-projects.vercel.app"
+      );
+    }
+
     const token = localStorage.getItem("token");
     const sellerToken = localStorage.getItem("seller_token");
 

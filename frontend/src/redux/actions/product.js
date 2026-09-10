@@ -44,22 +44,40 @@ export const createProduct =
         withCredentials: true,
       };
 
+      console.log("[NEXUS_API] createProduct dispatching to:", `${server}/product/create-product`, {
+        name: payload.name,
+        category: payload.category,
+        shopId: payload.shopId,
+        imageCount: payload.images?.length,
+      });
+
       const { data } = await axios.post(
         `${server}/product/create-product`,
         payload,
         config
       );
-    dispatch({
-      type: "productCreateSuccess",
-      payload: data.product,
-    });
-  } catch (error) {
-    dispatch({
-      type: "productCreateFail",
-      payload: error.response?.data?.message || error.message,
-    });
-  }
-};
+
+      console.log("[NEXUS_API] createProduct success response:", data);
+
+      dispatch({
+        type: "productCreateSuccess",
+        payload: data.product,
+      });
+    } catch (error) {
+      const errorMsg = error.response?.data?.message || error.message;
+      console.error("[NEXUS_API] createProduct failed:", {
+        url: `${server}/product/create-product`,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        message: errorMsg,
+      });
+      dispatch({
+        type: "productCreateFail",
+        payload: errorMsg,
+      });
+    }
+  };
 
 // get All Products of a shop
 export const getAllProductsShop = (id) => async (dispatch) => {

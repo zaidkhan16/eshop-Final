@@ -127,6 +127,13 @@ const CreateProduct = () => {
       images,
     };
 
+    console.log("[CREATE_PRODUCT] Form submitted with payload:", {
+      name: productPayload.name,
+      category: productPayload.category,
+      shopId: productPayload.shopId,
+      imageCount: productPayload.images?.length,
+    });
+
     dispatch(createProduct(productPayload));
   };
 

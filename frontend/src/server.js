@@ -20,8 +20,8 @@ const getServerUrl = () => {
     return process.env.REACT_APP_SERVER_URL.replace(/\/$/, "");
   }
 
-  // 3. Dedicated Backend Server API on Vercel
-  return "https://eshop-final-7uu8-zaidkhan16s-projects.vercel.app/api/v2";
+  // 3. Active Vercel Backend Server API
+  return "https://eshop-final-7uu8-da96bt9pw-zaidkhan16s-projects.vercel.app/api/v2";
 };
 
 const getBackendUrl = () => {
@@ -44,8 +44,8 @@ const getBackendUrl = () => {
     return process.env.REACT_APP_BACKEND_URL.replace(/\/$/, "") + "/";
   }
 
-  // 3. Dedicated Backend Server on Vercel
-  return "https://eshop-final-7uu8-zaidkhan16s-projects.vercel.app/";
+  // 3. Active Vercel Backend Server
+  return "https://eshop-final-7uu8-da96bt9pw-zaidkhan16s-projects.vercel.app/";
 };
 
 export const server = getServerUrl();

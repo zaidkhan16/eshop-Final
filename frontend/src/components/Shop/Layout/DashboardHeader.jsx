@@ -194,7 +194,7 @@ const DashboardHeader = () => {
 
             {/* Dropdown Menu */}
             {profileOpen && (
-              <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-white border border-slate-200 p-2 shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+              <div className="absolute right-0 mt-2 w-64 max-w-[calc(100vw-32px)] rounded-2xl bg-white border border-slate-200 p-2 shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                 <div className="p-3 border-b border-slate-100 mb-1">
                   <p className="text-xs font-bold text-slate-900 truncate">
                     {seller?.name}

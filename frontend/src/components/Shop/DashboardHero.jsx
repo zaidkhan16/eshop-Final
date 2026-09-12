@@ -509,7 +509,7 @@ const DashboardHero = () => {
           </div>
 
           {/* Summary Stat Chips */}
-          <div className="grid grid-cols-3 gap-3 pt-4 border-t border-slate-100 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 pt-4 border-t border-slate-100 text-xs">
             <div className="bg-slate-50 rounded-xl p-3 border border-slate-200/60 text-center">
               <span className="text-slate-500 text-[11px] block">
                 Average Ticket
@@ -734,7 +734,7 @@ const DashboardHero = () => {
               )}
             </div>
           ) : (
-            <table className="w-full text-left text-xs text-slate-700">
+            <table className="w-full text-left text-xs text-slate-700 min-w-[700px]">
               <thead className="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 border-b border-slate-200">
                 <tr>
                   <th className="py-3.5 px-4 font-bold rounded-l-xl">Order ID</th>

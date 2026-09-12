@@ -1,16 +1,22 @@
-import React from 'react'
-import DashboardHeader from '../../components/Shop/Layout/DashboardHeader'
-import Footer from '../../components/Layout/Footer'
+import React from "react";
+import DashboardHeader from "../../components/Shop/Layout/DashboardHeader";
+import DashboardSideBar from "../../components/Shop/Layout/DashboardSideBar";
 import OrderDetails from "../../components/Shop/OrderDetails";
 
 const ShopOrderDetails = () => {
   return (
-    <div>
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-800 flex flex-col font-Poppins selection:bg-indigo-500 selection:text-white">
       <DashboardHeader />
-      <OrderDetails />
-      <Footer />
+      <div className="flex items-start w-full flex-1 max-w-[1800px] mx-auto">
+        <div className="w-[68px] 800px:w-[280px] flex-shrink-0">
+          <DashboardSideBar active={2} />
+        </div>
+        <div className="flex-1 min-w-0 overflow-x-hidden">
+          <OrderDetails />
+        </div>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default ShopOrderDetails
+export default ShopOrderDetails;

@@ -154,16 +154,21 @@ const Header = ({ activeHeading }) => {
         >
           <div className={`${styles.section} relative ${styles.noramlFlex} justify-between`}>
             {/* All Categories Dropdown */}
-            <div onClick={() => setDropDown(!dropDown)}>
-              <div className="relative h-[60px] w-[250px] hidden 1000px:block">
+            <div
+              className="relative"
+              onMouseEnter={() => setDropDown(true)}
+              onMouseLeave={() => setDropDown(false)}
+            >
+              <div className="relative h-[60px] w-[260px] hidden 1000px:block">
                 <button
-                  className={`h-full w-full flex justify-between items-center px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm rounded-t-xl transition-colors cursor-pointer`}
+                  onClick={() => setDropDown((prev) => !prev)}
+                  className={`h-full w-full flex justify-between items-center px-4 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-semibold text-sm rounded-t-xl transition-all duration-200 shadow-sm cursor-pointer select-none group`}
                 >
-                  <span className="flex items-center gap-2">
-                    <BiMenuAltLeft size={22} />
+                  <span className="flex items-center gap-2.5">
+                    <BiMenuAltLeft size={22} className="transition-transform duration-200 group-hover:scale-110" />
                     All Categories
                   </span>
-                  <IoIosArrowDown size={18} className={`transition-transform duration-200 ${dropDown ? "rotate-180" : ""}`} />
+                  <IoIosArrowDown size={18} className={`transition-transform duration-250 ${dropDown ? "rotate-180" : ""}`} />
                 </button>
                 {dropDown ? (
                   <DropDown

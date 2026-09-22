@@ -114,9 +114,7 @@ router.post(
           console.warn("Cloudinary upload warning for product image:", cloudErr?.message || cloudErr);
           return {
             public_id: `products/fallback_${Date.now()}_${i}`,
-            url: typeof img === "string" && img.startsWith("data:image")
-              ? img
-              : "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80",
+            url: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80",
           };
         }
       });
@@ -149,6 +147,9 @@ router.post(
 
       const product = await Product.create(productData);
 
+      // Invalidate memory caches so new product is instantly visible
+      invalidateProductCache();
+
       res.status(201).json({
         success: true,
         product,
@@ -160,14 +161,61 @@ router.post(
   })
 );
 
+// High-Speed In-Memory Cache
+let allProductsCache = null;
+let allProductsCacheTime = 0;
+const CACHE_TTL_MS = 60 * 1000; // 60 seconds TTL
+
+const shopProductsCache = new Map();
+
+const invalidateProductCache = () => {
+  allProductsCache = null;
+  allProductsCacheTime = 0;
+  shopProductsCache.clear();
+};
+
+const sanitizeProduct = (prod) => {
+  const p = prod.toObject ? prod.toObject() : { ...prod };
+  if (p.images && Array.isArray(p.images)) {
+    p.images = p.images.map((img) => ({
+      ...img,
+      url:
+        img.url && img.url.includes("startech.com.bd")
+          ? "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80"
+          : img.url && img.url.startsWith("data:image")
+          ? "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80"
+          : img.url,
+    }));
+  }
+  return p;
+};
+
 // get all products of a shop
 router.get(
   "/get-all-products-shop/:id",
   catchAsyncErrors(async (req, res, next) => {
     try {
-      const products = await Product.find({ shopId: req.params.id });
+      const shopId = req.params.id;
+      const now = Date.now();
+      const cached = shopProductsCache.get(shopId);
 
-      res.status(201).json({
+      if (cached && now - cached.time < CACHE_TTL_MS) {
+        res.setHeader("X-Cache", "HIT");
+        res.setHeader("Cache-Control", "public, max-age=30, stale-while-revalidate=60");
+        return res.status(200).json({
+          success: true,
+          products: cached.data,
+        });
+      }
+
+      const rawProducts = await Product.find({ shopId }).sort({ createdAt: -1 }).lean();
+      const products = rawProducts.map(sanitizeProduct);
+
+      shopProductsCache.set(shopId, { data: products, time: now });
+
+      res.setHeader("X-Cache", "MISS");
+      res.setHeader("Cache-Control", "public, max-age=30, stale-while-revalidate=60");
+      res.status(200).json({
         success: true,
         products,
       });
@@ -201,6 +249,9 @@ router.delete(
     
       await Product.findByIdAndDelete(req.params.id);
 
+      // Invalidate memory caches
+      invalidateProductCache();
+
       res.status(201).json({
         success: true,
         message: "Product Deleted successfully!",
@@ -211,29 +262,29 @@ router.delete(
   })
 );
 
-const sanitizeProduct = (prod) => {
-  const p = prod.toObject ? prod.toObject() : { ...prod };
-  if (p.images && Array.isArray(p.images)) {
-    p.images = p.images.map((img) => ({
-      ...img,
-      url: img.url && img.url.includes("startech.com.bd")
-        ? "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80"
-        : img.url,
-    }));
-  }
-  return p;
-};
-
 // get all products
 router.get(
   "/get-all-products",
   catchAsyncErrors(async (req, res, next) => {
     try {
-      console.log("[BACKEND_API] /get-all-products requested");
-      const rawProducts = await Product.find().sort({ createdAt: -1 });
-      const products = rawProducts.map(sanitizeProduct);
-      console.log(`[BACKEND_API] /get-all-products returning ${products.length} products`);
+      const now = Date.now();
+      if (allProductsCache && now - allProductsCacheTime < CACHE_TTL_MS) {
+        res.setHeader("X-Cache", "HIT");
+        res.setHeader("Cache-Control", "public, max-age=30, stale-while-revalidate=60");
+        return res.status(200).json({
+          success: true,
+          products: allProductsCache,
+        });
+      }
 
+      const rawProducts = await Product.find().sort({ createdAt: -1 }).lean();
+      const products = rawProducts.map(sanitizeProduct);
+
+      allProductsCache = products;
+      allProductsCacheTime = now;
+
+      res.setHeader("X-Cache", "MISS");
+      res.setHeader("Cache-Control", "public, max-age=30, stale-while-revalidate=60");
       res.status(200).json({
         success: true,
         products,
@@ -292,6 +343,9 @@ router.put(
         { arrayFilters: [{ "elem._id": productId }], new: true }
       );
 
+      // Invalidate memory caches
+      invalidateProductCache();
+
       res.status(200).json({
         success: true,
         message: "Reviwed succesfully!",
@@ -311,7 +365,7 @@ router.get(
     try {
       const products = await Product.find().sort({
         createdAt: -1,
-      });
+      }).lean();
       res.status(201).json({
         success: true,
         products,

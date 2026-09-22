@@ -30,13 +30,18 @@ const ProductDetails = ({ data }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   useEffect(() => {
-    dispatch(getAllProductsShop(data && data?.shop._id));
+    if (data && data?.shop?._id) {
+      dispatch(getAllProductsShop(data.shop._id));
+    }
+  }, [data?.shop?._id, dispatch]);
+
+  useEffect(() => {
     if (wishlist && wishlist.find((i) => i._id === data?._id)) {
       setClick(true);
     } else {
       setClick(false);
     }
-  }, [data, wishlist]);
+  }, [data?._id, wishlist]);
 
   const incrementCount = () => {
     setCount(count + 1);

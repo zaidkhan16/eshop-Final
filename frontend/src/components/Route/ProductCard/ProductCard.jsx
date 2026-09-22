@@ -119,6 +119,8 @@ const ProductCard = ({ data, isEvent }) => {
                   ? data.image_Url[0].url
                   : "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80"
               }
+              loading="lazy"
+              decoding="async"
               onError={(e) => {
                 e.target.onerror = null;
                 e.target.src = "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80";

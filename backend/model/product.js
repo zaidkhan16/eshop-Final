@@ -80,4 +80,10 @@ const productSchema = new mongoose.Schema({
   },
 });
 
+// High performance database indexes
+productSchema.index({ createdAt: -1 });
+productSchema.index({ shopId: 1, createdAt: -1 });
+productSchema.index({ category: 1, createdAt: -1 });
+productSchema.index({ sold_out: -1 });
+
 module.exports = mongoose.model("Product", productSchema);

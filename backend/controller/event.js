@@ -174,12 +174,32 @@ const sanitizeEvent = (evt) => {
   return e;
 };
 
+let allEventsCache = null;
+let allEventsCacheTime = 0;
+const EVENT_CACHE_TTL = 60 * 1000;
+
 // get all events
 router.get("/get-all-events", async (req, res, next) => {
   try {
-    const rawEvents = await Event.find();
+    const now = Date.now();
+    if (allEventsCache && now - allEventsCacheTime < EVENT_CACHE_TTL) {
+      res.setHeader("X-Cache", "HIT");
+      res.setHeader("Cache-Control", "public, max-age=30, stale-while-revalidate=60");
+      return res.status(200).json({
+        success: true,
+        events: allEventsCache,
+      });
+    }
+
+    const rawEvents = await Event.find().sort({ createdAt: -1 }).lean();
     const events = rawEvents.map(sanitizeEvent);
-    res.status(201).json({
+
+    allEventsCache = events;
+    allEventsCacheTime = now;
+
+    res.setHeader("X-Cache", "MISS");
+    res.setHeader("Cache-Control", "public, max-age=30, stale-while-revalidate=60");
+    res.status(200).json({
       success: true,
       events,
     });
@@ -193,9 +213,9 @@ router.get(
   "/get-all-events/:id",
   catchAsyncErrors(async (req, res, next) => {
     try {
-      const events = await Event.find({ shopId: req.params.id });
+      const events = await Event.find({ shopId: req.params.id }).sort({ createdAt: -1 }).lean();
 
-      res.status(201).json({
+      res.status(200).json({
         success: true,
         events,
       });

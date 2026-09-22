@@ -2,17 +2,18 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import styles from "../../../styles/styles";
 import ProductCard from "../ProductCard/ProductCard";
+import ProductCardSkeleton from "../ProductCard/ProductCardSkeleton";
 
 const BestDeals = () => {
   const [data, setData] = useState([]);
-  const { allProducts } = useSelector((state) => state.products);
+  const { allProducts, isLoading } = useSelector((state) => state.products);
+
   useEffect(() => {
     const allProductsData = allProducts ? [...allProducts] : [];
-    const sortedData = allProductsData?.sort((a,b) => b.sold_out - a.sold_out); 
+    const sortedData = allProductsData?.sort((a, b) => (b.sold_out || 0) - (a.sold_out || 0));
     const firstFive = sortedData && sortedData.slice(0, 5);
     setData(firstFive);
   }, [allProducts]);
-  
 
   return (
     <div className="py-8">
@@ -29,10 +30,16 @@ const BestDeals = () => {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6 mb-8 sm:mb-12">
-          {data && data.length !== 0 && (
-            <>
-              {data.map((i, index) => <ProductCard data={i} key={index} />)}
-            </>
+          {(!data || data.length === 0) && isLoading ? (
+            Array.from({ length: 5 }).map((_, idx) => (
+              <ProductCardSkeleton key={idx} />
+            ))
+          ) : data && data.length !== 0 ? (
+            data.map((i, index) => <ProductCard data={i} key={index} />)
+          ) : (
+            <div className="col-span-full py-8 text-center text-slate-400 text-sm font-medium">
+              No deals currently available.
+            </div>
           )}
         </div>
       </div>

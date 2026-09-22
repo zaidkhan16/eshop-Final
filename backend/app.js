@@ -1,4 +1,5 @@
 const express = require("express");
+const compression = require("compression");
 const ErrorHandler = require("./middleware/error");
 const app = express();
 const cookieParser = require("cookie-parser");
@@ -8,6 +9,20 @@ const cloudinary = require("cloudinary");
 const cors = require("cors");
 
 const path = require("path");
+
+// Enable response compression for fast API transport
+app.use(
+  compression({
+    level: 6,
+    threshold: 1024, // only compress responses > 1KB
+    filter: (req, res) => {
+      if (req.headers["x-no-compression"]) {
+        return false;
+      }
+      return compression.filter(req, res);
+    },
+  })
+);
 
 // config - load environment variables reliably from backend/config/.env
 require("dotenv").config({

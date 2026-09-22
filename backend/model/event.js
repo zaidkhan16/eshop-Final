@@ -69,4 +69,8 @@ const eventSchema = new mongoose.Schema({
     }
 });
 
+// High performance database indexes
+eventSchema.index({ createdAt: -1 });
+eventSchema.index({ shopId: 1, createdAt: -1 });
+
 module.exports = mongoose.model("Event", eventSchema);

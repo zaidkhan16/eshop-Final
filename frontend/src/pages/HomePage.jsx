@@ -11,25 +11,17 @@ import Loader from "../components/Layout/Loader";
 import { useSelector } from "react-redux";
 
 const HomePage = () => {
-  const { isLoading } = useSelector((state) => state.products);
-
   return (
-    <>
-      {isLoading ? (
-        <Loader />
-      ) : (
-        <div>
-          <Header activeHeading={1} />
-          <Hero />
-          <Categories />
-          <BestDeals />
-          <Events />
-          <FeaturedProduct />
-          <Sponsored />
-          <Footer />
-        </div>
-      )}
-    </>
+    <div className="bg-white min-h-screen">
+      <Header activeHeading={1} />
+      <Hero />
+      <Categories />
+      <BestDeals />
+      <Events />
+      <FeaturedProduct />
+      <Sponsored />
+      <Footer />
+    </div>
   );
 };
 

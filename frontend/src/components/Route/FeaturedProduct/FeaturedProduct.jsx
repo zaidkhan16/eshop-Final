@@ -2,10 +2,11 @@ import React from "react";
 import { useSelector } from "react-redux";
 import styles from "../../../styles/styles";
 import ProductCard from "../ProductCard/ProductCard";
+import ProductCardSkeleton from "../ProductCard/ProductCardSkeleton";
 
 const FeaturedProduct = () => {
-  const { allProducts } = useSelector((state) => state.products);
-   
+  const { allProducts, isLoading } = useSelector((state) => state.products);
+
   return (
     <div className="py-8 bg-slate-50/50">
       <div className={`${styles.section}`}>
@@ -21,10 +22,16 @@ const FeaturedProduct = () => {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6 mb-8 sm:mb-12">
-          {allProducts && allProducts.length !== 0 && (
-            <>
-              {allProducts.map((i, index) => <ProductCard data={i} key={index} />)}
-            </>
+          {(!allProducts || allProducts.length === 0) && isLoading ? (
+            Array.from({ length: 10 }).map((_, idx) => (
+              <ProductCardSkeleton key={idx} />
+            ))
+          ) : allProducts && allProducts.length !== 0 ? (
+            allProducts.map((i, index) => <ProductCard data={i} key={index} />)
+          ) : (
+            <div className="col-span-full py-8 text-center text-slate-400 text-sm font-medium">
+              No featured products available.
+            </div>
           )}
         </div>
       </div>

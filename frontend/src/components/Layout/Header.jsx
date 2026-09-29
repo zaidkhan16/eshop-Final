@@ -32,6 +32,7 @@ const Header = ({ activeHeading }) => {
   const [openWishlist, setOpenWishlist] = useState(false);
   const [open, setOpen] = useState(false);
   const [mobileSearch, setMobileSearch] = useState(false);
+  const [mobileCategoriesOpen, setMobileCategoriesOpen] = useState(false);
 
   const handleSearchChange = (e) => {
     const term = e.target.value;
@@ -162,13 +163,20 @@ const Header = ({ activeHeading }) => {
               <div className="relative h-[60px] w-[260px] hidden 1000px:block">
                 <button
                   onClick={() => setDropDown((prev) => !prev)}
-                  className={`h-full w-full flex justify-between items-center px-4 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-semibold text-sm rounded-t-xl transition-all duration-200 shadow-sm cursor-pointer select-none group`}
+                  className={`h-full w-full flex justify-between items-center px-4 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-semibold text-sm ${
+                    dropDown ? "rounded-t-2xl shadow-lg ring-2 ring-indigo-400/50" : "rounded-t-xl"
+                  } transition-all duration-200 shadow-sm cursor-pointer select-none group`}
                 >
                   <span className="flex items-center gap-2.5">
                     <BiMenuAltLeft size={22} className="transition-transform duration-200 group-hover:scale-110" />
                     All Categories
                   </span>
-                  <IoIosArrowDown size={18} className={`transition-transform duration-250 ${dropDown ? "rotate-180" : ""}`} />
+                  <IoIosArrowDown
+                    size={18}
+                    className={`transition-transform duration-200 ${
+                      dropDown ? "rotate-180" : ""
+                    }`}
+                  />
                 </button>
                 {dropDown ? (
                   <DropDown
@@ -396,6 +404,54 @@ const Header = ({ activeHeading }) => {
 
               {/* Navigation Items */}
               <Navbar active={activeHeading} />
+
+              {/* Mobile Categories Accordion */}
+              <div className="mt-4 border-t border-slate-100 pt-3">
+                <button
+                  onClick={() => setMobileCategoriesOpen(!mobileCategoriesOpen)}
+                  className="w-full flex items-center justify-between p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs font-bold transition-colors"
+                >
+                  <span className="flex items-center gap-2">
+                    <BiMenuAltLeft size={18} className="text-indigo-600" />
+                    Shop by Category
+                  </span>
+                  <IoIosArrowDown
+                    size={16}
+                    className={`text-slate-400 transition-transform duration-200 ${
+                      mobileCategoriesOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                {mobileCategoriesOpen && (
+                  <div className="mt-2 pl-1 pr-1 flex flex-col gap-1 max-h-56 overflow-y-auto scrollbar-thin">
+                    {categoriesData &&
+                      categoriesData.map((cat, idx) => (
+                        <Link
+                          to={`/products?category=${encodeURIComponent(cat.title)}`}
+                          key={idx}
+                          onClick={() => setOpen(false)}
+                          className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-indigo-50 text-xs font-semibold text-slate-700 active:scale-98 transition-all"
+                        >
+                          <div className="w-6 h-6 rounded bg-slate-100 p-0.5 flex items-center justify-center shrink-0">
+                            <img
+                              src={cat.image_Url}
+                              alt={cat.title}
+                              className="w-full h-full object-contain"
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src =
+                                  "https://cdn-icons-png.flaticon.com/512/3081/3081840.png";
+                              }}
+                            />
+                          </div>
+                          <span className="truncate">{cat.title}</span>
+                          <IoIosArrowForward size={12} className="ml-auto text-slate-300" />
+                        </Link>
+                      ))}
+                  </div>
+                )}
+              </div>
 
               <div className="mt-6 pt-6 border-t border-slate-100 flex flex-col gap-3">
                 <div

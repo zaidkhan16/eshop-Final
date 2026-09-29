@@ -10,19 +10,33 @@ import styles from "../styles/styles";
 const ProductsPage = () => {
   const [searchParams] = useSearchParams();
   const categoryData = searchParams.get("category");
+  const searchQuery = searchParams.get("search");
   const { allProducts, isLoading } = useSelector((state) => state.products);
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    if (categoryData === null) {
-      const d = allProducts;
-      setData(d);
-    } else {
-      const d =
-        allProducts && allProducts.filter((i) => i.category === categoryData);
-      setData(d);
+    if (!allProducts) return;
+    let filtered = [...allProducts];
+
+    if (categoryData) {
+      filtered = filtered.filter(
+        (i) => i.category?.toLowerCase() === categoryData.toLowerCase() || i.category === categoryData
+      );
     }
-  }, [allProducts, categoryData]);
+
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (i) =>
+          i.name?.toLowerCase().includes(q) ||
+          i.description?.toLowerCase().includes(q) ||
+          i.tags?.toLowerCase().includes(q) ||
+          i.category?.toLowerCase().includes(q)
+      );
+    }
+
+    setData(filtered);
+  }, [allProducts, categoryData, searchQuery]);
 
   return (
     <div className="bg-white min-h-screen flex flex-col justify-between">
@@ -30,7 +44,13 @@ const ProductsPage = () => {
       <div className={`${styles.section} py-8`}>
         <div className="mb-6">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            {categoryData ? `${categoryData} Collection` : "All Products"}
+            {categoryData && searchQuery
+              ? `${categoryData} — "${searchQuery}"`
+              : categoryData
+              ? `${categoryData} Collection`
+              : searchQuery
+              ? `Results for "${searchQuery}"`
+              : "All Products"}
           </h1>
           <p className="text-slate-500 text-sm mt-1">
             Discover our premium selection of authentic products.

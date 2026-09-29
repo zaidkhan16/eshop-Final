@@ -296,6 +296,39 @@ router.get(
   })
 );
 
+// get single product by id
+router.get(
+  "/get-product/:id",
+  catchAsyncErrors(async (req, res, next) => {
+    try {
+      const id = req.params.id;
+      let product = null;
+
+      if (id && mongoose.Types.ObjectId.isValid(id)) {
+        product = await Product.findById(id).lean();
+      }
+
+      if (!product) {
+        const cleanName = id.replace(/-/g, " ");
+        product = await Product.findOne({
+          name: { $regex: new RegExp(`^${cleanName}$`, "i") },
+        }).lean();
+      }
+
+      if (!product) {
+        return next(new ErrorHandler("Product not found with this id or name", 404));
+      }
+
+      res.status(200).json({
+        success: true,
+        product: sanitizeProduct(product),
+      });
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  })
+);
+
 // review for a product
 router.put(
   "/create-new-review",

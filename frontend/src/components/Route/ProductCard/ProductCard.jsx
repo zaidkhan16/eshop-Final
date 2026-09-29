@@ -5,7 +5,7 @@ import {
   AiOutlineHeart,
   AiOutlineShoppingCart,
 } from "react-icons/ai";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import ProductDetailsCard from "../ProductDetailsCard/ProductDetailsCard";
 import {
@@ -22,6 +22,7 @@ const ProductCard = ({ data, isEvent }) => {
   const [click, setClick] = useState(false);
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (wishlist && wishlist.find((i) => i._id === data._id)) {
@@ -63,9 +64,21 @@ const ProductCard = ({ data, isEvent }) => {
       ? Math.round(((data.originalPrice - data.discountPrice) / data.originalPrice) * 100)
       : null;
 
+  const productUrl = isEvent === true ? `/product/${data._id}?isEvent=true` : `/product/${data._id}`;
+
+  const handleCardClick = (e) => {
+    if (e.target.closest("button") || e.target.closest("a") || open) {
+      return;
+    }
+    navigate(productUrl);
+  };
+
   return (
     <>
-      <div className="w-full bg-white rounded-3xl border border-slate-200/70 shadow-xs hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1.5 hover:border-indigo-300/80 transition-all duration-500 p-3.5 sm:p-5 relative cursor-pointer flex flex-col justify-between group overflow-hidden">
+      <div
+        onClick={handleCardClick}
+        className="w-full bg-white rounded-3xl border border-slate-200/70 shadow-xs hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1.5 hover:border-indigo-300/80 transition-all duration-500 p-3.5 sm:p-5 relative cursor-pointer flex flex-col justify-between group overflow-hidden"
+      >
         
         {/* Top Badges & Action Bar */}
         <div className="flex items-center justify-between absolute top-3 inset-x-3 sm:top-4 sm:inset-x-4 z-10 pointer-events-none">

@@ -150,31 +150,35 @@ const Header = ({ activeHeading }) => {
         {/* Secondary Category & Nav Bar */}
         <div
           className={`${
-            active === true ? "shadow-md fixed top-0 left-0 z-40 bg-slate-900/95 backdrop-blur-md" : "bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900"
+            active === true
+              ? "shadow-xl fixed top-0 left-0 z-50 bg-slate-900/98 backdrop-blur-md"
+              : "bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 relative z-50"
           } transition-all duration-300 hidden 800px:flex items-center justify-between w-full h-[60px] border-t border-white/10`}
         >
-          <div className={`${styles.section} relative ${styles.noramlFlex} justify-between`}>
+          <div className={`${styles.section} relative z-50 ${styles.noramlFlex} justify-between`}>
             {/* All Categories Dropdown */}
             <div
-              className="relative"
+              className="relative z-50"
               onMouseEnter={() => setDropDown(true)}
               onMouseLeave={() => setDropDown(false)}
             >
-              <div className="relative h-[60px] w-[260px] hidden 1000px:block">
+              <div className="relative h-[60px] w-[220px] 1100px:w-[260px] hidden 800px:block">
                 <button
                   onClick={() => setDropDown((prev) => !prev)}
                   className={`h-full w-full flex justify-between items-center px-4 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-semibold text-sm ${
-                    dropDown ? "rounded-t-2xl shadow-lg ring-2 ring-indigo-400/50" : "rounded-t-xl"
-                  } transition-all duration-200 shadow-sm cursor-pointer select-none group`}
+                    dropDown
+                      ? "rounded-t-2xl shadow-2xl ring-2 ring-indigo-400 bg-indigo-600"
+                      : "rounded-t-xl"
+                  } transition-all duration-200 shadow-md cursor-pointer select-none group`}
                 >
-                  <span className="flex items-center gap-2.5">
+                  <span className="flex items-center gap-2">
                     <BiMenuAltLeft size={22} className="transition-transform duration-200 group-hover:scale-110" />
                     All Categories
                   </span>
                   <IoIosArrowDown
                     size={18}
                     className={`transition-transform duration-200 ${
-                      dropDown ? "rotate-180" : ""
+                      dropDown ? "rotate-180 text-indigo-200" : ""
                     }`}
                   />
                 </button>

@@ -18,13 +18,13 @@ import {
 import { FiArrowUpRight, FiSearch } from "react-icons/fi";
 import { BiCategory } from "react-icons/bi";
 
-// Rich metadata mapping for categories with Sleek Dark & Midnight Slate theme
+// Rich metadata mapping for categories with Ultra-Crisp Dark Slate & Glowing Indigo Theme
 const CATEGORY_META = {
   "Computers and Laptops": {
     displayName: "Computers & Laptops",
     tagline: "High-performance ultrabooks, gaming rigs, displays & pro accessories.",
     badge: "Popular",
-    badgeStyle: "bg-indigo-950/80 text-indigo-300 border-indigo-800/70",
+    badgeStyle: "bg-indigo-950 text-indigo-300 border-indigo-700/80",
     accentGradient: "from-blue-600 to-indigo-600",
     badgeIcon: HiOutlineFire,
     subcategories: [
@@ -42,7 +42,7 @@ const CATEGORY_META = {
     displayName: "Cosmetics & Body Care",
     tagline: "Luxury skincare, organic cosmetics, designer fragrances & personal care.",
     badge: "Trending",
-    badgeStyle: "bg-rose-950/80 text-rose-300 border-rose-800/70",
+    badgeStyle: "bg-rose-950 text-rose-300 border-rose-700/80",
     accentGradient: "from-rose-500 to-pink-600",
     badgeIcon: HiOutlineSparkles,
     subcategories: [
@@ -60,7 +60,7 @@ const CATEGORY_META = {
     displayName: "Accessories & Bags",
     tagline: "Premium timepieces, designer sunglasses, luxury leather bags & jewelry.",
     badge: "Hot Deal",
-    badgeStyle: "bg-amber-950/80 text-amber-300 border-amber-800/70",
+    badgeStyle: "bg-amber-950 text-amber-300 border-amber-700/80",
     accentGradient: "from-amber-500 to-orange-600",
     badgeIcon: HiOutlineTag,
     subcategories: [
@@ -78,7 +78,7 @@ const CATEGORY_META = {
     displayName: "Clothing & Fashion",
     tagline: "Trending streetwear, seasonal apparel, comfy hoodies & timeless outfits.",
     badge: "New In",
-    badgeStyle: "bg-violet-950/80 text-violet-300 border-violet-800/70",
+    badgeStyle: "bg-violet-950 text-violet-300 border-violet-700/80",
     accentGradient: "from-violet-600 to-purple-600",
     badgeIcon: HiOutlineSparkles,
     subcategories: [
@@ -96,7 +96,7 @@ const CATEGORY_META = {
     displayName: "Shoes & Footwear",
     tagline: "Engineered runners, iconic retro sneakers, athletic trainers & leather shoes.",
     badge: "Best Seller",
-    badgeStyle: "bg-emerald-950/80 text-emerald-300 border-emerald-800/70",
+    badgeStyle: "bg-emerald-950 text-emerald-300 border-emerald-700/80",
     accentGradient: "from-emerald-600 to-teal-600",
     badgeIcon: HiOutlineFire,
     subcategories: [
@@ -114,7 +114,7 @@ const CATEGORY_META = {
     displayName: "Gifts & Celebrations",
     tagline: "Curated celebration hampers, customized keepsakes & unforgettable gifts.",
     badge: "Special",
-    badgeStyle: "bg-fuchsia-950/80 text-fuchsia-300 border-fuchsia-800/70",
+    badgeStyle: "bg-fuchsia-950 text-fuchsia-300 border-fuchsia-700/80",
     accentGradient: "from-fuchsia-600 to-pink-600",
     badgeIcon: HiOutlineSparkles,
     subcategories: [
@@ -132,7 +132,7 @@ const CATEGORY_META = {
     displayName: "Pet Care & Supplies",
     tagline: "Nutritious pet food, interactive toys, grooming kits & wellness gear.",
     badge: "Top Rated",
-    badgeStyle: "bg-teal-950/80 text-teal-300 border-teal-800/70",
+    badgeStyle: "bg-teal-950 text-teal-300 border-teal-700/80",
     accentGradient: "from-teal-600 to-emerald-600",
     badgeIcon: HiOutlineCheckBadge,
     subcategories: [
@@ -150,7 +150,7 @@ const CATEGORY_META = {
     displayName: "Mobiles & Tablets",
     tagline: "Flagship 5G smartphones, iPads, Android tablets, fast chargers & cases.",
     badge: "Featured",
-    badgeStyle: "bg-sky-950/80 text-sky-300 border-sky-800/70",
+    badgeStyle: "bg-sky-950 text-sky-300 border-sky-700/80",
     accentGradient: "from-sky-600 to-blue-600",
     badgeIcon: HiOutlineFire,
     subcategories: [
@@ -168,7 +168,7 @@ const CATEGORY_META = {
     displayName: "Music & Gaming",
     tagline: "Immersive Hi-Fi headphones, gaming consoles, RGB peripherals & studio mics.",
     badge: "Pro Choice",
-    badgeStyle: "bg-purple-950/80 text-purple-300 border-purple-800/70",
+    badgeStyle: "bg-purple-950 text-purple-300 border-purple-700/80",
     accentGradient: "from-purple-600 to-indigo-600",
     badgeIcon: HiOutlineFire,
     subcategories: [
@@ -186,7 +186,7 @@ const CATEGORY_META = {
     displayName: "More Categories",
     tagline: "Smart home gadgets, kitchen essentials, office goods & daily lifestyle items.",
     badge: "Explore",
-    badgeStyle: "bg-slate-800/90 text-slate-300 border-slate-700/80",
+    badgeStyle: "bg-slate-850 bg-slate-800 text-slate-200 border-slate-700",
     accentGradient: "from-slate-700 to-zinc-800",
     badgeIcon: HiOutlineSparkles,
     subcategories: [
@@ -212,7 +212,7 @@ const getCategoryMeta = (title) => {
     displayName: title || "Category",
     tagline: "Explore our curated collection of verified authentic products.",
     badge: "Popular",
-    badgeStyle: "bg-indigo-950/80 text-indigo-300 border-indigo-800/70",
+    badgeStyle: "bg-indigo-950 text-indigo-300 border-indigo-700/80",
     accentGradient: "from-indigo-600 to-purple-600",
     badgeIcon: HiOutlineSparkles,
     subcategories: [
@@ -298,15 +298,18 @@ const DropDown = ({ categoriesData, setDropDown }) => {
   };
 
   return (
-    <div className="w-[820px] xl:w-[890px] bg-slate-900/98 backdrop-blur-xl absolute top-[60px] left-0 z-50 rounded-b-2xl rounded-tr-2xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] border border-slate-800 flex overflow-hidden transition-all duration-200 animate-in fade-in-50 zoom-in-95 text-slate-100">
+    <div
+      className="w-[780px] lg:w-[830px] xl:w-[890px] bg-[#0c1222] border-2 border-indigo-500/40 absolute top-[60px] left-0 z-50 rounded-b-2xl rounded-tr-2xl shadow-[0_30px_90px_rgba(0,0,0,0.9),0_0_35px_rgba(99,102,241,0.25)] flex overflow-hidden transition-all duration-200 animate-in fade-in-50 zoom-in-95 text-slate-100 ring-1 ring-white/10"
+      style={{ zIndex: 99999 }}
+    >
       {/* Left Column: Category Sidebar */}
-      <div className="w-[300px] xl:w-[320px] bg-slate-950/90 border-r border-slate-800/90 flex flex-col shrink-0">
+      <div className="w-[280px] lg:w-[300px] xl:w-[320px] bg-[#070b14] border-r border-slate-800/90 flex flex-col shrink-0">
         {/* Sidebar Search Bar */}
-        <div className="p-3 border-b border-slate-800/80">
+        <div className="p-3 border-b border-slate-800/80 bg-[#0a0f1d]">
           <div className="relative flex items-center">
             <FiSearch
               size={14}
-              className="absolute left-3 text-slate-500 pointer-events-none"
+              className="absolute left-3 text-slate-400 pointer-events-none"
             />
             <input
               type="text"
@@ -316,13 +319,13 @@ const DropDown = ({ categoriesData, setDropDown }) => {
                 setFilterQuery(e.target.value);
                 setSelectedIdx(0);
               }}
-              className="w-full h-8 pl-8 pr-3 bg-slate-900 border border-slate-800 rounded-lg text-xs font-medium text-slate-200 placeholder-slate-500 focus:outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+              className="w-full h-8 pl-8 pr-3 bg-[#111827] border border-slate-700 rounded-lg text-xs font-semibold text-white placeholder-slate-400 focus:outline-hidden focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 transition-all"
             />
           </div>
         </div>
 
         {/* Scrollable Categories List */}
-        <div className="py-1.5 overflow-y-auto max-h-[380px] scrollbar-thin scrollbar-thumb-slate-700">
+        <div className="py-1.5 overflow-y-auto max-h-[380px] scrollbar-thin scrollbar-thumb-slate-700 bg-[#070b14]">
           {filteredCategories.map((cat, index) => {
             const meta = getCategoryMeta(cat.title);
             const isSelected =
@@ -336,13 +339,13 @@ const DropDown = ({ categoriesData, setDropDown }) => {
                 onClick={() => handleCategoryClick(cat)}
                 className={`group relative flex items-center justify-between px-3.5 py-2.5 mx-2 my-0.5 rounded-xl cursor-pointer transition-all duration-150 select-none ${
                   isSelected
-                    ? "bg-slate-900 text-indigo-400 shadow-md ring-1 ring-slate-800 font-semibold"
-                    : "text-slate-300 hover:bg-slate-900/60 hover:text-indigo-300"
+                    ? "bg-[#131b2e] text-indigo-300 shadow-md ring-1 ring-indigo-500/50 font-bold"
+                    : "text-slate-200 hover:bg-[#111827] hover:text-white"
                 }`}
               >
                 {/* Left Active Accent Bar */}
                 {isSelected && (
-                  <span className="absolute left-0 top-2 bottom-2 w-1.5 bg-gradient-to-b from-indigo-500 to-violet-500 rounded-r-full shadow-[0_0_8px_rgba(99,102,241,0.6)]" />
+                  <span className="absolute left-0 top-2 bottom-2 w-1.5 bg-gradient-to-b from-indigo-400 to-violet-500 rounded-r-full shadow-[0_0_10px_rgba(99,102,241,0.9)]" />
                 )}
 
                 <div className="flex items-center gap-2.5 min-w-0 pr-1">
@@ -350,8 +353,8 @@ const DropDown = ({ categoriesData, setDropDown }) => {
                   <div
                     className={`w-7 h-7 rounded-lg p-0.5 flex items-center justify-center shrink-0 transition-transform duration-200 border ${
                       isSelected
-                        ? "bg-indigo-950/90 border-indigo-700/60 shadow-xs scale-105"
-                        : "bg-slate-850 bg-slate-900 border-slate-800 group-hover:scale-105 group-hover:bg-slate-800"
+                        ? "bg-indigo-950 border-indigo-500 shadow-xs scale-105"
+                        : "bg-[#111827] border-slate-700 group-hover:scale-105 group-hover:bg-slate-800"
                     }`}
                   >
                     <img
@@ -365,7 +368,7 @@ const DropDown = ({ categoriesData, setDropDown }) => {
                     />
                   </div>
 
-                  <span className="text-[13px] tracking-tight truncate select-none">
+                  <span className="text-[13px] tracking-tight truncate select-none text-white font-medium group-hover:text-indigo-300">
                     {meta.displayName}
                   </span>
                 </div>
@@ -375,8 +378,8 @@ const DropDown = ({ categoriesData, setDropDown }) => {
                     <span
                       className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold transition-colors border ${
                         isSelected
-                          ? "bg-indigo-950 text-indigo-300 border-indigo-800/80"
-                          : "bg-slate-900 text-slate-400 border-slate-800 group-hover:bg-slate-800 group-hover:text-indigo-300"
+                          ? "bg-indigo-950 text-indigo-300 border-indigo-600"
+                          : "bg-[#111827] text-slate-300 border-slate-700 group-hover:bg-indigo-950 group-hover:text-indigo-300"
                       }`}
                     >
                       {count}
@@ -393,7 +396,7 @@ const DropDown = ({ categoriesData, setDropDown }) => {
                     className={`transition-all duration-150 ${
                       isSelected
                         ? "text-indigo-400 translate-x-0.5"
-                        : "text-slate-600 opacity-0 group-hover:opacity-100 group-hover:text-indigo-400"
+                        : "text-slate-500 opacity-0 group-hover:opacity-100 group-hover:text-indigo-400"
                     }`}
                   />
                 </div>
@@ -402,18 +405,18 @@ const DropDown = ({ categoriesData, setDropDown }) => {
           })}
 
           {filteredCategories.length === 0 && (
-            <div className="py-8 text-center px-4 text-slate-500 text-xs">
+            <div className="py-8 text-center px-4 text-slate-400 text-xs">
               No matching categories found
             </div>
           )}
         </div>
 
         {/* Bottom Sidebar Action */}
-        <div className="p-2.5 mt-auto border-t border-slate-800/80">
+        <div className="p-2.5 mt-auto border-t border-slate-800/80 bg-[#0a0f1d]">
           <Link
             to="/products"
             onClick={() => setDropDown(false)}
-            className="w-full py-2 px-3 rounded-xl bg-indigo-950/60 hover:bg-indigo-900/80 border border-indigo-800/50 text-indigo-300 text-xs font-bold flex items-center justify-between transition-colors group shadow-xs"
+            className="w-full py-2 px-3 rounded-xl bg-indigo-950 hover:bg-indigo-900 border border-indigo-700/60 text-indigo-300 hover:text-white text-xs font-bold flex items-center justify-between transition-colors group shadow-sm"
           >
             <span className="flex items-center gap-1.5">
               <BiCategory size={15} />
@@ -429,11 +432,11 @@ const DropDown = ({ categoriesData, setDropDown }) => {
 
       {/* Right Column: Mega-Menu Category Detail & Showcase */}
       {activeCategory && activeMeta ? (
-        <div className="flex-1 p-5 flex flex-col justify-between min-w-0 bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/40">
+        <div className="flex-1 p-5 flex flex-col justify-between min-w-0 bg-gradient-to-br from-[#0c1222] via-[#0f172a] to-[#151c33]">
           <div>
             {/* Category Hero Banner */}
-            <div className="relative rounded-2xl overflow-hidden p-4 mb-4 bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-950 text-white border border-slate-800/90 shadow-lg">
-              <div className="absolute top-0 right-0 w-48 h-full opacity-20 pointer-events-none">
+            <div className="relative rounded-2xl overflow-hidden p-4 mb-4 bg-gradient-to-r from-indigo-950/90 via-slate-900 to-indigo-950/90 text-white border border-indigo-500/30 shadow-xl">
+              <div className="absolute top-0 right-0 w-48 h-full opacity-25 pointer-events-none">
                 <img
                   src={activeCategory.image_Url || activeMeta.defaultImage}
                   alt=""
@@ -444,12 +447,12 @@ const DropDown = ({ categoriesData, setDropDown }) => {
               <div className="relative z-10 flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/10 backdrop-blur-xs text-[10px] font-bold tracking-wider uppercase text-indigo-300 border border-white/10">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-indigo-500/20 backdrop-blur-xs text-[10px] font-bold tracking-wider uppercase text-indigo-300 border border-indigo-400/30">
                       <IoIosFlash size={12} className="text-amber-400" />
                       {activeMeta.badge}
                     </span>
                     {categoryCounts[activeCategory.title] > 0 && (
-                      <span className="text-[11px] font-medium text-slate-400">
+                      <span className="text-[11px] font-medium text-slate-300">
                         {categoryCounts[activeCategory.title]} items available
                       </span>
                     )}
@@ -464,7 +467,7 @@ const DropDown = ({ categoriesData, setDropDown }) => {
 
                 <button
                   onClick={() => handleCategoryClick(activeCategory)}
-                  className="shrink-0 px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-all shadow-md shadow-indigo-600/30 flex items-center gap-1.5 cursor-pointer hover:scale-105 active:scale-95"
+                  className="shrink-0 px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-all shadow-lg shadow-indigo-600/40 flex items-center gap-1.5 cursor-pointer hover:scale-105 active:scale-95"
                 >
                   <span>Explore</span>
                   <IoIosArrowForward size={12} className="text-white" />
@@ -475,10 +478,10 @@ const DropDown = ({ categoriesData, setDropDown }) => {
             {/* Subcategories Quick Tags */}
             <div className="mb-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
+                <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-300">
                   Popular Subcategories
                 </span>
-                <span className="text-[11px] font-semibold text-indigo-400">
+                <span className="text-[11px] font-bold text-indigo-400">
                   Click to filter
                 </span>
               </div>
@@ -487,14 +490,14 @@ const DropDown = ({ categoriesData, setDropDown }) => {
                   <button
                     key={sIdx}
                     onClick={() => handleSubcategoryClick(activeCategory, sub)}
-                    className="flex items-center justify-between p-2 rounded-xl bg-slate-950/70 border border-slate-800/80 hover:border-indigo-500/60 hover:bg-indigo-950/40 text-left transition-all duration-150 group cursor-pointer shadow-xs"
+                    className="flex items-center justify-between p-2 rounded-xl bg-[#070b14] border border-slate-700/80 hover:border-indigo-400 hover:bg-[#131b2e] text-left transition-all duration-150 group cursor-pointer shadow-sm"
                   >
-                    <span className="text-xs font-semibold text-slate-300 group-hover:text-indigo-300 truncate">
+                    <span className="text-xs font-semibold text-slate-200 group-hover:text-white truncate">
                       {sub}
                     </span>
                     <FiArrowUpRight
                       size={12}
-                      className="text-slate-600 group-hover:text-indigo-400 shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                      className="text-slate-400 group-hover:text-indigo-400 shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                     />
                   </button>
                 ))}
@@ -504,7 +507,7 @@ const DropDown = ({ categoriesData, setDropDown }) => {
             {/* Featured / Live Products in Category */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
+                <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-300">
                   Featured Products
                 </span>
                 <button
@@ -530,9 +533,9 @@ const DropDown = ({ categoriesData, setDropDown }) => {
                       <div
                         key={p._id}
                         onClick={() => handleProductClick(p._id)}
-                        className="flex items-center gap-2.5 p-2 rounded-xl bg-slate-950/80 border border-slate-800/90 hover:border-indigo-500/60 hover:bg-slate-900/90 transition-all cursor-pointer group shadow-md"
+                        className="flex items-center gap-2.5 p-2 rounded-xl bg-[#070b14] border border-slate-700/90 hover:border-indigo-400 hover:bg-[#131b2e] transition-all cursor-pointer group shadow-md"
                       >
-                        <div className="w-12 h-12 rounded-lg bg-slate-900 border border-slate-800 p-1 flex items-center justify-center shrink-0 overflow-hidden">
+                        <div className="w-12 h-12 rounded-lg bg-[#0f172a] border border-slate-700 p-1 flex items-center justify-center shrink-0 overflow-hidden">
                           <img
                             src={imgUrl}
                             alt={p.name}
@@ -544,7 +547,7 @@ const DropDown = ({ categoriesData, setDropDown }) => {
                           />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h4 className="text-xs font-semibold text-slate-200 truncate group-hover:text-indigo-400 transition-colors">
+                          <h4 className="text-xs font-semibold text-white truncate group-hover:text-indigo-300 transition-colors">
                             {p.name}
                           </h4>
                           <div className="flex items-center gap-1.5 mt-0.5">
@@ -552,7 +555,7 @@ const DropDown = ({ categoriesData, setDropDown }) => {
                               ${price}
                             </span>
                             {origPrice && origPrice > price && (
-                              <span className="text-[10px] text-slate-500 line-through">
+                              <span className="text-[10px] text-slate-400 line-through">
                                 ${origPrice}
                               </span>
                             )}
@@ -571,14 +574,14 @@ const DropDown = ({ categoriesData, setDropDown }) => {
               ) : (
                 <div
                   onClick={() => handleCategoryClick(activeCategory)}
-                  className="p-3 rounded-xl bg-slate-950/60 border border-dashed border-indigo-900/50 flex items-center justify-between cursor-pointer hover:bg-indigo-950/30 transition-colors group"
+                  className="p-3 rounded-xl bg-[#070b14] border border-dashed border-indigo-700/60 flex items-center justify-between cursor-pointer hover:bg-indigo-950/40 transition-colors group"
                 >
                   <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-indigo-600/90 text-white flex items-center justify-center shadow-xs">
+                    <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center shadow-md">
                       <HiOutlineSparkles size={16} />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-slate-200">
+                      <p className="text-xs font-bold text-white">
                         Discover {activeMeta.displayName}
                       </p>
                       <p className="text-[11px] text-slate-400">
@@ -595,7 +598,7 @@ const DropDown = ({ categoriesData, setDropDown }) => {
           </div>
 
           {/* Bottom Perks Strip */}
-          <div className="mt-4 pt-3 border-t border-slate-800/90 flex items-center justify-between text-[11px] text-slate-400">
+          <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-300">
             <div className="flex items-center gap-1.5">
               <HiOutlineTruck size={14} className="text-indigo-400" />
               <span>Fast Express Shipping</span>
